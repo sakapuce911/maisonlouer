@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaisonLouer Madagascar - Trouvez votre bien</title>
+
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/custom.css">
+  <link rel="stylesheet" href="./assets/css/home-hero.css">
+  <link rel="stylesheet" href="./assets/css/home-nearby.css">
+  <link rel="stylesheet" href="./assets/css/home-sections.css">
+  <link rel="stylesheet" href="./assets/css/fix-header.css">
+
+  <!-- ✅ FORCER LE STYLE DES 4 BLOCS (garanti, même si le fichier CSS ne charge pas) -->
+  <style>
+    .pg-values { padding: 70px 0 80px; background: #fff; }
+    .pg-values-head { text-align: center; margin-bottom: 28px; }
+    .pg-values-title { margin: 0; font-size: 2.2rem; font-weight: 900; color: #111827; letter-spacing: -0.02em; }
+    .pg-values-subtitle { margin: 12px auto 0; max-width: 780px; color: #6b7280; font-size: 1.05rem; }
+
+    .pg-values-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 22px !important;
+      align-items: stretch;
+    }
+
+    .pg-value-item, .pg-value-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 26px 20px;
+      text-align: center;
+      box-shadow: 0 14px 26px rgba(0,0,0,0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .pg-value-item:hover, .pg-value-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(0,0,0,0.10);
+    }
+
+    .pg-value-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pg-value-icon ion-icon { font-size: 30px; color: #ef4444; }
+
+    .pg-value-title { margin: 0 0 10px; font-size: 1.15rem; font-weight: 900; color: #111827; }
+    .pg-value-text { margin: 0; font-size: 0.98rem; color: #6b7280; line-height: 1.55; }
+
+    @media (max-width: 1020px) {
+      .pg-values-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
+    @media (max-width: 620px) {
+      .pg-values-grid { grid-template-columns: 1fr !important; }
+      .pg-values-title { font-size: 1.9rem; }
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- #HEADER -->
+  <header class="header" data-header>
+    <div class="overlay" data-overlay></div>
+
+    <div class="header-bottom">
+      <div class="container">
+
+        <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+          <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+        </a>
+
+        <nav class="navbar" data-navbar>
+          <div class="navbar-top">
+            <a href="index.html" class="logo">
+              <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+            </a>
+
+            <button class="nav-close-btn" data-nav-close-btn aria-label="Fermer le menu">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="navbar-bottom">
+            <ul class="navbar-list">
+              <li><a href="index.html" class="navbar-link" data-nav-link>Accueil</a></li>
+              <li><a href="locations.html" class="navbar-link" data-nav-link>Maisons à louer</a></li>
+              <li><a href="ventes.html" class="navbar-link" data-nav-link>Maisons à vendre</a></li>
+              <li><a href="recherche.html" class="navbar-link" data-nav-link>Je cherche un bien</a></li>
+              <li><a href="contact.html" class="navbar-link" data-nav-link>Contact</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div class="header-bottom-actions">
+          <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
+            <ion-icon name="menu-outline"></ion-icon>
+            <span>Menu</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <article>
+
+      <!-- HERO STYLE PROPERTYGURU -->
+      <section class="hero-pg" aria-label="hero">
+        <div class="hero-pg-bg" role="img" aria-label="Résidences"></div>
+
+        <div class="hero-pg-inner container">
+
+          <div class="hero-pg-title">
+            <p class="hero-pg-kicker">MaisonLouer</p>
+            <h1 class="hero-pg-h1">Trouvez le bien idéal en quelques secondes</h1>
+            <p class="hero-pg-sub">Acheter ou louer : filtrez par zone, type et budget.</p>
+          </div>
+
+          <div class="hero-pg-box" id="home-search-box">
+            <div class="hero-pg-tabs" role="tablist" aria-label="Type de recherche">
+              <button class="hero-tab is-active" data-offre="vente" type="button" role="tab" aria-selected="true">Acheter</button>
+              <button class="hero-tab" data-offre="location" type="button" role="tab" aria-selected="false">Louer</button>
+            </div>
+
+            <div class="hero-pg-main">
+              <div class="hero-pg-input">
+                <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                <input id="home-zone" type="text" placeholder="Ville ou quartier (ex : Ivandry, Analakely…)" />
+              </div>
+
+              <button id="home-btn-search" class="hero-pg-btn" type="button">
+                <ion-icon name="search-outline"></ion-icon>
+                Rechercher
+              </button>
+            </div>
+
+            <div class="hero-pg-filters">
+              <div class="hero-chip">
+                <label>Type de bien</label>
+                <select id="home-type-bien">
+                  <option value="">Tous</option>
+                  <option value="maison">Maison</option>
+                  <option value="appartement">Appartement</option>
+                  <option value="terrain">Terrain</option>
+                  <option value="bureau">Bureau</option>
+                </select>
+              </div>
+
+              <div class="hero-chip">
+                <label>Budget max (Ar)</label>
+                <input id="home-budget" type="number" placeholder="Ex : 1 500 000" />
+              </div>
+
+              <div class="hero-chip">
+                <label>Chambres</label>
+                <select id="home-chambres">
+                  <option value="">Toutes</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                  <option value="4">4+</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="hero-pg-hint">
+              Astuce : vous pouvez aussi utiliser la <a href="recherche.html">recherche avancée</a>.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- NOS SERVICES (3 cartes) -->
+      <section class="services-sim" aria-label="nos services">
+        <div class="container">
+          <div class="services-sim-head">
+            <h2 class="services-sim-title">Une façon plus simple d’acheter, vendre et louer</h2>
+            <p class="services-sim-subtitle">Des annonces claires + des filtres efficaces = une meilleure expérience immobilière.</p>
+          </div>
+
+          <div class="services-sim-grid">
+
+            <article class="services-sim-card">
+              <div class="services-sim-illus">
+                <img src="./assets/images/service-rent.webp" alt="Louer un bien" width="600" height="400" loading="lazy">
+              </div>
+              <h3 class="services-sim-card-title">Louer</h3>
+              <p class="services-sim-card-text">
+                Découvrez des locations selon votre budget : maison, appartement, et zones prioritaires.
+              </p>
+              <a class="services-sim-btn" href="locations.html" aria-label="Trouver des locations">Trouver des locations</a>
+            </article>
+
+            <article class="services-sim-card">
+              <div class="services-sim-illus">
+                <img src="./assets/images/service-buy.webp" alt="Acheter un bien" width="600" height="400" loading="lazy">
+              </div>
+              <h3 class="services-sim-card-title">Acheter</h3>
+              <p class="services-sim-card-text">
+                Trouvez un bien qui vous correspond : comparez les prix, la zone, et contactez facilement.
+              </p>
+              <a class="services-sim-btn" href="ventes.html" aria-label="Explorer les biens à vendre">Explorer les ventes</a>
+            </article>
+
+            <article class="services-sim-card">
+              <div class="services-sim-illus">
+                <img src="./assets/images/service-contact.webp" alt="Nous contacter pour vendre" width="600" height="400" loading="lazy">
+              </div>
+              <h3 class="services-sim-card-title">Estimer &amp; vendre</h3>
+              <p class="services-sim-card-text">
+                Vous souhaitez vendre ? Contactez-nous pour vous accompagner (prix, diffusion, mise en avant).
+              </p>
+              <a class="services-sim-btn" href="contact.html" aria-label="Nous contacter pour vendre">Nous contacter</a>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ ANNONCES PRÈS DE VOUS (Géolocalisation + slider) -->
+      <section class="nearby" aria-label="annonces près de vous">
+        <div class="container">
+          <div class="nearby-head">
+            <div class="nearby-head-left">
+              <h2 class="nearby-title">Annonces près de vous</h2>
+              <p class="nearby-subtitle">Activez la localisation pour voir les biens les plus proches.</p>
+            </div>
+
+            <div class="nearby-nav" aria-label="Navigation du carrousel">
+              <button class="nearby-nav-btn" id="nearbyPrev" type="button" aria-label="Précédent">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+              </button>
+              <button class="nearby-nav-btn" id="nearbyNext" type="button" aria-label="Suivant">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="nearby-status" id="nearbyStatus">
+            <div class="nearby-pill">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>Localisation en attente…</span>
+            </div>
+          </div>
+
+          <div class="nearby-viewport" id="nearbyViewport" aria-label="Carrousel annonces">
+            <div class="nearby-track" id="nearbyTrack"></div>
+          </div>
+
+          <div class="nearby-dots" id="nearbyDots" aria-label="Pagination"></div>
+        </div>
+      </section>
+
+      <!-- ✅ NOS VALEURS (4 blocs alignés) -->
+      <section class="pg-values" aria-label="nos valeurs">
+        <div class="container">
+
+          <div class="pg-values-head">
+            <h2 class="pg-values-title">Une plateforme immobilière pensée pour vous</h2>
+            <p class="pg-values-subtitle">
+              Simplicité, transparence et efficacité pour réussir votre projet immobilier à Madagascar.
+            </p>
+          </div>
+
+          <div class="pg-values-grid">
+
+            <article class="pg-value-item">
+              <div class="pg-value-icon">
+                <ion-icon name="home-outline"></ion-icon>
+              </div>
+              <h3 class="pg-value-title">Large choix de biens</h3>
+              <p class="pg-value-text">
+                Maisons, appartements, terrains : accédez à des annonces variées et faciles à comparer.
+              </p>
+            </article>
+
+            <article class="pg-value-item">
+              <div class="pg-value-icon">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+              </div>
+              <h3 class="pg-value-title">Annonces claires</h3>
+              <p class="pg-value-text">
+                Les informations essentielles sont mises en avant pour décider en toute confiance.
+              </p>
+            </article>
+
+            <article class="pg-value-item">
+              <div class="pg-value-icon">
+                <ion-icon name="search-outline"></ion-icon>
+              </div>
+              <h3 class="pg-value-title">Recherche efficace</h3>
+              <p class="pg-value-text">
+                Filtrez par zone, budget, type de bien et chambres pour gagner du temps.
+              </p>
+            </article>
+
+            <article class="pg-value-item">
+              <div class="pg-value-icon">
+                <ion-icon name="people-outline"></ion-icon>
+              </div>
+              <h3 class="pg-value-title">Accompagnement humain</h3>
+              <p class="pg-value-text">
+                Une expérience pensée pour faciliter les échanges entre acheteurs, locataires et vendeurs.
+              </p>
+            </article>
+
+          </div>
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p class="copyright">
+          &copy; 2026 <a href="index.html">MaisonLouer</a>. Tous droits réservés.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- scripts -->
+  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/home-hero.js"></script>
+  <script src="./assets/js/home-nearby.js"></script>
+
+  <!-- ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+</html>

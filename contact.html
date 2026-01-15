@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contactez-nous - MaisonLouer</title>
+
+  <!-- SEO MaisonLouer -->
+  <meta name="description" content="Contact MaisonLouer : demande de visite, informations, accompagnement immobilier à Madagascar." />
+
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/custom.css">
+  <!-- ✅ IMPORTANT : applique le header MaisonLouer partout -->
+  <link rel="stylesheet" href="./assets/css/fix-header.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    .contact-wrap { padding: 120px 0 60px; }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .contact-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.06);
+    }
+    .contact-card h1, .contact-card h2 { margin: 0 0 10px; font-weight: 900; }
+    .contact-card p { margin: 0 0 12px; color: #6b7280; }
+    .contact-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .contact-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+    }
+    .contact-item ion-icon { font-size: 18px; margin-top: 2px; }
+    .contact-item a { color: inherit; text-decoration: none; }
+    .contact-item small { display: block; color: #6b7280; margin-top: 2px; }
+
+    .contact-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-weight: 800; font-size: 13px; color: #111827; }
+    .field input, .field textarea {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+    .field textarea { min-height: 140px; resize: vertical; }
+    .field input:focus, .field textarea:focus {
+      border-color: rgba(17,24,39,0.35);
+      box-shadow: 0 0 0 3px rgba(17,24,39,0.10);
+    }
+
+    .contact-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .cbtn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .cbtn.primary { background: #ff6b00; color: #fff; }
+    .cbtn.ghost { background: #fff; border: 2px solid #e5e7eb; color: #111827; }
+    .cbtn.dark { background: #111827; color: #fff; }
+
+    .hint {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #111827;
+      font-size: 13.5px;
+    }
+
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- #HEADER -->
+  <header class="header" data-header>
+    <div class="overlay" data-overlay></div>
+
+    <!-- ✅ header-top SUPPRIMÉ -->
+
+    <div class="header-bottom">
+      <div class="container">
+
+        <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+          <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+        </a>
+
+        <nav class="navbar" data-navbar>
+          <div class="navbar-top">
+            <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+              <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+            </a>
+
+            <button class="nav-close-btn" data-nav-close-btn aria-label="Fermer le menu">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="navbar-bottom">
+            <ul class="navbar-list">
+              <li><a href="index.html" class="navbar-link" data-nav-link>Accueil</a></li>
+              <li><a href="locations.html" class="navbar-link" data-nav-link>Maisons à louer</a></li>
+              <li><a href="ventes.html" class="navbar-link" data-nav-link>Maisons à vendre</a></li>
+              <li><a href="recherche.html" class="navbar-link" data-nav-link>Je cherche un bien</a></li>
+              <li><a href="contact.html" class="navbar-link" data-nav-link>Contact</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div class="header-bottom-actions">
+          <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
+            <ion-icon name="menu-outline"></ion-icon>
+            <span>Menu</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="contact-wrap">
+    <div class="container">
+
+      <div class="contact-grid">
+
+        <!-- Infos -->
+        <div class="contact-card">
+          <h1>Contactez-nous</h1>
+          <p>Une question, une demande de visite, ou besoin d’aide pour trouver un bien ? Écrivez-nous et on vous répond rapidement.</p>
+
+          <div class="contact-list">
+            <div class="contact-item">
+              <ion-icon name="mail-outline"></ion-icon>
+              <div>
+                <a href="mailto:contact@immobilier-madagascar.com"><strong>Email</strong><br>contact@immobilier-madagascar.com</a>
+                <small>Réponse sous 24–48h (jours ouvrés)</small>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <ion-icon name="location-outline"></ion-icon>
+              <div>
+                <strong>Localisation</strong><br>Antananarivo, Madagascar
+                <small>Nous intervenons sur Tana et alentours</small>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <ion-icon name="call-outline"></ion-icon>
+              <div>
+                <strong>Téléphone / WhatsApp</strong><br>
+                <a href="https://wa.me/261000000000" target="_blank" rel="noopener">+261 00 000 0000 (WhatsApp)</a>
+                <small>Modifie le numéro dans le lien wa.me</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint">
+            Astuce : si vous souhaitez une visite, indiquez la zone recherchée, votre budget et le type de bien (maison, appartement, terrain…).
+          </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="contact-card">
+          <h2>Envoyer un message</h2>
+          <p>Ce formulaire ouvre votre application email avec le message pré-rempli.</p>
+
+          <form class="contact-form" id="contactForm">
+            <div class="field">
+              <label for="nom">Nom *</label>
+              <input id="nom" type="text" placeholder="Votre nom" required>
+            </div>
+
+            <div class="field">
+              <label for="email">Email *</label>
+              <input id="email" type="email" placeholder="vous@email.com" required>
+            </div>
+
+            <div class="field">
+              <label for="tel">Téléphone (optionnel)</label>
+              <input id="tel" type="tel" placeholder="+261 ...">
+            </div>
+
+            <div class="field">
+              <label for="message">Message *</label>
+              <textarea id="message" placeholder="Ex : Je cherche une maison à louer à Ivandry, budget 2 500 000 Ar/mois..." required></textarea>
+            </div>
+
+            <div class="contact-actions">
+              <button class="cbtn primary" type="submit">
+                <ion-icon name="send-outline"></ion-icon>
+                Envoyer par email
+              </button>
+
+              <a class="cbtn dark" href="https://wa.me/261385436196" target="_blank" rel="noopener">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+                Écrire sur WhatsApp
+              </a>
+
+              <a class="cbtn ghost" href="index.html">
+                Retour accueil
+              </a>
+            </div>
+
+            <div class="hint" id="formHint">
+              Si rien ne s’ouvre, copiez l’email : <strong>contact@immobilier-madagascar.com</strong>.
+            </div>
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p class="copyright">
+          &copy; 2026 <a href="index.html">MaisonLouer</a>. Tous droits réservés.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- scripts -->
+  <script src="./assets/js/script.js"></script>
+
+  <script>
+    (function () {
+      const form = document.getElementById("contactForm");
+      const hint = document.getElementById("formHint");
+      if (!form) return;
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const nom = (document.getElementById("nom")?.value || "").trim();
+        const email = (document.getElementById("email")?.value || "").trim();
+        const tel = (document.getElementById("tel")?.value || "").trim();
+        const message = (document.getElementById("message")?.value || "").trim();
+
+        if (!nom || !email || !message) {
+          if (hint) hint.innerHTML = "Veuillez remplir les champs obligatoires (*).";
+          return;
+        }
+
+        const to = "contact@immobilier-madagascar.com";
+        const subject = encodeURIComponent("Demande de contact - MaisonLouer");
+        const body = encodeURIComponent(
+          `Nom : ${nom}\n` +
+          `Email : ${email}\n` +
+          `Téléphone : ${tel || "-"}\n\n` +
+          `Message :\n${message}\n`
+        );
+
+        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+      });
+    })();
+  </script>
+
+  <!-- ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,523 @@
+/* ===========================
+   File: assets/css/locations-roa.css
+   Style landing + listing ROA (locations.html)
+   =========================== */
+
+/* HERO */
+.roa-hero {
+  padding: 48px 0 24px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.04), transparent);
+}
+
+.roa-hero-grid {
+  display: grid;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (min-width: 992px) {
+  .roa-hero-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 36px;
+  }
+}
+
+.roa-kicker {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.roa-title {
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.roa-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  line-height: 1.6;
+  max-width: 56ch;
+  margin-bottom: 18px;
+}
+
+.roa-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.roa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.roa-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.roa-btn.primary {
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  border-color: rgba(0, 0, 0, 0.92);
+}
+
+.roa-btn.secondary {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.92);
+}
+
+.roa-btn.is-block {
+  width: 100%;
+  justify-content: center;
+}
+
+.roa-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.roa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.roa-hero-right {
+  display: grid;
+  gap: 14px;
+}
+
+.roa-hero-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.roa-hero-card h3 {
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.roa-hero-card p {
+  opacity: 0.9;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.roa-quick-search {
+  display: grid;
+  gap: 10px;
+}
+
+.roa-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.roa-input input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+}
+
+.roa-hero-note {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.roa-hero-image {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+}
+
+.roa-hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* SECTIONS */
+.roa-section {
+  padding: 34px 0;
+}
+
+.roa-section-alt {
+  background: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.roa-section-head {
+  margin-bottom: 18px;
+}
+
+.roa-section-kicker {
+  font-weight: 800;
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.roa-section-title {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+/* CARDS “Une expérience…” */
+.roa-cards {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .roa-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .roa-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.roa-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.roa-card-ic {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.06);
+  margin-bottom: 10px;
+}
+
+.roa-card h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.roa-card p {
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* STEPS */
+.roa-steps {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 992px) {
+  .roa-steps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.roa-step {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.roa-step-n {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.roa-step h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.roa-step p {
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* CTA */
+.roa-cta {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+@media (min-width: 992px) {
+  .roa-cta {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+.roa-cta h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.roa-cta p {
+  opacity: 0.9;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* TOOLBAR */
+.roa-listings-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 16px;
+}
+
+.roa-muted {
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* FAQ */
+.roa-faq {
+  display: grid;
+  gap: 10px;
+}
+
+.roa-faq-item {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.roa-faq-item summary {
+  cursor: pointer;
+  font-weight: 800;
+  list-style: none;
+}
+
+.roa-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.roa-faq-item p {
+  margin-top: 10px;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* ======================================================
+   ✅ LISTING “ROA-like” (Locations disponibles)
+   Cible: rendu ROA injecté par annonces.js sur locations.html
+   ====================================================== */
+
+.roa-rent-grid {
+  display: grid;
+  gap: 22px;
+  margin-top: 14px;
+}
+
+@media (min-width: 900px) {
+  .roa-rent-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.roa-rent-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 34px rgba(0,0,0,0.08);
+}
+
+.roa-rent-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.roa-rent-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.roa-rent-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+
+.roa-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(6px);
+}
+
+.roa-pill.dark {
+  color: #fff;
+  background: rgba(0,0,0,0.62);
+}
+
+.roa-pill.green {
+  color: #fff;
+  background: rgba(0, 146, 80, 0.80);
+}
+
+.roa-rent-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.35);
+  z-index: 2;
+  user-select: none;
+}
+
+.roa-rent-nav.left { left: 10px; }
+.roa-rent-nav.right { right: 10px; }
+
+.roa-rent-body {
+  padding: 14px 16px 16px;
+}
+
+.roa-rent-price {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.roa-rent-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
+.roa-rent-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.roa-rent-meta span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.roa-rent-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.roa-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  text-decoration: none;
+  color: rgba(0,0,0,0.90);
+}
+
+.roa-icon-btn:hover {
+  box-shadow: 0 12px 24px rgba(0,0,0,0.10);
+  transform: translateY(-1px);
+}
+
+.roa-btn-link {
+  margin-left: auto;
+  font-weight: 800;
+  text-decoration: none;
+  color: rgba(0,0,0,0.92);
+  border-bottom: 2px solid rgba(0,0,0,0.16);
+  padding-bottom: 2px;
+}
+
+.roa-btn-link:hover {
+  border-bottom-color: rgba(0,0,0,0.50);
+}

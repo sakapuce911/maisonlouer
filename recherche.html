@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recherche - MaisonLouer</title>
+
+  <!-- SEO MaisonLouer -->
+  <meta name="description"
+    content="Recherche MaisonLouer : trouvez un bien à louer ou à acheter à Madagascar. Filtrez par ville, quartier, budget, type de bien et chambres." />
+  <meta name="keywords"
+    content="recherche immobilier madagascar, maisonlouer recherche, maison à louer, appartement à louer, maison à vendre, annonces immobilières" />
+
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/custom.css">
+  <link rel="stylesheet" href="./assets/css/fix-header.css">
+  <link rel="stylesheet" href="./assets/css/home-hero.css">
+  <link rel="stylesheet" href="./assets/css/recherche-pg.css">
+  <link rel="stylesheet" href="./assets/css/locations-roa.css">
+
+  <!-- ✅ Style section "Comment ça marche" (pour garantir le rendu) -->
+  <style>
+    .ml-steps {
+      padding: 70px 0 80px;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,.06);
+    }
+
+    .ml-steps-head {
+      margin-bottom: 22px;
+    }
+
+    .ml-steps-kicker {
+      font-weight: 800;
+      font-size: 14px;
+      opacity: .8;
+      margin: 0 0 8px;
+    }
+
+    .ml-steps-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.02em;
+      color: #111827;
+    }
+
+    .ml-steps-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .ml-step-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 18px;
+      padding: 22px 20px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+      transition: transform .15s ease, box-shadow .15s ease;
+      min-height: 170px;
+    }
+
+    .ml-step-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(0,0,0,0.08);
+    }
+
+    .ml-step-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: #111;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      margin-bottom: 14px;
+    }
+
+    .ml-step-name {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .ml-step-text {
+      margin: 0;
+      color: rgba(17,24,39,.78);
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    @media (max-width: 1020px) {
+      .ml-steps-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 620px) {
+      .ml-steps-title { font-size: 1.9rem; }
+      .ml-steps-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="overlay" data-overlay></div>
+
+    <div class="header-bottom">
+      <div class="container">
+        <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+          <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+        </a>
+
+        <nav class="navbar" data-navbar>
+          <div class="navbar-top">
+            <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+              <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+            </a>
+            <button class="nav-close-btn" data-nav-close-btn aria-label="Fermer le menu">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="navbar-bottom">
+            <ul class="navbar-list">
+              <li><a href="index.html" class="navbar-link" data-nav-link>Accueil</a></li>
+              <li><a href="locations.html" class="navbar-link" data-nav-link>Maisons à louer</a></li>
+              <li><a href="ventes.html" class="navbar-link" data-nav-link>Maisons à vendre</a></li>
+              <li><a href="recherche.html" class="navbar-link" data-nav-link>Je cherche un bien</a></li>
+              <li><a href="contact.html" class="navbar-link" data-nav-link>Contact</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div class="header-bottom-actions">
+          <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
+            <ion-icon name="menu-outline"></ion-icon>
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <article>
+
+      <!-- HERO -->
+      <section class="search-hero" aria-label="hero recherche">
+        <div class="search-hero-overlay"></div>
+        <div class="container search-hero-content">
+          <p class="search-kicker">MaisonLouer</p>
+          <h1 class="search-title">Je cherche un bien</h1>
+          <p class="search-subtitle">
+            Trouvez rapidement un bien à louer ou à acheter selon votre zone et votre budget.
+          </p>
+        </div>
+      </section>
+
+      <!-- CONTENU -->
+      <section class="section property search-section" aria-label="recherche">
+        <div class="container">
+
+          <!-- 🔍 BOX RECHERCHE -->
+          <div class="pg-search-box">
+
+            <!-- ✅ UNIQUEMENT ACHETER / LOUER -->
+            <div class="pg-tabs" role="tablist" aria-label="Type de recherche">
+              <button class="pg-tab is-active" data-offre="vente" type="button">Acheter</button>
+              <button class="pg-tab" data-offre="location" type="button">Louer</button>
+            </div>
+
+            <div class="pg-main">
+              <div class="pg-input">
+                <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                <input id="zone" type="text" placeholder="Ville ou quartier (ex : Ivandry, Analakely…)" />
+              </div>
+
+              <button class="pg-btn-search" id="btn-rechercher" type="button">
+                Rechercher
+              </button>
+            </div>
+
+            <div class="pg-filters">
+              <div class="pg-chip">
+                <label>Type de bien</label>
+                <select id="type-bien">
+                  <option value="">Tous</option>
+                  <option value="maison">Maison</option>
+                  <option value="appartement">Appartement</option>
+                  <option value="terrain">Terrain</option>
+                  <option value="bureau">Bureau</option>
+                </select>
+              </div>
+
+              <div class="pg-chip">
+                <label>Type d’offre</label>
+                <select id="type-offre">
+                  <option value="">Toutes</option>
+                  <option value="location">Location</option>
+                  <option value="vente">Vente</option>
+                </select>
+              </div>
+
+              <div class="pg-chip">
+                <label>Budget max (Ar)</label>
+                <input id="budget" type="number" placeholder="Ex : 1 500 000" />
+              </div>
+
+              <div class="pg-chip">
+                <label>Chambres (min)</label>
+                <select id="chambres-min">
+                  <option value="">Toutes</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                  <option value="4">4+</option>
+                </select>
+              </div>
+
+              <div class="pg-chip">
+                <label>Trier par prix</label>
+                <select id="tri-prix">
+                  <option value="">Aucun</option>
+                  <option value="prix-asc">Prix croissant</option>
+                  <option value="prix-desc">Prix décroissant</option>
+                </select>
+              </div>
+
+              <button class="pg-btn-reset" id="btn-reset" type="button">Réinitialiser</button>
+            </div>
+
+            <div id="resultats-info" class="pg-results-info"></div>
+          </div>
+
+          <!-- RÉSULTATS EN BLOCS -->
+          <div id="listings-container" style="margin-top:24px;">
+            <p>Chargement des annonces...</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ✅ NOUVELLE SECTION : COMMENT ÇA MARCHE (avant footer) -->
+      <section class="ml-steps" aria-label="comment ça marche">
+        <div class="container">
+          <div class="ml-steps-head">
+            <p class="ml-steps-kicker">Comment ça marche</p>
+            <h2 class="ml-steps-title">4 étapes pour trouver votre bien</h2>
+          </div>
+
+          <div class="ml-steps-grid">
+
+            <article class="ml-step-card">
+              <div class="ml-step-badge">1</div>
+              <h3 class="ml-step-name">Définissez</h3>
+              <p class="ml-step-text">
+                Choisissez votre zone, votre budget et le type de bien recherché.
+              </p>
+            </article>
+
+            <article class="ml-step-card">
+              <div class="ml-step-badge">2</div>
+              <h3 class="ml-step-name">Filtrez</h3>
+              <p class="ml-step-text">
+                Affinez avec les filtres (offre, chambres, tri par prix) pour gagner du temps.
+              </p>
+            </article>
+
+            <article class="ml-step-card">
+              <div class="ml-step-badge">3</div>
+              <h3 class="ml-step-name">Comparez</h3>
+              <p class="ml-step-text">
+                Comparez les annonces : prix, localisation et caractéristiques essentielles.
+              </p>
+            </article>
+
+            <article class="ml-step-card">
+              <div class="ml-step-badge">4</div>
+              <h3 class="ml-step-name">Contactez</h3>
+              <p class="ml-step-text">
+                Ouvrez l’annonce et contactez rapidement pour organiser une visite.
+              </p>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- FOOTER (copie exacte accueil) -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p class="copyright">
+          &copy; 2026 <a href="index.html">MaisonLouer</a>. Tous droits réservés.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/annonces.js"></script>
+
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!-- Tabs logic -->
+  <script>
+    (function () {
+      const tabs = document.querySelectorAll(".pg-tab");
+      const typeOffre = document.getElementById("type-offre");
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("is-active"));
+          tab.classList.add("is-active");
+          if (typeOffre) typeOffre.value = tab.getAttribute("data-offre") || "";
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>

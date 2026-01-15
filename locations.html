@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maisons à louer - MaisonLouer</title>
+
+  <!-- SEO MaisonLouer -->
+  <meta name="description" content="Maisons et appartements à louer à Madagascar. Parcourez les annonces MaisonLouer et contactez-nous pour visiter." />
+
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/custom.css">
+  <!-- ✅ IMPORTANT : applique le header MaisonLouer partout -->
+  <link rel="stylesheet" href="./assets/css/fix-header.css">
+  <link rel="stylesheet" href="./assets/css/locations-roa.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- #HEADER -->
+  <header class="header" data-header>
+
+    <div class="overlay" data-overlay></div>
+
+    <!-- ✅ header-top SUPPRIMÉ -->
+
+    <div class="header-bottom">
+      <div class="container">
+
+        <!-- Logo desktop -->
+        <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+          <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+        </a>
+
+        <nav class="navbar" data-navbar>
+
+          <div class="navbar-top">
+
+            <!-- Logo mobile -->
+            <a href="index.html" class="logo" aria-label="Retour à l'accueil">
+              <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
+            </a>
+
+            <button class="nav-close-btn" data-nav-close-btn aria-label="Fermer le menu">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </div>
+
+          <div class="navbar-bottom">
+            <ul class="navbar-list">
+              <li><a href="index.html" class="navbar-link" data-nav-link>Accueil</a></li>
+              <li><a href="locations.html" class="navbar-link" data-nav-link>Maisons à louer</a></li>
+              <li><a href="ventes.html" class="navbar-link" data-nav-link>Maisons à vendre</a></li>
+              <li><a href="recherche.html" class="navbar-link" data-nav-link>Je cherche un bien</a></li>
+              <li><a href="contact.html" class="navbar-link" data-nav-link>Contact</a></li>
+            </ul>
+          </div>
+
+        </nav>
+
+        <!-- ✅ Actions : on garde uniquement le menu -->
+        <div class="header-bottom-actions">
+          <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
+            <ion-icon name="menu-outline"></ion-icon>
+            <span>Menu</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </header>
+
+  <main>
+
+    <!-- HERO “LOUER” -->
+    <section class="roa-hero" aria-label="hero location">
+      <div class="container">
+        <div class="roa-hero-grid">
+
+          <div class="roa-hero-left">
+            <p class="roa-kicker">MaisonLouer</p>
+            <h1 class="roa-title">Louez votre prochain bien, en toute confiance</h1>
+            <p class="roa-subtitle">
+              Parcourez nos annonces de location, comparez facilement et contactez-nous pour planifier une visite.
+            </p>
+
+            <div class="roa-hero-actions">
+              <a class="roa-btn primary" href="#liste-locations">
+                <ion-icon name="search-outline"></ion-icon>
+                Voir les locations
+              </a>
+
+              <a class="roa-btn secondary" href="recherche.html">
+                <ion-icon name="options-outline"></ion-icon>
+                Filtrer ma recherche
+              </a>
+            </div>
+
+            <div class="roa-badges">
+              <div class="roa-badge">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                <span>Annonce vérifiée</span>
+              </div>
+              <div class="roa-badge">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>Réponse rapide</span>
+              </div>
+              <div class="roa-badge">
+                <ion-icon name="call-outline"></ion-icon>
+                <span>Accompagnement</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="roa-hero-right">
+            <div class="roa-hero-card">
+              <h3>Recherche express</h3>
+              <p>Tapez une ville/quartier puis lancez la recherche (filtrée sur la location).</p>
+
+              <div class="roa-quick-search">
+                <div class="roa-input">
+                  <ion-icon name="location-outline"></ion-icon>
+                  <input id="roa-zone" type="text" placeholder="Ex : Ivandry, Analakely, Andraharo…" />
+                </div>
+
+                <a id="roa-go-search" class="roa-btn primary is-block" href="recherche.html">
+                  <ion-icon name="search-outline"></ion-icon>
+                  Rechercher
+                </a>
+              </div>
+
+              <div class="roa-hero-note">
+                Vous pourrez affiner (budget, chambres, etc.) sur “Je cherche un bien”.
+              </div>
+            </div>
+
+            <div class="roa-hero-image" aria-hidden="true">
+              <img src="./assets/images/hero-banner.png" alt="Bannière location">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ✅ 1) 4 ÉTAPES POUR LOUER (AVANT) -->
+    <section class="roa-section roa-section-alt" aria-label="process location">
+      <div class="container">
+        <div class="roa-section-head">
+          <p class="roa-section-kicker">Comment ça marche</p>
+          <h2 class="roa-section-title">4 étapes pour louer</h2>
+        </div>
+
+        <div class="roa-steps">
+          <div class="roa-step">
+            <div class="roa-step-n">1</div>
+            <h3>Parcourez</h3>
+            <p>Découvrez les biens disponibles en location.</p>
+          </div>
+          <div class="roa-step">
+            <div class="roa-step-n">2</div>
+            <h3>Filtrez</h3>
+            <p>Affinez votre recherche dans “Je cherche un bien”.</p>
+          </div>
+          <div class="roa-step">
+            <div class="roa-step-n">3</div>
+            <h3>Contactez</h3>
+            <p>Nous vous aidons et organisons une visite rapidement.</p>
+          </div>
+          <div class="roa-step">
+            <div class="roa-step-n">4</div>
+            <h3>Emménagez</h3>
+            <p>Une fois validé, vous finalisez et emménagez sereinement.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ✅ 2) LOCATIONS DISPONIBLES (AU MILIEU) -->
+    <section class="section property" aria-label="property" id="liste-locations">
+      <div class="container">
+
+        <p class="section-subtitle">MaisonLouer</p>
+        <h2 class="h2 section-title">Locations disponibles</h2>
+
+        <div class="roa-listings-toolbar">
+          <p class="roa-muted">
+            Astuce : utilisez “Je cherche un bien” pour filtrer (zone, budget, chambres…).
+          </p>
+          <a class="roa-btn secondary" href="recherche.html">
+            <ion-icon name="options-outline"></ion-icon>
+            Filtrer
+          </a>
+        </div>
+
+        <!-- ✅ IMPORTANT : on garde ton container pour annonces.js -->
+        <div id="listings-container">
+          <p>Chargement des annonces...</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ✅ 3) UNE EXPÉRIENCE SIMPLE, CLAIRE ET EFFICACE (DERNIÈRE SECTION) -->
+    <section class="roa-section" aria-label="avantages location">
+      <div class="container">
+        <div class="roa-section-head">
+          <p class="roa-section-kicker">Pourquoi louer avec nous</p>
+          <h2 class="roa-section-title">Une expérience simple, claire et efficace</h2>
+        </div>
+
+        <div class="roa-cards">
+          <article class="roa-card">
+            <div class="roa-card-ic">
+              <ion-icon name="home-outline"></ion-icon>
+            </div>
+            <h3>Choix de biens</h3>
+            <p>Maisons, appartements, terrains… selon les annonces disponibles dans notre catalogue.</p>
+          </article>
+
+          <article class="roa-card">
+            <div class="roa-card-ic">
+              <ion-icon name="cash-outline"></ion-icon>
+            </div>
+            <h3>Prix transparents</h3>
+            <p>Affichage clair du prix, avec informations essentielles pour comparer rapidement.</p>
+          </article>
+
+          <article class="roa-card">
+            <div class="roa-card-ic">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <h3>Visite facilitée</h3>
+            <p>Vous repérez un bien, vous nous contactez, et on organise la visite dès que possible.</p>
+          </article>
+
+          <article class="roa-card">
+            <div class="roa-card-ic">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h3>Accompagnement</h3>
+            <p>Questions, démarches, négociation : on vous guide à chaque étape.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="roa-section roa-section-alt" aria-label="cta location">
+      <div class="container">
+        <div class="roa-cta">
+          <div class="roa-cta-left">
+            <h3>Besoin d’aide pour choisir ?</h3>
+            <p>Dites-nous votre budget, votre zone et votre besoin. On vous propose des options.</p>
+          </div>
+          <div class="roa-cta-right">
+            <a class="roa-btn primary" href="contact.html">
+              <ion-icon name="mail-outline"></ion-icon>
+              Nous contacter
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="roa-section" aria-label="faq location">
+      <div class="container">
+        <div class="roa-section-head">
+          <p class="roa-section-kicker">FAQ</p>
+          <h2 class="roa-section-title">Questions fréquentes</h2>
+        </div>
+
+        <div class="roa-faq">
+          <details class="roa-faq-item">
+            <summary>Comment demander une visite ?</summary>
+            <p>Ouvrez une annonce qui vous intéresse, puis contactez-nous. Nous vous proposons un créneau de visite.</p>
+          </details>
+
+          <details class="roa-faq-item">
+            <summary>Est-ce que je peux filtrer par budget et zone ?</summary>
+            <p>Oui. Allez sur <strong>“Je cherche un bien”</strong> et utilisez les filtres (zone, budget, type d’offre, etc.).</p>
+          </details>
+
+          <details class="roa-faq-item">
+            <summary>Les prix sont-ils en Ariary ?</summary>
+            <p>Oui, les prix affichés sur le site sont en Ariary (Ar).</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- #FOOTER -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p class="copyright">
+          &copy; 2026 <a href="index.html">MaisonLouer</a>. Tous droits réservés.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- scripts -->
+  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/annonces.js"></script>
+
+  <!-- ✅ mini script : transmet la zone vers recherche.html via querystring -->
+  <script>
+    (function () {
+      const input = document.getElementById("roa-zone");
+      const btn = document.getElementById("roa-go-search");
+
+      function buildUrl() {
+        const zone = (input && input.value) ? input.value.trim() : "";
+        const url = new URL("recherche.html", window.location.href);
+        if (zone) url.searchParams.set("zone", zone);
+        url.searchParams.set("offre", "location");
+        return url.toString().replace(window.location.origin + "/", "");
+      }
+
+      if (btn) {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = buildUrl();
+        });
+      }
+    })();
+  </script>
+
+  <!-- ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,190 @@
+/* =========================================================
+   HEADER STYLE ROA — MaisonLouer
+   Bleu marine + bloc orange clair + texte blanc
+   Fichier : assets/css/fix-header.css
+   ========================================================= */
+
+:root {
+  --ml-blue: #0b1f3a;        /* bleu marine ROA */
+  --ml-orange: #ff8a1d;      /* orange clair */
+  --ml-orange-soft: #fff1e6; /* fond bloc menu */
+  --ml-white: #ffffff;
+}
+
+/* =========================================
+   STABILITÉ HEADER (pas de saut au scroll)
+========================================= */
+header.header[data-header],
+header.header[data-header].active {
+  position: sticky;
+  top: 0;
+  transform: none !important;
+  z-index: 9999;
+}
+
+/* =========================================
+   HEADER PRINCIPAL (barre)
+========================================= */
+.header .header-bottom {
+  background: var(--ml-blue);
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Container compact */
+.header .header-bottom .container {
+  height: 70px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 0 18px;
+}
+
+/* =========================================
+   LOGO
+========================================= */
+.header a.logo img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+/* =========================================
+   NAVBAR (DESKTOP INLINE)
+   IMPORTANT : sur le template, .navbar est un drawer mobile.
+   Ici, on force l'inline seulement en desktop.
+========================================= */
+@media (min-width: 1200px) {
+
+  /* on neutralise le drawer */
+  .navbar,
+  .navbar.active {
+    all: unset;
+    display: block;
+    justify-self: center;
+  }
+
+  /* bloc orange autour du menu */
+  .navbar-list {
+    display: flex !important;
+    align-items: center;
+    gap: 26px;
+    margin: 0 !important;
+    padding: 10px 18px !important;
+    background: var(--ml-orange-soft);
+    border-radius: 16px;
+  }
+
+  .navbar-link {
+    color: var(--ml-blue) !important;
+    font-weight: 900 !important;
+    font-size: 15px !important;
+    padding: 8px 8px !important;
+    line-height: 1 !important;
+    border-radius: 10px;
+    text-transform: none !important;
+  }
+
+  .navbar-link:hover {
+    background: rgba(255, 138, 29, 0.25);
+    color: var(--ml-blue) !important;
+  }
+}
+
+/* =========================================
+   CTA À DROITE (DESKTOP)
+   (utilise tes classes .ml-cta dans ton HTML)
+========================================= */
+.ml-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ml-cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ml-cta-primary {
+  background: var(--ml-orange);
+  color: var(--ml-white);
+}
+.ml-cta-primary:hover { opacity: 0.92; }
+
+.ml-cta-ghost {
+  background: rgba(255,255,255,0.14);
+  color: var(--ml-white);
+}
+
+/* =========================================
+   MOBILE / TABLET (drawer du template conservé)
+========================================= */
+@media (max-width: 1199px) {
+
+  /* on garde le drawer, mais on harmonise la couleur */
+  .navbar {
+    background: var(--ml-blue) !important;
+  }
+
+  .navbar-top {
+    border-bottom-color: rgba(255,255,255,0.12) !important;
+  }
+
+  .navbar-top .logo img {
+    width: 170px !important;
+    height: auto !important;
+  }
+
+  .navbar-link {
+    color: rgba(255,255,255,0.92) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+  }
+
+  .navbar-link:hover {
+    color: var(--ml-orange) !important;
+  }
+
+  /* CTA caché en mobile (tu l’avais déjà) */
+  .ml-cta {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   BOUTON MENU MOBILE
+========================================= */
+.header-bottom-actions-btn {
+  background: rgba(255,255,255,0.15) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+.header-bottom-actions-btn ion-icon {
+  color: #fff !important;
+}
+
+/* =========================================
+   MOBILE (barre plus petite)
+========================================= */
+@media (max-width: 992px) {
+
+  .header .header-bottom .container {
+    height: 62px;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
+
+  .header a.logo img {
+    height: 34px;
+  }
+}
