@@ -5,7 +5,6 @@
 // =========================
 
 export default async function handler(req, res) {
-  // CORS (utile si tu appelles l'API depuis une page statique)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -16,16 +15,11 @@ export default async function handler(req, res) {
     const NOTION_TOKEN = process.env.NOTION_TOKEN;
     const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
-    if (!NOTION_TOKEN) {
-      return res.status(500).json({ error: "NOTION_TOKEN manquant dans Vercel" });
-    }
-    if (!NOTION_DATABASE_ID) {
-      return res.status(500).json({ error: "NOTION_DATABASE_ID manquant dans Vercel" });
-    }
+    if (!NOTION_TOKEN) return res.status(500).json({ error: "NOTION_TOKEN manquant dans Vercel" });
+    if (!NOTION_DATABASE_ID) return res.status(500).json({ error: "NOTION_DATABASE_ID manquant dans Vercel" });
 
     const url = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
 
-    // ✅ Filtre "Publié" si possible, sinon fallback
     const buildBodyWithFilter = () =>
       JSON.stringify({
         filter: { property: "Publié", checkbox: { equals: true } },
@@ -47,15 +41,12 @@ export default async function handler(req, res) {
         },
         body,
       });
-
       const data = await notionRes.json();
       return { notionRes, data };
     };
 
-    // 1) Tentative avec filtre "Publié"
     let { notionRes, data } = await notionFetch(buildBodyWithFilter());
 
-    // Si Notion refuse le filtre (propriété absente), retry sans filtre
     if (!notionRes.ok) {
       const msg = (data?.message || "").toLowerCase();
       const isFilterIssue =
@@ -63,9 +54,7 @@ export default async function handler(req, res) {
         msg.includes("validation") ||
         msg.includes("body failed validation");
 
-      if (isFilterIssue) {
-        ({ notionRes, data } = await notionFetch(buildBodyNoFilter()));
-      }
+      if (isFilterIssue) ({ notionRes, data } = await notionFetch(buildBodyNoFilter()));
     }
 
     if (!notionRes.ok) {
@@ -75,9 +64,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // -------------------------
-    // Helpers de parsing Notion
-    // -------------------------
+    // Helpers
     const getTitle = (p) => (p?.title || []).map((t) => t.plain_text).join("").trim();
     const getRichText = (p) => (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
     const getSelect = (p) => p?.select?.name || "";
@@ -94,9 +81,7 @@ export default async function handler(req, res) {
     const normalizeTypeOffre = (val) => {
       const v = normalizeText(val).toLowerCase();
       if (!v) return "";
-      // accepte: "Location", "À louer", "Louer", etc.
       if (v.includes("lou") || v.includes("loc")) return "location";
-      // accepte: "Vente", "À vendre", "Acheter", etc.
       if (v.includes("ven") || v.includes("ach")) return "vente";
       return v;
     };
@@ -111,46 +96,58 @@ export default async function handler(req, res) {
       return v;
     };
 
-    // Convertit les pages Notion -> format simple front
+    const normalizeWhatsApp = (val) => {
+      const raw = normalizeText(val);
+      if (!raw) return "";
+      // accepte +261..., 261..., 03..., 038...
+      let digits = raw.replace(/[^\d]/g, "");
+      if (!digits) return "";
+      // si commence par 0 (ex: 038...), on le transforme en 26138...
+      if (digits.startsWith("0")) digits = "261" + digits.slice(1);
+      // si déjà 261..., ok
+      if (!digits.startsWith("261") && digits.length <= 10) {
+        // fallback minimal (si tu mets juste 38xxxxxxx)
+        digits = "261" + digits;
+      }
+      return digits;
+    };
+
     const annonces = (data.results || []).map((page) => {
       const props = page.properties || {};
 
-      // ✅ IMPORTANT : on lit maintenant TypeOffre / TypeBien (tes vrais noms de colonnes)
-      // On garde aussi les anciens noms en fallback (au cas où)
       const rawTypeOffre =
-        getSelect(props["TypeOffre"]) ||
-        getRichText(props["TypeOffre"]) ||
-        getSelect(props["Type d’offre"]) ||
-        getSelect(props["Type offre"]) ||
-        getRichText(props["Type d’offre"]) ||
-        getRichText(props["Type offre"]);
+        getSelect(props["TypeOffre"]) || getRichText(props["TypeOffre"]) ||
+        getSelect(props["Type d’offre"]) || getSelect(props["Type offre"]) ||
+        getRichText(props["Type d’offre"]) || getRichText(props["Type offre"]);
 
       const rawTypeBien =
-        getSelect(props["TypeBien"]) ||
-        getRichText(props["TypeBien"]) ||
-        getSelect(props["Type de bien"]) ||
-        getSelect(props["Type bien"]) ||
-        getRichText(props["Type de bien"]) ||
-        getRichText(props["Type bien"]);
+        getSelect(props["TypeBien"]) || getRichText(props["TypeBien"]) ||
+        getSelect(props["Type de bien"]) || getSelect(props["Type bien"]) ||
+        getRichText(props["Type de bien"]) || getRichText(props["Type bien"]);
 
       const rawVille = getSelect(props["Ville"]) || getRichText(props["Ville"]);
       const rawQuartier = getRichText(props["Quartier"]) || getSelect(props["Quartier"]);
 
-      // ✅ IMPORTANT : utiliser ?? (et pas ||) pour ne pas casser les valeurs 0
       const prixAr = getNumber(props["Prix Ar"]) ?? getNumber(props["Prix"]) ?? null;
-
       const chambres = getNumber(props["Chambres"]) ?? null;
       const sdb = getNumber(props["SDB"]) ?? getNumber(props["Salle de bain"]) ?? null;
       const surface = getNumber(props["Surface"]) ?? null;
 
       const publie = props["Publié"] ? getCheckbox(props["Publié"]) : true;
 
-      // ✅ DESCRIPTION : supporte plusieurs noms possibles
       const description =
         getRichText(props["Description"]) ||
         getRichText(props["Détails"]) ||
         getRichText(props["Details"]) ||
         getRichText(props["Infos"]) ||
+        "";
+
+      // ✅ Nouveau champ WhatsApp (par annonce)
+      const whatsappRaw =
+        getRichText(props["WhatsApp"]) ||
+        getSelect(props["WhatsApp"]) ||
+        getRichText(props["Téléphone"]) ||
+        getRichText(props["Telephone"]) ||
         "";
 
       return {
@@ -170,6 +167,9 @@ export default async function handler(req, res) {
 
         images: getFiles(props["Images"]),
         description: normalizeText(description),
+
+        // ✅ Ici
+        whatsapp: normalizeWhatsApp(whatsappRaw),
 
         publie,
       };

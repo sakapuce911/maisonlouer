@@ -7,11 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Détails de l’annonce - MaisonLouer</title>
 
-  <!-- SEO MaisonLouer -->
   <meta name="description" content="Détails de l’annonce sur MaisonLouer : photos, prix, description et contact." />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
-
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/custom.css">
 
@@ -22,13 +20,6 @@
     rel="stylesheet">
 
   <style>
-    /* =========================
-       FICHE ANNONCE (local style)
-       Objectif:
-       - Belle page annonce (galerie + infos + description)
-       - Compatible avec ton design actuel
-       ========================= */
-
     .annonce-wrap { padding: 120px 0 70px; }
     .annonce-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
     .annonce-kicker { margin: 0 0 6px; color: #6b7280; font-weight: 800; letter-spacing: .02em; }
@@ -36,184 +27,61 @@
     .annonce-sub { margin: 10px 0 0; color: #6b7280; }
 
     .annonce-badges { display: flex; gap: 10px; flex-wrap: wrap; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 9px 12px; border-radius: 999px;
-      font-weight: 900; font-size: 12px; letter-spacing: .02em;
-      border: 1px solid #e5e7eb; background: #fff; color: #111827;
-      white-space: nowrap;
-    }
+    .pill { display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.02em;border:1px solid #e5e7eb;background:#fff;color:#111827;white-space:nowrap; }
     .pill.green { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #065f46; }
     .pill.blue { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
     .pill.gray { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
 
-    .annonce-grid {
-      display: grid;
-      grid-template-columns: 1.35fr 0.9fr;
-      gap: 18px;
-      align-items: start;
-      margin-top: 18px;
-    }
+    .annonce-grid { display:grid; grid-template-columns: 1.35fr 0.9fr; gap:18px; align-items:start; margin-top:18px; }
 
-    .card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 18px;
-      box-shadow: 0 10px 22px rgba(0,0,0,.06);
-      overflow: hidden;
-    }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:18px; box-shadow:0 10px 22px rgba(0,0,0,.06); overflow:hidden; }
 
-    /* Galerie */
-    .gallery-main {
-      position: relative;
-      background: #111827;
-      aspect-ratio: 16 / 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .gallery-main img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .gallery-nav {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px;
-    }
-    .gbtn {
-      pointer-events: all;
-      width: 44px; height: 44px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.35);
-      background: rgba(0,0,0,.30);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
+    .gallery-main { position:relative; background:#111827; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; }
+    .gallery-main img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-nav { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:space-between; padding:14px; }
+    .gbtn { pointer-events:all; width:44px; height:44px; border-radius:999px; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.30); color:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
     .gbtn:active { transform: translateY(1px); }
 
-    .gallery-thumbs {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-      padding: 12px;
-      background: #fff;
-      border-top: 1px solid #e5e7eb;
-    }
-    .thumb {
-      border: 2px solid transparent;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      background: #f3f4f6;
-      aspect-ratio: 1 / 1;
-    }
-    .thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .thumb.is-active { border-color: rgba(255, 107, 0, .85); }
+    .gallery-thumbs { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:12px; background:#fff; border-top:1px solid #e5e7eb; }
+    .thumb { border:2px solid transparent; border-radius:12px; overflow:hidden; cursor:pointer; background:#f3f4f6; aspect-ratio:1/1; }
+    .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .thumb.is-active { border-color: rgba(255,107,0,.85); }
 
-    /* Détails / Sidebar */
-    .side-pad { padding: 16px; }
-    .price {
-      font-size: 28px; font-weight: 900; color: #111827;
-      margin: 0 0 8px;
-    }
-    .meta-row {
-      display: flex; align-items: center; gap: 10px;
-      color: #374151;
-      margin-top: 8px;
-    }
-    .meta-row ion-icon { font-size: 18px; }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .kpi {
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 10px;
-      background: #fff;
-      text-align: center;
-    }
-    .kpi strong { display: block; font-size: 16px; color: #111827; }
-    .kpi span { display: block; font-size: 12px; color: #6b7280; font-weight: 800; margin-top: 3px; }
+    .side-pad { padding:16px; }
+    .price { font-size:28px; font-weight:900; color:#111827; margin:0 0 8px; }
+    .meta-row { display:flex; align-items:center; gap:10px; color:#374151; margin-top:8px; }
+    .meta-row ion-icon { font-size:18px; }
+    .meta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+    .kpi { border:1px solid #e5e7eb; border-radius:14px; padding:10px; background:#fff; text-align:center; }
+    .kpi strong { display:block; font-size:16px; color:#111827; }
+    .kpi span { display:block; font-size:12px; color:#6b7280; font-weight:800; margin-top:3px; }
 
-    .cta {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .cbtn {
-      border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 900;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-decoration: none;
-      width: 100%;
-    }
-    .cbtn.primary { background: #ff6b00; color: #fff; }
-    .cbtn.dark { background: #111827; color: #fff; }
-    .cbtn.ghost { background: #fff; color: #111827; border: 2px solid #e5e7eb; }
+    .cta { display:grid; gap:10px; margin-top:14px; }
+    .cbtn { border:none; border-radius:14px; padding:12px 14px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:10px; text-decoration:none; width:100%; }
+    .cbtn.primary { background:#ff6b00; color:#fff; }
+    .cbtn.dark { background:#111827; color:#fff; }
+    .cbtn.ghost { background:#fff; color:#111827; border:2px solid #e5e7eb; }
 
-    /* Bloc description */
-    .content-pad { padding: 16px; }
-    .h3t { margin: 0 0 10px; font-size: 18px; font-weight: 900; color: #111827; }
-    .desc {
-      margin: 0;
-      color: #374151;
-      line-height: 1.75;
-      white-space: pre-line; /* garde les retours à la ligne venant de Notion */
-    }
+    .content-pad { padding:16px; }
+    .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
+    .desc { margin:0; color:#374151; line-height:1.75; white-space:pre-line; }
 
-    .backrow { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
-    .backrow a { text-decoration: none; }
+    .backrow { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
+    .backrow a { text-decoration:none; }
 
-    @media (max-width: 980px) {
-      .annonce-grid { grid-template-columns: 1fr; }
-      .gallery-thumbs { grid-template-columns: repeat(5, 1fr); }
-      .annonce-title { font-size: 30px; }
-    }
-    @media (max-width: 640px) {
-      .annonce-wrap { padding: 105px 0 60px; }
-      .annonce-title { font-size: 26px; }
-      .gallery-thumbs { grid-template-columns: repeat(4, 1fr); }
-      .price { font-size: 24px; }
-    }
+    @media (max-width:980px){ .annonce-grid{grid-template-columns:1fr;} .gallery-thumbs{grid-template-columns:repeat(5,1fr);} .annonce-title{font-size:30px;} }
+    @media (max-width:640px){ .annonce-wrap{padding:105px 0 60px;} .annonce-title{font-size:26px;} .gallery-thumbs{grid-template-columns:repeat(4,1fr);} .price{font-size:24px;} }
   </style>
 </head>
 
 <body>
 
-  <!-- #HEADER -->
+  <!-- #HEADER (inchangé) -->
   <header class="header" data-header>
-
     <div class="overlay" data-overlay></div>
 
     <div class="header-top">
       <div class="container">
-
         <ul class="header-top-list">
           <li>
             <a href="mailto:contact@immobilier-madagascar.com" class="header-top-link">
@@ -221,7 +89,6 @@
               <span>contact@immobilier-madagascar.com</span>
             </a>
           </li>
-
           <li>
             <a href="#" class="header-top-link">
               <ion-icon name="location-outline"></ion-icon>
@@ -240,19 +107,16 @@
 
           <a href="contact.html" class="header-top-btn">Contactez-nous</a>
         </div>
-
       </div>
     </div>
 
     <div class="header-bottom">
       <div class="container">
-
         <a href="index.html" class="logo" aria-label="Retour à l'accueil">
           <img src="./assets/images/logo.png" alt="Logo MaisonLouer">
         </a>
 
         <nav class="navbar" data-navbar>
-
           <div class="navbar-top">
             <a href="index.html" class="logo">
               <img src="./assets/images/logo.png" alt="Logo MaisonLouer">
@@ -271,7 +135,6 @@
               <li><a href="recherche.html" class="navbar-link" data-nav-link>Je cherche un bien</a></li>
             </ul>
           </div>
-
         </nav>
 
         <div class="header-bottom-actions">
@@ -280,15 +143,12 @@
             <span>Menu</span>
           </button>
         </div>
-
       </div>
     </div>
-
   </header>
 
   <main class="annonce-wrap">
     <div class="container">
-
       <div id="annonce-container">
         <p>Annonce en cours de chargement...</p>
       </div>
@@ -298,7 +158,6 @@
         <a href="locations.html" class="btn">Voir les locations</a>
         <a href="ventes.html" class="btn">Voir les ventes</a>
       </div>
-
     </div>
   </main>
 
@@ -313,14 +172,14 @@
     </div>
   </footer>
 
-  <!-- scripts -->
   <script src="./assets/js/script.js"></script>
 
-  <!-- ✅ Script fiche annonce (local à annonce.html) -->
   <script>
     (function () {
       const container = document.getElementById("annonce-container");
       if (!container) return;
+
+      const DEFAULT_WA = "261385436196"; // fallback si une annonce n'a pas WhatsApp
 
       function norm(str) { return (str || "").toString().trim().toLowerCase(); }
 
@@ -328,21 +187,17 @@
         if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
         const n = Number(prixAr);
         if (Number.isNaN(n)) return "Prix sur demande";
-        return `${n.toString().replace(/\B(?=(\\d{3})+(?!\\d))/g, " ")} Ar`;
+        return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
       }
 
       async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeoutMs);
-        try {
-          return await fetch(url, { ...options, signal: controller.signal });
-        } finally {
-          clearTimeout(id);
-        }
+        try { return await fetch(url, { ...options, signal: controller.signal }); }
+        finally { clearTimeout(id); }
       }
 
       async function fetchAnnonces() {
-        // 1) API Vercel
         try {
           const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
           if (resApi.ok) {
@@ -352,11 +207,16 @@
           }
           throw new Error(`API Notion indisponible (${resApi.status})`);
         } catch (e) {
-          // 2) fallback local
           const res = await fetch("./assets/data/annonces.json");
           if (!res.ok) throw new Error("Impossible de charger annonces.json (fallback)");
           return await res.json();
         }
+      }
+
+      function buildWhatsAppLink(waDigits, titre, pageUrl) {
+        const phone = (waDigits || "").toString().replace(/[^\d]/g, "") || DEFAULT_WA;
+        const msg = `Bonjour, je suis intéressé(e) par cette annonce : ${titre}\nLien : ${pageUrl}`;
+        return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
       }
 
       function buildHtml(a) {
@@ -366,8 +226,8 @@
 
         const badgeOffre = (offre === "location") ? "À LOUER" : (offre === "vente" ? "EN VENTE" : "ANNONCE");
         const pillOffreClass = (offre === "location") ? "green" : (offre === "vente" ? "blue" : "gray");
-
         const badgeBien = bien ? bien.toUpperCase() : "BIEN";
+
         const prix = formatPriceAr(a.prixAr);
 
         const ville = a.ville || "";
@@ -383,8 +243,8 @@
         const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
         const mainImg = images.length ? images[0] : "./assets/images/property-1.jpg";
 
-        // CTA (adapte le WhatsApp si tu veux)
-        const waLink = "https://wa.me/261385436196";
+        const pageUrl = window.location.href;
+        const waLink = buildWhatsAppLink(a.whatsapp, titre, pageUrl);
         const mailTo = "mailto:maisonlouer.mada@outlook.com";
 
         return `
@@ -392,9 +252,7 @@
             <div>
               <p class="annonce-kicker">MaisonLouer</p>
               <h1 class="annonce-title">${titre}</h1>
-              <p class="annonce-sub">
-                <span>${adresse}</span>
-              </p>
+              <p class="annonce-sub"><span>${adresse}</span></p>
             </div>
 
             <div class="annonce-badges">
@@ -410,7 +268,6 @@
           </div>
 
           <div class="annonce-grid">
-            <!-- Galerie + Description -->
             <div style="display:grid; gap:18px;">
               <div class="card">
                 <div class="gallery-main">
@@ -444,12 +301,11 @@
               <div class="card">
                 <div class="content-pad">
                   <h3 class="h3t">Description du bien</h3>
-                  <p class="desc" id="annonceDesc">${description}</p>
+                  <p class="desc">${description}</p>
                 </div>
               </div>
             </div>
 
-            <!-- Sidebar infos -->
             <aside class="card">
               <div class="side-pad">
                 <p class="price">${prix}</p>
@@ -460,18 +316,9 @@
                 </div>
 
                 <div class="meta-grid">
-                  <div class="kpi">
-                    <strong>${chambres !== null ? chambres : "-"}</strong>
-                    <span>Chambres</span>
-                  </div>
-                  <div class="kpi">
-                    <strong>${sdb !== null ? sdb : "-"}</strong>
-                    <span>SDB</span>
-                  </div>
-                  <div class="kpi">
-                    <strong>${surface !== null ? surface : "-"}</strong>
-                    <span>m²</span>
-                  </div>
+                  <div class="kpi"><strong>${chambres !== null ? chambres : "-"}</strong><span>Chambres</span></div>
+                  <div class="kpi"><strong>${sdb !== null ? sdb : "-"}</strong><span>SDB</span></div>
+                  <div class="kpi"><strong>${surface !== null ? surface : "-"}</strong><span>m²</span></div>
                 </div>
 
                 <div class="cta">
@@ -513,7 +360,6 @@
         const setActive = (i) => {
           idx = (i + list.length) % list.length;
           imgEl.src = list[idx];
-
           const all = thumbs.querySelectorAll(".thumb");
           all.forEach(t => t.classList.remove("is-active"));
           const current = thumbs.querySelector(`.thumb[data-idx="${idx}"]`);
@@ -540,11 +386,7 @@
           }
         });
 
-        // Si 0/1 image : on cache la nav
-        if (list.length <= 1) {
-          prev.style.display = "none";
-          next.style.display = "none";
-        }
+        if (list.length <= 1) { prev.style.display = "none"; next.style.display = "none"; }
       }
 
       async function init() {
@@ -557,9 +399,8 @@
         }
 
         let annonces = [];
-        try {
-          annonces = await fetchAnnonces();
-        } catch (e) {
+        try { annonces = await fetchAnnonces(); }
+        catch (e) {
           container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : ${e.message}</p>`;
           return;
         }
@@ -570,7 +411,6 @@
           return;
         }
 
-        // SEO dynamique simple
         document.title = `${a.titre || "Annonce"} - MaisonLouer`;
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
@@ -586,10 +426,8 @@
     })();
   </script>
 
-  <!-- ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 </body>
-
 </html>
