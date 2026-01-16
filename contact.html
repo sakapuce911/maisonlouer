@@ -14,7 +14,6 @@
 
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/custom.css">
-  <!-- ✅ IMPORTANT : applique le header MaisonLouer partout -->
   <link rel="stylesheet" href="./assets/css/fix-header.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,8 +121,6 @@
   <header class="header" data-header>
     <div class="overlay" data-overlay></div>
 
-    <!-- ✅ header-top SUPPRIMÉ -->
-
     <div class="header-bottom">
       <div class="container">
 
@@ -172,13 +169,13 @@
         <!-- Infos -->
         <div class="contact-card">
           <h1>Contactez-nous</h1>
-          <p>Une question, une demande de visite, ou besoin d’aide pour trouver un bien ? Écrivez-nous et on vous répond rapidement.</p>
+          <p>Une question, une demande de visite ou besoin d’accompagnement pour votre projet immobilier ? Contactez-nous.</p>
 
           <div class="contact-list">
             <div class="contact-item">
               <ion-icon name="mail-outline"></ion-icon>
               <div>
-                <a href="mailto:contact@immobilier-madagascar.com"><strong>Email</strong><br>contact@immobilier-madagascar.com</a>
+                <a href="mailto:maisonlouer.mada@outlook.com"><strong>Email</strong><br>maisonlouer.mada@outlook.com</a>
                 <small>Réponse sous 24–48h (jours ouvrés)</small>
               </div>
             </div>
@@ -187,7 +184,7 @@
               <ion-icon name="location-outline"></ion-icon>
               <div>
                 <strong>Localisation</strong><br>Antananarivo, Madagascar
-                <small>Nous intervenons sur Tana et alentours</small>
+                <small>Zone : Antananarivo et environs</small>
               </div>
             </div>
 
@@ -195,21 +192,32 @@
               <ion-icon name="call-outline"></ion-icon>
               <div>
                 <strong>Téléphone / WhatsApp</strong><br>
-                <a href="https://wa.me/261000000000" target="_blank" rel="noopener">+261 00 000 0000 (WhatsApp)</a>
-                <small>Modifie le numéro dans le lien wa.me</small>
+                <a href="https://wa.me/261385436196" target="_blank" rel="noopener">+261 38 543 6196</a>
+                <small>Disponible selon horaires</small>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div>
+                <strong>Rendez-vous en ligne</strong><br>
+                <a href="https://cal.com/maisonlouer/30min" target="_blank" rel="noopener">
+                  Planifier un appel de 30 minutes
+                </a>
+                <small>Choisissez un créneau disponible</small>
               </div>
             </div>
           </div>
 
           <div class="hint">
-            Astuce : si vous souhaitez une visite, indiquez la zone recherchée, votre budget et le type de bien (maison, appartement, terrain…).
+            Astuce : pour une visite, indiquez la zone, le budget et le type de bien recherché.
           </div>
         </div>
 
         <!-- Formulaire -->
         <div class="contact-card">
           <h2>Envoyer un message</h2>
-          <p>Ce formulaire ouvre votre application email avec le message pré-rempli.</p>
+          <p>Ce formulaire ouvre votre application email avec un message pré-rempli.</p>
 
           <form class="contact-form" id="contactForm">
             <div class="field">
@@ -229,7 +237,7 @@
 
             <div class="field">
               <label for="message">Message *</label>
-              <textarea id="message" placeholder="Ex : Je cherche une maison à louer à Ivandry, budget 2 500 000 Ar/mois..." required></textarea>
+              <textarea id="message" placeholder="Ex : Je cherche une maison à louer à Ivandry..." required></textarea>
             </div>
 
             <div class="contact-actions">
@@ -240,7 +248,12 @@
 
               <a class="cbtn dark" href="https://wa.me/261385436196" target="_blank" rel="noopener">
                 <ion-icon name="logo-whatsapp"></ion-icon>
-                Écrire sur WhatsApp
+                WhatsApp
+              </a>
+
+              <a class="cbtn ghost" href="https://cal.com/maisonlouer/30min" target="_blank" rel="noopener">
+                <ion-icon name="calendar-outline"></ion-icon>
+                Prendre rendez-vous
               </a>
 
               <a class="cbtn ghost" href="index.html">
@@ -249,7 +262,7 @@
             </div>
 
             <div class="hint" id="formHint">
-              Si rien ne s’ouvre, copiez l’email : <strong>contact@immobilier-madagascar.com</strong>.
+              Si rien ne s’ouvre, copiez l’email : <strong>maisonlouer.mada@outlook.com</strong>.
             </div>
           </form>
 
@@ -293,7 +306,7 @@
           return;
         }
 
-        const to = "contact@immobilier-madagascar.com";
+        const to = "maisonlouer.mada@outlook.com";
         const subject = encodeURIComponent("Demande de contact - MaisonLouer");
         const body = encodeURIComponent(
           `Nom : ${nom}\n` +
