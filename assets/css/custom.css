@@ -387,3 +387,122 @@ body {
     padding: 9px 8px !important;
   }
 }
+
+/* =====================================================
+   ✅ NAVIGATION MOBILE EN HAMBURGER (SANS TOUCHER DESKTOP)
+   - En mobile : bouton hamburger stylé (plus blanc)
+   - Box de recherche en "glass"
+   - Desktop : aucune règle ici ne s'applique
+   ===================================================== */
+
+@media (max-width: 767px) {
+
+  /* 1) IMPORTANT : on enlève la barre fixe en bas (mobile only)
+        -> on garde le bouton hamburger DANS le header (même HTML)
+  */
+  .header-bottom-actions {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+
+    z-index: 6 !important;
+  }
+
+  /* 2) Bouton hamburger : plus "glass dark" (plus blanc)
+        -> fond translucide + blur + bord léger
+  */
+  .header-bottom-actions-btn[data-nav-open-btn] {
+    width: 46px !important;
+    height: 46px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    background: rgba(12, 26, 44, 0.55) !important; /* bleu sombre translucide */
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+
+    box-shadow: 0 14px 30px rgba(0,0,0,0.22) !important;
+
+    position: relative !important;
+    z-index: 7 !important;
+  }
+
+  /* Texte "Menu" caché */
+  .header-bottom-actions-btn[data-nav-open-btn] span {
+    display: none !important;
+  }
+
+  /* Icône hamburger : blanche et bien visible */
+  .header-bottom-actions-btn[data-nav-open-btn] ion-icon {
+    margin: 0 !important;
+    font-size: 26px !important;
+    color: #ffffff !important;
+    opacity: 0.95 !important;
+  }
+
+  /* Petit feedback au tap */
+  .header-bottom-actions-btn[data-nav-open-btn]:active {
+    transform: translateY(1px) !important;
+  }
+
+  /* 3) Overlay au-dessus du contenu, mais sous la sidebar */
+  .overlay {
+    z-index: 8 !important;
+  }
+
+  /* 4) Sidebar (navbar) au-dessus de l'overlay */
+  .navbar {
+    z-index: 9 !important;
+  }
+
+  /* 5) Cliquabilité : chaque lien occupe toute la ligne */
+  .navbar-link {
+    width: 100% !important;
+    display: block !important;
+    padding: 14px 10px !important;
+  }
+
+  /* =====================================================
+     ✅ HERO SEARCH BOX : GLASS SUR MOBILE (uniquement)
+     Cible : #home-search-box = .hero-pg-box sur index.html
+     ===================================================== */
+
+  #home-search-box.hero-pg-box,
+  #home-search-box {
+    background: rgba(255, 255, 255, 0.60) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+
+    backdrop-filter: blur(14px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+
+    box-shadow: 0 26px 60px rgba(0,0,0,0.18) !important;
+  }
+
+  /* Inputs / selects : un peu plus "glass" aussi */
+  #home-search-box input,
+  #home-search-box select {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  /* Bouton Rechercher : garde son look, mais avec un léger glow */
+  #home-search-box .hero-pg-btn {
+    box-shadow: 0 18px 36px rgba(0,0,0,0.18) !important;
+  }
+}
