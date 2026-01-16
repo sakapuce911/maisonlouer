@@ -1,6 +1,7 @@
 // ===================================
 // HOME - NEARBY (Géolocalisation + slider)
 // Fichier: assets/js/home-nearby.js
+// ✅ Source UNIQUE: /api/annonces (Notion via Vercel)
 // ===================================
 
 (async function () {
@@ -17,7 +18,11 @@
   // Utils
   // =========================
   function setStatus(text, type = "info") {
-    const icon = type === "ok" ? "location-outline" : type === "warn" ? "alert-circle-outline" : "location-outline";
+    const icon =
+      type === "ok" ? "location-outline" :
+      type === "warn" ? "alert-circle-outline" :
+      "location-outline";
+
     statusEl.innerHTML = `
       <div class="nearby-pill">
         <ion-icon name="${icon}"></ion-icon>
@@ -26,11 +31,20 @@
     `;
   }
 
+  function norm(str) {
+    return (str || "").toString().trim().toLowerCase();
+  }
+
+  function isPublished(a) {
+    // Notion renvoie publie: true/false
+    return a && (a.publie === true || a.publie === "true");
+  }
+
   function formatPriceAr(prixAr) {
     if (prixAr === undefined || prixAr === null || prixAr === "") return "Prix sur demande";
-    const s = String(prixAr).replace(/\s+/g, "");
-    if (!/^\d+$/.test(s)) return "Prix sur demande";
-    return `${s.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
+    const n = Number(String(prixAr).replace(/\s+/g, ""));
+    if (!Number.isFinite(n)) return "Prix sur demande";
+    return `${String(Math.trunc(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
   }
 
   function haversineKm(lat1, lon1, lat2, lon2) {
@@ -47,10 +61,32 @@
     return R * c;
   }
 
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(id);
+    }
+  }
+
+  // ✅ NOTION ONLY
   async function fetchAnnonces() {
-    const res = await fetch("./assets/data/annonces.json");
-    if (!res.ok) throw new Error("Impossible de charger annonces.json");
-    return await res.json();
+    const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
+
+    if (!resApi.ok) {
+      let detail = "";
+      try {
+        const err = await resApi.json();
+        detail = err?.detail ? ` (${err.detail})` : "";
+      } catch (_) {}
+      throw new Error(`Impossible de charger les annonces depuis Notion (HTTP ${resApi.status})${detail}`);
+    }
+
+    const data = await resApi.json();
+    if (!Array.isArray(data)) throw new Error("Format API invalide (attendu : tableau)");
+    return data;
   }
 
   function getFirstImage(a) {
@@ -70,7 +106,7 @@
   // - Utilise Nominatim OpenStreetMap (public)
   // - Cache localStorage pour éviter de refaire
   // =========================
-  const GEO_CACHE_KEY = "immo_geo_cache_v1";
+  const GEO_CACHE_KEY = "maisonlouer_geo_cache_v1";
 
   function loadGeoCache() {
     try {
@@ -91,7 +127,6 @@
   }
 
   async function geocodeAnnonce(a, cache) {
-    // Utilise a.id si possible, sinon une clé basée sur ville/quartier
     const key = (a.id !== undefined && a.id !== null)
       ? `id:${a.id}`
       : `txt:${(a.quartier || "")}|${(a.ville || "")}`.toLowerCase();
@@ -103,16 +138,10 @@
     const q = [a.quartier, a.ville, "Madagascar"].filter(Boolean).join(", ");
     if (!q.trim()) return null;
 
-    // Nominatim policy: rester raisonnable -> 1 req/sec + cache
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
-    const res = await fetch(url, {
-      headers: {
-        // User-Agent n'est pas possible en browser, mais on reste raisonnable (cache + low volume)
-        "Accept": "application/json"
-      }
-    });
-
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
     if (!res.ok) return null;
+
     const data = await res.json();
     if (!data || !data.length) return null;
 
@@ -123,9 +152,7 @@
     cache[key] = { lat, lng, q, t: Date.now() };
     saveGeoCache(cache);
 
-    // Pause pour éviter d'enchaîner
     await sleep(1100);
-
     return { lat, lng };
   }
 
@@ -135,7 +162,7 @@
   let cards = [];
   let page = 0;
   let pages = 0;
-  let perView = 3; // recalculé selon largeur
+  let perView = 3;
 
   function calcPerView() {
     const w = window.innerWidth;
@@ -166,10 +193,8 @@
 
   function goTo(p) {
     page = Math.max(0, Math.min(p, pages - 1));
-    const gap = 18;
-    // Translate basé sur largeur viewport
     const viewportWidth = viewport.clientWidth;
-    const shift = page * (viewportWidth + 0); // page par "écran"
+    const shift = page * viewportWidth;
     track.style.transform = `translateX(${-shift}px)`;
     updateNav();
   }
@@ -177,9 +202,6 @@
   function rebuildLayout() {
     perView = calcPerView();
     pages = Math.max(1, Math.ceil(cards.length / perView));
-
-    // On fixe une largeur "page" = viewport; on répartit les cards dedans par CSS flex-basis
-    // Ici, on se contente de recalculer pages/dots et re-go.
     renderDots();
     goTo(Math.min(page, pages - 1));
   }
@@ -189,8 +211,9 @@
   // =========================
   function renderCard(a) {
     const img = getFirstImage(a);
-    const badge = (a.typeOffre === "location") ? "À louer" : "À vendre";
-    const badgeClass = (a.typeOffre === "location") ? "" : " sale";
+    const offre = norm(a.typeOffre);
+    const badge = (offre === "location") ? "À louer" : (offre === "vente" ? "À vendre" : "Annonce");
+    const badgeClass = (offre === "location") ? "" : " sale";
     const price = formatPriceAr(a.prixAr);
     const addr = buildAddress(a);
 
@@ -202,12 +225,14 @@
     const bathsTxt = baths !== "" ? `<span><strong>${baths}</strong> sdb</span>` : "";
     const surfaceTxt = surface !== "" ? `<span><strong>${surface}</strong> m²</span>` : "";
 
-    const detailsLink = (a.id !== undefined && a.id !== null) ? `annonce.html?id=${encodeURIComponent(a.id)}` : "annonce.html";
+    const detailsLink = (a.id !== undefined && a.id !== null)
+      ? `annonce.html?id=${encodeURIComponent(a.id)}`
+      : "annonce.html";
 
     return `
       <article class="nearby-card">
         <div class="nearby-card-imgwrap">
-          <img src="${img}" alt="${a.titre || "Annonce immobilière"}">
+          <img src="${img}" alt="${a.titre || "Annonce immobilière"}" loading="lazy">
           <span class="nearby-badge${badgeClass}">${badge}</span>
         </div>
 
@@ -247,9 +272,30 @@
   // =========================
   // Main
   // =========================
-  setStatus("Localisation en attente…", "info");
+  setStatus("Chargement des annonces…", "info");
 
-  const annonces = await fetchAnnonces();
+  let annonces = [];
+  try {
+    const raw = await fetchAnnonces();
+    // ✅ sécurité : seulement publiées
+    annonces = raw.filter(isPublished);
+  } catch (e) {
+    setStatus(`Erreur : ${e.message}`, "warn");
+    track.innerHTML = "";
+    dotsEl.innerHTML = "";
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    return;
+  }
+
+  if (!annonces.length) {
+    setStatus("Aucune annonce disponible pour le moment.", "warn");
+    track.innerHTML = "";
+    dotsEl.innerHTML = "";
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    return;
+  }
 
   // 1) Obtenir position utilisateur
   function getUserPosition() {
@@ -275,8 +321,8 @@
     userLng = pos.coords.longitude;
     setStatus("Localisation activée. Tri des annonces par proximité…", "ok");
   } catch (e) {
-    setStatus("Localisation refusée. Affichage des annonces recommandées à la place.", "warn");
-    // Fallback sans géoloc : on montre juste les 9 premières
+    // ✅ Si refus : on montre simplement les 9 premières annonces Notion
+    setStatus("Localisation refusée. Affichage des annonces recommandées.", "warn");
     cards = annonces.slice(0, 9);
     track.innerHTML = cards.map(renderCard).join("");
     rebuildLayout();
@@ -289,8 +335,7 @@
   // 2) Préparer coords annonces (lat/lng) + fallback geocode si absent
   const cache = loadGeoCache();
 
-  // On limite le geocode pour rester safe (sinon trop de requêtes)
-  // -> On géocode max 10 annonces par chargement si besoin
+  // ✅ limite geocode pour rester safe
   let geocodeBudget = 10;
 
   const enriched = [];
@@ -313,51 +358,43 @@
     }
   }
 
-  // Si aucune annonce n'a de coords même après fallback
+  // Si aucune annonce n'a de coords même après geocode => fallback simple
   if (!enriched.length) {
-    setStatus("Impossible de calculer la proximité : ajoutez lat/lng dans annonces.json (recommandé).", "warn");
+    setStatus("Proximité indisponible. Affichage des annonces recommandées.", "warn");
     cards = annonces.slice(0, 9);
     track.innerHTML = cards.map(renderCard).join("");
   } else {
     enriched.sort((x, y) => x._distanceKm - y._distanceKm);
-
-    // on prend les 9 plus proches
     cards = enriched.slice(0, 9);
-
-    setStatus(`Voici les biens les plus proches (tri par distance).`, "ok");
+    setStatus("Voici les biens les plus proches (tri par distance).", "ok");
     track.innerHTML = cards.map(renderCard).join("");
   }
 
   // 3) Slider actions
-  function snapToPage(p) {
-    // On reconstruit un "page width = viewport width" : on doit ajouter une "spacer" technique
-    // Simple approche : on duplique une structure en pages par JS
-    // Mais ici on gère translation en pixels sur viewport (par écran).
-    goTo(p);
-  }
+  prevBtn.addEventListener("click", () => goTo(page - 1));
+  nextBtn.addEventListener("click", () => goTo(page + 1));
 
-  prevBtn.addEventListener("click", () => snapToPage(page - 1));
-  nextBtn.addEventListener("click", () => snapToPage(page + 1));
   window.addEventListener("resize", () => {
-    // reset transform pour éviter décalage après resize
     track.style.transform = "translateX(0px)";
     page = 0;
     rebuildLayout();
   });
 
-  // Pagination basée sur viewport (pages = écrans)
   rebuildLayout();
 
-  // Swipe mobile (simple)
+  // Swipe mobile
   let startX = null;
-  viewport.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  viewport.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+
   viewport.addEventListener("touchend", (e) => {
     if (startX === null) return;
     const endX = e.changedTouches[0].clientX;
     const dx = endX - startX;
     if (Math.abs(dx) > 45) {
-      if (dx < 0) snapToPage(page + 1);
-      else snapToPage(page - 1);
+      if (dx < 0) goTo(page + 1);
+      else goTo(page - 1);
     }
     startX = null;
   }, { passive: true });
