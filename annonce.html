@@ -20,6 +20,188 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
     rel="stylesheet">
+
+  <style>
+    /* =========================
+       FICHE ANNONCE (local style)
+       Objectif:
+       - Belle page annonce (galerie + infos + description)
+       - Compatible avec ton design actuel
+       ========================= */
+
+    .annonce-wrap { padding: 120px 0 70px; }
+    .annonce-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    .annonce-kicker { margin: 0 0 6px; color: #6b7280; font-weight: 800; letter-spacing: .02em; }
+    .annonce-title { margin: 0; font-size: 34px; line-height: 1.15; font-weight: 900; color: #111827; }
+    .annonce-sub { margin: 10px 0 0; color: #6b7280; }
+
+    .annonce-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 999px;
+      font-weight: 900; font-size: 12px; letter-spacing: .02em;
+      border: 1px solid #e5e7eb; background: #fff; color: #111827;
+      white-space: nowrap;
+    }
+    .pill.green { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #065f46; }
+    .pill.blue { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
+    .pill.gray { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
+
+    .annonce-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+
+    /* Galerie */
+    .gallery-main {
+      position: relative;
+      background: #111827;
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-nav {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+    }
+    .gbtn {
+      pointer-events: all;
+      width: 44px; height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.35);
+      background: rgba(0,0,0,.30);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .gbtn:active { transform: translateY(1px); }
+
+    .gallery-thumbs {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      padding: 12px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+    }
+    .thumb {
+      border: 2px solid transparent;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #f3f4f6;
+      aspect-ratio: 1 / 1;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb.is-active { border-color: rgba(255, 107, 0, .85); }
+
+    /* Détails / Sidebar */
+    .side-pad { padding: 16px; }
+    .price {
+      font-size: 28px; font-weight: 900; color: #111827;
+      margin: 0 0 8px;
+    }
+    .meta-row {
+      display: flex; align-items: center; gap: 10px;
+      color: #374151;
+      margin-top: 8px;
+    }
+    .meta-row ion-icon { font-size: 18px; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .kpi {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+      text-align: center;
+    }
+    .kpi strong { display: block; font-size: 16px; color: #111827; }
+    .kpi span { display: block; font-size: 12px; color: #6b7280; font-weight: 800; margin-top: 3px; }
+
+    .cta {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .cbtn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      width: 100%;
+    }
+    .cbtn.primary { background: #ff6b00; color: #fff; }
+    .cbtn.dark { background: #111827; color: #fff; }
+    .cbtn.ghost { background: #fff; color: #111827; border: 2px solid #e5e7eb; }
+
+    /* Bloc description */
+    .content-pad { padding: 16px; }
+    .h3t { margin: 0 0 10px; font-size: 18px; font-weight: 900; color: #111827; }
+    .desc {
+      margin: 0;
+      color: #374151;
+      line-height: 1.75;
+      white-space: pre-line; /* garde les retours à la ligne venant de Notion */
+    }
+
+    .backrow { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .backrow a { text-decoration: none; }
+
+    @media (max-width: 980px) {
+      .annonce-grid { grid-template-columns: 1fr; }
+      .gallery-thumbs { grid-template-columns: repeat(5, 1fr); }
+      .annonce-title { font-size: 30px; }
+    }
+    @media (max-width: 640px) {
+      .annonce-wrap { padding: 105px 0 60px; }
+      .annonce-title { font-size: 26px; }
+      .gallery-thumbs { grid-template-columns: repeat(4, 1fr); }
+      .price { font-size: 24px; }
+    }
+  </style>
 </head>
 
 <body>
@@ -56,7 +238,6 @@
             <li><a href="#" class="header-top-social-link" aria-label="Pinterest"><ion-icon name="logo-pinterest"></ion-icon></a></li>
           </ul>
 
-          <!-- V4 -->
           <a href="contact.html" class="header-top-btn">Contactez-nous</a>
         </div>
 
@@ -93,7 +274,6 @@
 
         </nav>
 
-        <!-- V4 : uniquement Menu -->
         <div class="header-bottom-actions">
           <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
             <ion-icon name="menu-outline"></ion-icon>
@@ -106,23 +286,20 @@
 
   </header>
 
-  <main>
-    <section class="section property" aria-label="property">
-      <div class="container">
+  <main class="annonce-wrap">
+    <div class="container">
 
-        <p class="section-subtitle">MaisonLouer</p>
-        <h2 class="h2 section-title">Détails de l’annonce</h2>
-
-        <div id="annonce-container">
-          <p>Annonce en cours de chargement...</p>
-        </div>
-
-        <div style="margin-top: 24px;">
-          <a href="recherche.html" class="btn">Retour à la recherche</a>
-        </div>
-
+      <div id="annonce-container">
+        <p>Annonce en cours de chargement...</p>
       </div>
-    </section>
+
+      <div class="backrow">
+        <a href="recherche.html" class="btn">Retour à la recherche</a>
+        <a href="locations.html" class="btn">Voir les locations</a>
+        <a href="ventes.html" class="btn">Voir les ventes</a>
+      </div>
+
+    </div>
   </main>
 
   <!-- FOOTER -->
@@ -138,7 +315,276 @@
 
   <!-- scripts -->
   <script src="./assets/js/script.js"></script>
-  <script src="./assets/js/annonces.js"></script>
+
+  <!-- ✅ Script fiche annonce (local à annonce.html) -->
+  <script>
+    (function () {
+      const container = document.getElementById("annonce-container");
+      if (!container) return;
+
+      function norm(str) { return (str || "").toString().trim().toLowerCase(); }
+
+      function formatPriceAr(prixAr) {
+        if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
+        const n = Number(prixAr);
+        if (Number.isNaN(n)) return "Prix sur demande";
+        return `${n.toString().replace(/\B(?=(\\d{3})+(?!\\d))/g, " ")} Ar`;
+      }
+
+      async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          return await fetch(url, { ...options, signal: controller.signal });
+        } finally {
+          clearTimeout(id);
+        }
+      }
+
+      async function fetchAnnonces() {
+        // 1) API Vercel
+        try {
+          const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
+          if (resApi.ok) {
+            const data = await resApi.json();
+            if (Array.isArray(data)) return data;
+            throw new Error("Format API invalide (attendu: tableau)");
+          }
+          throw new Error(`API Notion indisponible (${resApi.status})`);
+        } catch (e) {
+          // 2) fallback local
+          const res = await fetch("./assets/data/annonces.json");
+          if (!res.ok) throw new Error("Impossible de charger annonces.json (fallback)");
+          return await res.json();
+        }
+      }
+
+      function buildHtml(a) {
+        const titre = a.titre || "Annonce";
+        const offre = norm(a.typeOffre);
+        const bien = norm(a.typeBien);
+
+        const badgeOffre = (offre === "location") ? "À LOUER" : (offre === "vente" ? "EN VENTE" : "ANNONCE");
+        const pillOffreClass = (offre === "location") ? "green" : (offre === "vente" ? "blue" : "gray");
+
+        const badgeBien = bien ? bien.toUpperCase() : "BIEN";
+        const prix = formatPriceAr(a.prixAr);
+
+        const ville = a.ville || "";
+        const quartier = a.quartier || "";
+        const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
+
+        const chambres = a.chambres ? Number(a.chambres) : null;
+        const sdb = a.sdb ? Number(a.sdb) : null;
+        const surface = a.surface ? Number(a.surface) : null;
+
+        const description = a.description ? a.description : "Aucune description pour le moment.";
+
+        const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
+        const mainImg = images.length ? images[0] : "./assets/images/property-1.jpg";
+
+        // CTA (adapte le WhatsApp si tu veux)
+        const waLink = "https://wa.me/261385436196";
+        const mailTo = "mailto:maisonlouer.mada@outlook.com";
+
+        return `
+          <div class="annonce-head">
+            <div>
+              <p class="annonce-kicker">MaisonLouer</p>
+              <h1 class="annonce-title">${titre}</h1>
+              <p class="annonce-sub">
+                <span>${adresse}</span>
+              </p>
+            </div>
+
+            <div class="annonce-badges">
+              <span class="pill ${pillOffreClass}">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                ${badgeOffre}
+              </span>
+              <span class="pill gray">
+                <ion-icon name="home-outline"></ion-icon>
+                ${badgeBien}
+              </span>
+            </div>
+          </div>
+
+          <div class="annonce-grid">
+            <!-- Galerie + Description -->
+            <div style="display:grid; gap:18px;">
+              <div class="card">
+                <div class="gallery-main">
+                  <img id="galleryMainImg" src="${mainImg}" alt="${titre}">
+                  <div class="gallery-nav" aria-hidden="false">
+                    <button class="gbtn" id="gPrev" type="button" aria-label="Photo précédente">
+                      <ion-icon name="chevron-back-outline"></ion-icon>
+                    </button>
+                    <button class="gbtn" id="gNext" type="button" aria-label="Photo suivante">
+                      <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="gallery-thumbs" id="galleryThumbs">
+                  ${images.length
+                    ? images.slice(0, 12).map((src, idx) => `
+                        <div class="thumb ${idx === 0 ? "is-active" : ""}" data-idx="${idx}" role="button" tabindex="0" aria-label="Voir la photo ${idx + 1}">
+                          <img src="${src}" alt="${titre} - photo ${idx + 1}">
+                        </div>
+                      `).join("")
+                    : `
+                      <div class="thumb is-active" data-idx="0" role="button" tabindex="0" aria-label="Voir la photo 1">
+                        <img src="${mainImg}" alt="${titre} - photo 1">
+                      </div>
+                    `
+                  }
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="content-pad">
+                  <h3 class="h3t">Description du bien</h3>
+                  <p class="desc" id="annonceDesc">${description}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sidebar infos -->
+            <aside class="card">
+              <div class="side-pad">
+                <p class="price">${prix}</p>
+
+                <div class="meta-row">
+                  <ion-icon name="location-outline"></ion-icon>
+                  <span>${adresse}</span>
+                </div>
+
+                <div class="meta-grid">
+                  <div class="kpi">
+                    <strong>${chambres !== null ? chambres : "-"}</strong>
+                    <span>Chambres</span>
+                  </div>
+                  <div class="kpi">
+                    <strong>${sdb !== null ? sdb : "-"}</strong>
+                    <span>SDB</span>
+                  </div>
+                  <div class="kpi">
+                    <strong>${surface !== null ? surface : "-"}</strong>
+                    <span>m²</span>
+                  </div>
+                </div>
+
+                <div class="cta">
+                  <a class="cbtn primary" href="${waLink}" target="_blank" rel="noopener">
+                    <ion-icon name="logo-whatsapp"></ion-icon>
+                    Contacter sur WhatsApp
+                  </a>
+
+                  <a class="cbtn dark" href="${mailTo}?subject=${encodeURIComponent("Demande d'information - " + titre)}">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    Envoyer un email
+                  </a>
+
+                  <a class="cbtn ghost" href="recherche.html">
+                    <ion-icon name="search-outline"></ion-icon>
+                    Retour recherche
+                  </a>
+                </div>
+
+                <p style="margin:14px 0 0; color:#6b7280; font-size:13px; line-height:1.6;">
+                  Astuce : indiquez votre budget, la zone et si vous cherchez plutôt à louer ou acheter.
+                </p>
+              </div>
+            </aside>
+          </div>
+        `;
+      }
+
+      function initGallery(images) {
+        const imgEl = document.getElementById("galleryMainImg");
+        const thumbs = document.getElementById("galleryThumbs");
+        const prev = document.getElementById("gPrev");
+        const next = document.getElementById("gNext");
+        if (!imgEl || !prev || !next || !thumbs) return;
+
+        const list = (Array.isArray(images) && images.length) ? images.filter(Boolean) : [imgEl.src];
+        let idx = 0;
+
+        const setActive = (i) => {
+          idx = (i + list.length) % list.length;
+          imgEl.src = list[idx];
+
+          const all = thumbs.querySelectorAll(".thumb");
+          all.forEach(t => t.classList.remove("is-active"));
+          const current = thumbs.querySelector(`.thumb[data-idx="${idx}"]`);
+          if (current) current.classList.add("is-active");
+        };
+
+        prev.addEventListener("click", () => setActive(idx - 1));
+        next.addEventListener("click", () => setActive(idx + 1));
+
+        thumbs.addEventListener("click", (e) => {
+          const t = e.target.closest(".thumb");
+          if (!t) return;
+          const i = Number(t.getAttribute("data-idx"));
+          if (!Number.isNaN(i)) setActive(i);
+        });
+
+        thumbs.addEventListener("keydown", (e) => {
+          const t = e.target.closest(".thumb");
+          if (!t) return;
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const i = Number(t.getAttribute("data-idx"));
+            if (!Number.isNaN(i)) setActive(i);
+          }
+        });
+
+        // Si 0/1 image : on cache la nav
+        if (list.length <= 1) {
+          prev.style.display = "none";
+          next.style.display = "none";
+        }
+      }
+
+      async function init() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        if (!id) {
+          container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : aucune annonce sélectionnée. (ID manquant)</p>`;
+          return;
+        }
+
+        let annonces = [];
+        try {
+          annonces = await fetchAnnonces();
+        } catch (e) {
+          container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : ${e.message}</p>`;
+          return;
+        }
+
+        const a = annonces.find(x => String(x.id) === String(id));
+        if (!a) {
+          container.innerHTML = `<p style="color:#b00020; font-weight:800;">Annonce introuvable (ID : ${id}).</p>`;
+          return;
+        }
+
+        // SEO dynamique simple
+        document.title = `${a.titre || "Annonce"} - MaisonLouer`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          const snippet = (a.description || "").replace(/\s+/g, " ").trim();
+          metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
+        }
+
+        container.innerHTML = buildHtml(a);
+        initGallery(a.images);
+      }
+
+      init();
+    })();
+  </script>
 
   <!-- ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
