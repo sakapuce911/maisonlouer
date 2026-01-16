@@ -99,14 +99,12 @@ export default async function handler(req, res) {
       if (!v) return "";
       if (v.includes("lou") || v.includes("loc")) return "location";
       if (v.includes("ven") || v.includes("ach")) return "vente";
-      // fallback : renvoyer une version "safe"
       return v;
     };
 
     const normalizeTypeBien = (val) => {
       const v = (val || "").toLowerCase().trim();
       if (!v) return "";
-      // Normalisations simples (ajuste si tu veux)
       if (v.includes("maison") || v.includes("villa")) return "maison";
       if (v.includes("appart")) return "appartement";
       if (v.includes("terrain")) return "terrain";
@@ -132,23 +130,26 @@ export default async function handler(req, res) {
         getRichText(props["Type de bien"]) ||
         getRichText(props["Type bien"]);
 
-      const rawVille =
-        getSelect(props["Ville"]) ||
-        getRichText(props["Ville"]);
-
+      const rawVille = getSelect(props["Ville"]) || getRichText(props["Ville"]);
       const rawQuartier = getRichText(props["Quartier"]) || getSelect(props["Quartier"]);
 
       // ✅ IMPORTANT : utiliser ?? (et pas ||) pour ne pas casser les valeurs 0
-      const prixAr =
-        getNumber(props["Prix Ar"]) ??
-        getNumber(props["Prix"]) ??
-        null;
+      const prixAr = getNumber(props["Prix Ar"]) ?? getNumber(props["Prix"]) ?? null;
 
       const chambres = getNumber(props["Chambres"]) ?? null;
-      const sdb = (getNumber(props["SDB"]) ?? getNumber(props["Salle de bain"]) ?? null);
+      const sdb = getNumber(props["SDB"]) ?? getNumber(props["Salle de bain"]) ?? null;
       const surface = getNumber(props["Surface"]) ?? null;
 
       const publie = props["Publié"] ? getCheckbox(props["Publié"]) : true;
+
+      // ✅ DESCRIPTION : on supporte plusieurs noms possibles
+      // Recommandé dans Notion : colonne "Description" (rich text)
+      const description =
+        getRichText(props["Description"]) ||
+        getRichText(props["Détails"]) ||
+        getRichText(props["Details"]) ||
+        getRichText(props["Infos"]) ||
+        "";
 
       return {
         id: page.id,
@@ -166,6 +167,10 @@ export default async function handler(req, res) {
         surface,
 
         images: getFiles(props["Images"]),
+
+        // ✅ Nouveau champ
+        description: normalizeText(description),
+
         publie,
       };
     });
