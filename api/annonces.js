@@ -5,14 +5,12 @@
 // =========================
 
 export default async function handler(req, res) {
-  // Autoriser CORS (utile si tu appelles l'API depuis une page statique)
+  // CORS (utile si tu appelles l'API depuis une page statique)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
 
   try {
     const NOTION_TOKEN = process.env.NOTION_TOKEN;
@@ -25,23 +23,52 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "NOTION_DATABASE_ID manquant dans Vercel" });
     }
 
-    // ✅ URL correcte Notion API (c'est ça qui corrige ton "Invalid request URL")
     const url = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
 
-    const notionRes = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${NOTION_TOKEN}`,
-        "Notion-Version": "2022-06-28",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        // Si tu ajoutes plus tard une propriété "Publié" (checkbox), tu pourras filtrer ici
-        // filter: { property: "Publié", checkbox: { equals: true } }
-      }),
-    });
+    // ✅ On tente de filtrer par "Publié" si la propriété existe.
+    // Comme Notion renvoie une erreur si on filtre sur une propriété inexistante,
+    // on fait 2 requêtes : d'abord AVEC filtre, puis fallback SANS filtre si erreur "validation".
+    const buildBodyWithFilter = () =>
+      JSON.stringify({
+        filter: { property: "Publié", checkbox: { equals: true } },
+        sorts: [{ timestamp: "created_time", direction: "descending" }],
+      });
 
-    const data = await notionRes.json();
+    const buildBodyNoFilter = () =>
+      JSON.stringify({
+        sorts: [{ timestamp: "created_time", direction: "descending" }],
+      });
+
+    const notionFetch = async (body) => {
+      const notionRes = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${NOTION_TOKEN}`,
+          "Notion-Version": "2022-06-28",
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      const data = await notionRes.json();
+      return { notionRes, data };
+    };
+
+    // 1) Tentative avec filtre "Publié"
+    let { notionRes, data } = await notionFetch(buildBodyWithFilter());
+
+    // Si Notion refuse le filtre (propriété absente), on retry sans filtre
+    if (!notionRes.ok) {
+      const msg = (data?.message || "").toLowerCase();
+      const isFilterIssue =
+        msg.includes("could not find property") ||
+        msg.includes("validation") ||
+        msg.includes("body failed validation");
+
+      if (isFilterIssue) {
+        ({ notionRes, data } = await notionFetch(buildBodyNoFilter()));
+      }
+    }
 
     if (!notionRes.ok) {
       return res.status(notionRes.status).json({
@@ -50,44 +77,100 @@ export default async function handler(req, res) {
       });
     }
 
-    // Convertit les lignes Notion -> format simple
+    // -------------------------
+    // Helpers de parsing Notion
+    // -------------------------
+    const getTitle = (p) => (p?.title || []).map((t) => t.plain_text).join("").trim();
+
+    const getRichText = (p) =>
+      (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
+
+    const getSelect = (p) => p?.select?.name || "";
+    const getNumber = (p) => (typeof p?.number === "number" ? p.number : null);
+    const getCheckbox = (p) => !!p?.checkbox;
+
+    const getFiles = (p) =>
+      (p?.files || [])
+        .map((f) => f?.external?.url || f?.file?.url)
+        .filter(Boolean);
+
+    const normalizeTypeOffre = (val) => {
+      const v = (val || "").toLowerCase().trim();
+      if (!v) return "";
+      if (v.includes("lou") || v.includes("loc")) return "location";
+      if (v.includes("ven") || v.includes("ach")) return "vente";
+      // fallback : renvoyer une version "safe"
+      return v;
+    };
+
+    const normalizeTypeBien = (val) => {
+      const v = (val || "").toLowerCase().trim();
+      if (!v) return "";
+      // Normalisations simples (ajuste si tu veux)
+      if (v.includes("maison") || v.includes("villa")) return "maison";
+      if (v.includes("appart")) return "appartement";
+      if (v.includes("terrain")) return "terrain";
+      if (v.includes("bureau") || v.includes("local")) return "bureau";
+      return v;
+    };
+
+    const normalizeText = (val) => (val || "").toString().trim();
+
+    // Convertit les pages Notion -> format simple front
     const annonces = (data.results || []).map((page) => {
       const props = page.properties || {};
 
-      const getTitle = (p) =>
-        (p?.title || []).map((t) => t.plain_text).join("").trim();
+      const rawTypeOffre =
+        getSelect(props["Type d’offre"]) ||
+        getSelect(props["Type offre"]) ||
+        getRichText(props["Type d’offre"]) ||
+        getRichText(props["Type offre"]);
 
-      const getRichText = (p) =>
-        (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
+      const rawTypeBien =
+        getSelect(props["Type de bien"]) ||
+        getSelect(props["Type bien"]) ||
+        getRichText(props["Type de bien"]) ||
+        getRichText(props["Type bien"]);
 
-      const getSelect = (p) => p?.select?.name || "";
-      const getMulti = (p) => (p?.multi_select || []).map((x) => x.name);
+      const rawVille =
+        getSelect(props["Ville"]) ||
+        getRichText(props["Ville"]);
 
-      const getNumber = (p) => (typeof p?.number === "number" ? p.number : null);
-      const getCheckbox = (p) => !!p?.checkbox;
+      const rawQuartier = getRichText(props["Quartier"]) || getSelect(props["Quartier"]);
 
-      const getFiles = (p) =>
-        (p?.files || [])
-          .map((f) => f?.external?.url || f?.file?.url)
-          .filter(Boolean);
+      // ✅ IMPORTANT : utiliser ?? (et pas ||) pour ne pas casser les valeurs 0
+      const prixAr =
+        getNumber(props["Prix Ar"]) ??
+        getNumber(props["Prix"]) ??
+        null;
+
+      const chambres = getNumber(props["Chambres"]) ?? null;
+      const sdb = (getNumber(props["SDB"]) ?? getNumber(props["Salle de bain"]) ?? null);
+      const surface = getNumber(props["Surface"]) ?? null;
+
+      const publie = props["Publié"] ? getCheckbox(props["Publié"]) : true;
 
       return {
         id: page.id,
-        titre: getTitle(props["Titre"]),
-        typeOffre: getSelect(props["Type d’offre"]) || getSelect(props["Type offre"]),
-        typeBien: getSelect(props["Type de bien"]) || getSelect(props["Type bien"]),
-        ville: getSelect(props["Ville"]) || getRichText(props["Ville"]),
-        quartier: getRichText(props["Quartier"]),
-        prixAr: getNumber(props["Prix Ar"]) || getNumber(props["Prix"]),
-        chambres: getNumber(props["Chambres"]),
-        sdb: getNumber(props["SDB"]) || getNumber(props["Salle de bain"]),
-        surface: getNumber(props["Surface"]),
+        titre: normalizeText(getTitle(props["Titre"])),
+
+        typeOffre: normalizeTypeOffre(rawTypeOffre),
+        typeBien: normalizeTypeBien(rawTypeBien),
+
+        ville: normalizeText(rawVille),
+        quartier: normalizeText(rawQuartier),
+
+        prixAr,
+        chambres,
+        sdb,
+        surface,
+
         images: getFiles(props["Images"]),
-        publie: props["Publié"] ? getCheckbox(props["Publié"]) : true,
+        publie,
       };
     });
 
-    // ✅ Même si tu n'as aucune annonce => ça doit retourner []
+    // ✅ Toujours renvoyer un tableau (même vide)
     return res.status(200).json(annonces);
   } catch (e) {
     return res.status(500).json({
