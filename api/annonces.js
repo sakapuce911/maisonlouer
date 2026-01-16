@@ -25,9 +25,7 @@ export default async function handler(req, res) {
 
     const url = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
 
-    // ✅ On tente de filtrer par "Publié" si la propriété existe.
-    // Comme Notion renvoie une erreur si on filtre sur une propriété inexistante,
-    // on fait 2 requêtes : d'abord AVEC filtre, puis fallback SANS filtre si erreur "validation".
+    // ✅ Filtre "Publié" si possible, sinon fallback
     const buildBodyWithFilter = () =>
       JSON.stringify({
         filter: { property: "Publié", checkbox: { equals: true } },
@@ -57,7 +55,7 @@ export default async function handler(req, res) {
     // 1) Tentative avec filtre "Publié"
     let { notionRes, data } = await notionFetch(buildBodyWithFilter());
 
-    // Si Notion refuse le filtre (propriété absente), on retry sans filtre
+    // Si Notion refuse le filtre (propriété absente), retry sans filtre
     if (!notionRes.ok) {
       const msg = (data?.message || "").toLowerCase();
       const isFilterIssue =
@@ -81,10 +79,7 @@ export default async function handler(req, res) {
     // Helpers de parsing Notion
     // -------------------------
     const getTitle = (p) => (p?.title || []).map((t) => t.plain_text).join("").trim();
-
-    const getRichText = (p) =>
-      (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
-
+    const getRichText = (p) => (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
     const getSelect = (p) => p?.select?.name || "";
     const getNumber = (p) => (typeof p?.number === "number" ? p.number : null);
     const getCheckbox = (p) => !!p?.checkbox;
@@ -94,16 +89,20 @@ export default async function handler(req, res) {
         .map((f) => f?.external?.url || f?.file?.url)
         .filter(Boolean);
 
+    const normalizeText = (val) => (val || "").toString().trim();
+
     const normalizeTypeOffre = (val) => {
-      const v = (val || "").toLowerCase().trim();
+      const v = normalizeText(val).toLowerCase();
       if (!v) return "";
+      // accepte: "Location", "À louer", "Louer", etc.
       if (v.includes("lou") || v.includes("loc")) return "location";
+      // accepte: "Vente", "À vendre", "Acheter", etc.
       if (v.includes("ven") || v.includes("ach")) return "vente";
       return v;
     };
 
     const normalizeTypeBien = (val) => {
-      const v = (val || "").toLowerCase().trim();
+      const v = normalizeText(val).toLowerCase();
       if (!v) return "";
       if (v.includes("maison") || v.includes("villa")) return "maison";
       if (v.includes("appart")) return "appartement";
@@ -112,19 +111,23 @@ export default async function handler(req, res) {
       return v;
     };
 
-    const normalizeText = (val) => (val || "").toString().trim();
-
     // Convertit les pages Notion -> format simple front
     const annonces = (data.results || []).map((page) => {
       const props = page.properties || {};
 
+      // ✅ IMPORTANT : on lit maintenant TypeOffre / TypeBien (tes vrais noms de colonnes)
+      // On garde aussi les anciens noms en fallback (au cas où)
       const rawTypeOffre =
+        getSelect(props["TypeOffre"]) ||
+        getRichText(props["TypeOffre"]) ||
         getSelect(props["Type d’offre"]) ||
         getSelect(props["Type offre"]) ||
         getRichText(props["Type d’offre"]) ||
         getRichText(props["Type offre"]);
 
       const rawTypeBien =
+        getSelect(props["TypeBien"]) ||
+        getRichText(props["TypeBien"]) ||
         getSelect(props["Type de bien"]) ||
         getSelect(props["Type bien"]) ||
         getRichText(props["Type de bien"]) ||
@@ -142,8 +145,7 @@ export default async function handler(req, res) {
 
       const publie = props["Publié"] ? getCheckbox(props["Publié"]) : true;
 
-      // ✅ DESCRIPTION : on supporte plusieurs noms possibles
-      // Recommandé dans Notion : colonne "Description" (rich text)
+      // ✅ DESCRIPTION : supporte plusieurs noms possibles
       const description =
         getRichText(props["Description"]) ||
         getRichText(props["Détails"]) ||
@@ -167,15 +169,12 @@ export default async function handler(req, res) {
         surface,
 
         images: getFiles(props["Images"]),
-
-        // ✅ Nouveau champ
         description: normalizeText(description),
 
         publie,
       };
     });
 
-    // ✅ Toujours renvoyer un tableau (même vide)
     return res.status(200).json(annonces);
   } catch (e) {
     return res.status(500).json({
