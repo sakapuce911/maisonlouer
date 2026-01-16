@@ -487,3 +487,40 @@ body {
     margin-bottom: 0 !important; /* annule le 68px mobile de style.css */
   }
 }
+/* =========================================================
+   CUSTOM GLOBAL STYLES – MaisonLouer
+   Fichier : assets/css/custom.css
+   Objectif de ce patch :
+   - Changer UNIQUEMENT la couleur du footer
+   - Mobile + Desktop
+   - Sans impacter header ni layout
+   ========================================================= */
+
+/* =====================================================
+   FOOTER – COULEUR UNIFIÉE (MOBILE + DESKTOP)
+   Ancienne couleur : #282b37
+   Nouvelle couleur  : #0b203a
+   ===================================================== */
+
+/* Footer principal */
+.footer {
+  background-color: #0b203a !important;
+}
+
+/* Barre inférieure du footer */
+.footer-bottom {
+  background-color: #0b203a !important;
+}
+
+/* Textes et liens : on garde la lisibilité */
+.footer,
+.footer a,
+.footer p,
+.footer span {
+  color: #ffffff !important;
+}
+
+/* Hover lien footer (léger contraste, sans changer le style global) */
+.footer a:hover {
+  opacity: 0.85;
+}
