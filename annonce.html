@@ -10,7 +10,6 @@
   <meta name="description" content="Détails de l’annonce sur MaisonLouer : photos, prix, description et contact." />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
-
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/custom.css">
   <link rel="stylesheet" href="./assets/css/fix-header.css">
@@ -23,17 +22,16 @@
 
   <style>
     .annonce-wrap { padding: 120px 0 70px; }
+    .annonce-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    .annonce-kicker { margin: 0 0 6px; color: #6b7280; font-weight: 800; letter-spacing: .02em; }
+    .annonce-title { margin: 0; font-size: 34px; line-height: 1.15; font-weight: 900; color: #111827; }
+    .annonce-sub { margin: 10px 0 0; color: #6b7280; }
 
-    .annonce-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:14px; }
-    .annonce-kicker { margin:0 0 6px; color:#6b7280; font-weight:800; letter-spacing:.02em; }
-    .annonce-title { margin:0; font-size:34px; line-height:1.15; font-weight:900; color:#111827; }
-    .annonce-sub { margin:10px 0 0; color:#6b7280; }
-
-    .annonce-badges { display:flex; gap:10px; flex-wrap:wrap; }
+    .annonce-badges { display: flex; gap: 10px; flex-wrap: wrap; }
     .pill { display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.02em;border:1px solid #e5e7eb;background:#fff;color:#111827;white-space:nowrap; }
     .pill.green { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #065f46; }
-    .pill.blue  { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
-    .pill.gray  { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
+    .pill.blue { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
+    .pill.gray { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
 
     .annonce-grid { display:grid; grid-template-columns: 1.35fr 0.9fr; gap:18px; align-items:start; margin-top:18px; }
 
@@ -59,11 +57,17 @@
     .kpi strong { display:block; font-size:16px; color:#111827; }
     .kpi span { display:block; font-size:12px; color:#6b7280; font-weight:800; margin-top:3px; }
 
-    /* CTA plus "aesthetic" */
-    .cta { display:grid; gap:12px; margin-top:16px; }
+    /* ✅ CTA : WhatsApp + Email côte à côte, Retour sur 1 ligne */
+    .cta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
     .cbtn {
-      border:none; border-radius:16px;
-      padding:14px 16px;
+      border:none;
+      border-radius:14px;
+      padding: 12px 14px;
       font-weight:900;
       cursor:pointer;
       display:inline-flex;
@@ -72,28 +76,10 @@
       gap:10px;
       text-decoration:none;
       width:100%;
-      box-shadow: 0 10px 18px rgba(0,0,0,.10);
-      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
     }
-    .cbtn:hover { transform: translateY(-1px); box-shadow: 0 14px 22px rgba(0,0,0,.14); }
-    .cbtn:active { transform: translateY(0px); filter: brightness(.98); }
-
-    .cbtn.primary {
-      background: linear-gradient(180deg, #ff7a1a, #ff6b00);
-      color:#fff;
-    }
-    .cbtn.dark {
-      background: linear-gradient(180deg, #0b203a, #08192e);
-      color:#fff;
-    }
-    .cbtn.ghost {
-      background: rgba(255,255,255,.85);
-      color:#111827;
-      border: 2px solid rgba(229,231,235,.9);
-      box-shadow: none;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
+    .cbtn.primary { background:#ff6b00; color:#fff; }
+    .cbtn.dark { background:#111827; color:#fff; }
+    .cbtn.ghost { background:#fff; color:#111827; border:2px solid #e5e7eb; grid-column: 1 / -1; }
 
     .content-pad { padding:16px; }
     .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
@@ -102,32 +88,28 @@
     .backrow { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
     .backrow a { text-decoration:none; }
 
-    .err {
-      border: 1px solid rgba(176,0,32,.25);
-      background: rgba(176,0,32,.06);
-      color: #7a0016;
-      padding: 14px;
-      border-radius: 14px;
-      font-weight: 800;
-    }
-
     @media (max-width:980px){
       .annonce-grid{grid-template-columns:1fr;}
       .gallery-thumbs{grid-template-columns:repeat(5,1fr);}
       .annonce-title{font-size:30px;}
     }
+
     @media (max-width:640px){
       .annonce-wrap{padding:105px 0 60px;}
       .annonce-title{font-size:26px;}
       .gallery-thumbs{grid-template-columns:repeat(4,1fr);}
       .price{font-size:24px;}
+
+      /* ✅ Mobile : CTA en colonne */
+      .cta { grid-template-columns: 1fr; }
+      .cbtn.ghost { grid-column: auto; }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ✅ HEADER IDENTIQUE AUX AUTRES PAGES (comme index.html) -->
+  <!-- ✅ HEADER identique aux autres pages (index/contact) -->
   <header class="header" data-header>
     <div class="overlay" data-overlay></div>
 
@@ -196,7 +178,6 @@
     </div>
   </footer>
 
-  <!-- scripts -->
   <script src="./assets/js/script.js"></script>
 
   <script>
@@ -204,8 +185,11 @@
       const container = document.getElementById("annonce-container");
       if (!container) return;
 
+      // ✅ Email global MaisonLouer
+      const CONTACT_EMAIL = "maisonlouer.mada@outlook.com";
+
+      // ✅ WhatsApp par défaut si l'annonce n'en a pas
       const DEFAULT_WA = "261385436196";
-      const DEFAULT_EMAIL = "maisonlouer.mada@outlook.com";
 
       function norm(str) { return (str || "").toString().trim().toLowerCase(); }
 
@@ -216,24 +200,19 @@
         return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
       }
 
-      async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+      async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeoutMs);
-        try {
-          return await fetch(url, { ...options, signal: controller.signal });
-        } finally {
-          clearTimeout(id);
-        }
+        try { return await fetch(url, { ...options, signal: controller.signal }); }
+        finally { clearTimeout(id); }
       }
 
+      // ✅ Uniquement Notion via /api/annonces (plus de fallback JSON)
       async function fetchAnnoncesFromApiOnly() {
-        const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 10000);
-        if (!resApi.ok) {
-          const txt = await resApi.text().catch(() => "");
-          throw new Error(`API /api/annonces indisponible (${resApi.status}). ${txt ? "Détail: " + txt : ""}`);
-        }
-        const data = await resApi.json();
-        if (!Array.isArray(data)) throw new Error("Format API invalide : tableau attendu.");
+        const res = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
+        if (!res.ok) throw new Error(`API indisponible (${res.status})`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Format API invalide (attendu: tableau)");
         return data;
       }
 
@@ -243,8 +222,10 @@
         return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
       }
 
-      function safeText(v) {
-        return (v === null || v === undefined) ? "" : String(v);
+      function buildMailLink(titre, pageUrl) {
+        const subject = `Demande d'information - ${titre}`;
+        const body = `Bonjour,\n\nJe suis intéressé(e) par l'annonce : ${titre}\nLien : ${pageUrl}\n\nMerci.`;
+        return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       }
 
       function buildHtml(a) {
@@ -252,19 +233,19 @@
         const offre = norm(a.typeOffre);
         const bien = norm(a.typeBien);
 
-        const badgeOffre = (offre === "location") ? "À LOUER" : (offre === "vente") ? "EN VENTE" : "ANNONCE";
-        const pillOffreClass = (offre === "location") ? "green" : (offre === "vente") ? "blue" : "gray";
+        const badgeOffre = (offre === "location") ? "À LOUER" : (offre === "vente" ? "EN VENTE" : "ANNONCE");
+        const pillOffreClass = (offre === "location") ? "green" : (offre === "vente" ? "blue" : "gray");
         const badgeBien = bien ? bien.toUpperCase() : "BIEN";
 
         const prix = formatPriceAr(a.prixAr);
 
-        const ville = safeText(a.ville);
-        const quartier = safeText(a.quartier);
+        const ville = a.ville || "";
+        const quartier = a.quartier || "";
         const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
 
-        const chambres = (a.chambres === 0 || a.chambres) ? Number(a.chambres) : null;
-        const sdb = (a.sdb === 0 || a.sdb) ? Number(a.sdb) : null;
-        const surface = (a.surface === 0 || a.surface) ? Number(a.surface) : null;
+        const chambres = (a.chambres !== null && a.chambres !== undefined) ? Number(a.chambres) : null;
+        const sdb = (a.sdb !== null && a.sdb !== undefined) ? Number(a.sdb) : null;
+        const surface = (a.surface !== null && a.surface !== undefined) ? Number(a.surface) : null;
 
         const description = a.description ? a.description : "Aucune description pour le moment.";
 
@@ -273,7 +254,7 @@
 
         const pageUrl = window.location.href;
         const waLink = buildWhatsAppLink(a.whatsapp, titre, pageUrl);
-        const mailLink = `mailto:${encodeURIComponent(DEFAULT_EMAIL)}?subject=${encodeURIComponent("Demande d'information - " + titre)}&body=${encodeURIComponent("Bonjour,\n\nJe souhaite plus d’informations sur cette annonce : " + titre + "\nLien : " + pageUrl + "\n\nMerci.")}`;
+        const mailLink = buildMailLink(titre, pageUrl);
 
         return `
           <div class="annonce-head">
@@ -300,7 +281,7 @@
               <div class="card">
                 <div class="gallery-main">
                   <img id="galleryMainImg" src="${mainImg}" alt="${titre}">
-                  <div class="gallery-nav">
+                  <div class="gallery-nav" aria-hidden="false">
                     <button class="gbtn" id="gPrev" type="button" aria-label="Photo précédente">
                       <ion-icon name="chevron-back-outline"></ion-icon>
                     </button>
@@ -349,6 +330,7 @@
                   <div class="kpi"><strong>${surface !== null ? surface : "-"}</strong><span>m²</span></div>
                 </div>
 
+                <!-- ✅ CTA alignés -->
                 <div class="cta">
                   <a class="cbtn primary" href="${waLink}" target="_blank" rel="noopener">
                     <ion-icon name="logo-whatsapp"></ion-icon>
@@ -422,35 +404,41 @@
         const id = params.get("id");
 
         if (!id) {
-          container.innerHTML = `<div class="err">Erreur : aucune annonce sélectionnée (ID manquant).</div>`;
+          container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : aucune annonce sélectionnée. (ID manquant)</p>`;
           return;
         }
 
+        let annonces = [];
         try {
-          const annonces = await fetchAnnoncesFromApiOnly();
-
-          const a = annonces.find(x => String(x.id) === String(id));
-          if (!a) {
-            container.innerHTML = `<div class="err">Annonce introuvable (ID : ${id}). Vérifie que l’annonce est bien dans Notion et publiée.</div>`;
-            return;
-          }
-
-          document.title = `${a.titre || "Annonce"} - MaisonLouer`;
-          const metaDesc = document.querySelector('meta[name="description"]');
-          if (metaDesc) {
-            const snippet = (a.description || "").replace(/\s+/g, " ").trim();
-            metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
-          }
-
-          container.innerHTML = buildHtml(a);
-          initGallery(a.images);
-
+          annonces = await fetchAnnoncesFromApiOnly();
         } catch (e) {
-          container.innerHTML = `<div class="err">Impossible de charger l’annonce. ${e.message}</div>`;
+          container.innerHTML = `
+            <p style="color:#b00020; font-weight:800;">
+              Impossible de charger l’annonce (API Notion).<br>
+              Détail : ${e.message}
+            </p>
+          `;
+          return;
         }
+
+        const a = annonces.find(x => String(x.id) === String(id));
+        if (!a) {
+          container.innerHTML = `<p style="color:#b00020; font-weight:800;">Annonce introuvable (ID : ${id}).</p>`;
+          return;
+        }
+
+        document.title = `${a.titre || "Annonce"} - MaisonLouer`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          const snippet = (a.description || "").replace(/\s+/g, " ").trim();
+          metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
+        }
+
+        container.innerHTML = buildHtml(a);
+        initGallery(a.images);
       }
 
-      document.addEventListener("DOMContentLoaded", init);
+      init();
     })();
   </script>
 
@@ -459,5 +447,4 @@
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 </body>
-
 </html>
