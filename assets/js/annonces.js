@@ -6,11 +6,32 @@
    - recherche.html => filtres + ROA cards (mix louer/vendre)
    - autres pages   => rendu classique
 
-   ✅ Mise à jour:
-   - Essaie d'abord /api/annonces (Notion via Vercel)
-   - Fallback automatique vers ./assets/data/annonces.json si /api échoue (local / sans Vercel)
-   ========================= */
+   ✅ Mise à jour (2026):
+   - Source unique : Supabase (REST API) -> table public.annonces
+   - RLS doit autoriser SELECT sur les lignes "Publié = true"
+   - Cache sessionStorage pour accélérer
 
+   ⚠️ Note:
+   - Tes colonnes Supabase sont : "Titre", "TypeOffre", "Prix", "Publié", etc.
+   - On NORMALISE ici pour garder ton code existant (titre, typeOffre, prixAr, ...)
+========================= */
+
+/* =========================
+   CONFIG SUPABASE (déjà fourni)
+========================= */
+const SUPABASE_URL = "https://glysaizevxujkiuuwflv.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdseXNhaXpldnh1amtpdXV3Zmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MDYxOTksImV4cCI6MjA4NDM4MjE5OX0.K29buPf0NxCLw4JSdbxUshHRC9BUMikfakRUPCDVi0w";
+
+/* =========================
+   CACHE (accélère beaucoup)
+========================= */
+const CACHE_KEY = "maisonlouer_supabase_annonces_v1";
+const CACHE_TTL_MS = 60 * 1000; // 60 secondes (tu peux mettre 5*60*1000 si tu veux)
+
+/* =========================
+   FETCH HELPERS
+========================= */
 async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -22,25 +43,137 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
   }
 }
 
-async function fetchAnnonces() {
-  // 1) ✅ Source principale : API Vercel (Notion)
+function readCache() {
   try {
-    const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
-    if (resApi.ok) {
-      const data = await resApi.json();
-      if (Array.isArray(data)) return data;
-      throw new Error("Format API invalide (attendu: tableau)");
-    }
-    // si /api/annonces répond mais en erreur
-    throw new Error(`API Notion indisponible (${resApi.status})`);
-  } catch (e) {
-    // 2) ✅ Fallback : JSON local (utile en dev local / live server)
-    const res = await fetch("./assets/data/annonces.json");
-    if (!res.ok) throw new Error("Impossible de charger annonces.json (fallback)");
-    return await res.json();
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || !obj.ts || !obj.data) return null;
+    if (Date.now() - obj.ts > CACHE_TTL_MS) return null;
+    return obj.data;
+  } catch {
+    return null;
   }
 }
 
+function writeCache(data) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+  } catch {
+    // ignore
+  }
+}
+
+function slugify(str) {
+  return (str || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // enlève accents
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/* =========================
+   SUPABASE -> NORMALISATION
+   (on retourne le format attendu par TON code)
+========================= */
+function normalizeAnnonce(row, index) {
+  // Tes champs Supabase (d’après ton JSON):
+  // Titre, TypeOffre, TypeBien, Ville, Quartier, Prix, Chambres, SDB, Surface,
+  // Images, Description, Publié, lat, lng, WhatsApp, ListéParNous, Status, Date d'ajout
+
+  const titre = row["Titre"] ?? "";
+  const dateAjout = row["Date d'ajout"] ?? "";
+  const syntheticId = `${slugify(titre)}-${index + 1}`;
+
+  // images: tu as "Images: null" pour le moment.
+  // Si plus tard tu mets un texte du type "url1|url2|url3", on le transforme en tableau.
+  let imagesArr = [];
+  if (typeof row["Images"] === "string" && row["Images"].trim()) {
+    imagesArr = row["Images"]
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return {
+    // ⚠️ Tu n’as pas de colonne id pour l’instant → on génère un id stable “approx”.
+    // Si tu ajoutes une colonne "id" plus tard dans Supabase, remplace ici par row["id"].
+    id: row["id"] ?? syntheticId,
+
+    titre: titre,
+    typeOffre: row["TypeOffre"] ?? "",
+    typeBien: row["TypeBien"] ?? "",
+    ville: row["Ville"] ?? "",
+    quartier: row["Quartier"] ?? "",
+
+    // Ton code attend prixAr (Ar)
+    prixAr: row["Prix"] ?? null,
+
+    chambres: row["Chambres"] ?? null,
+    sdb: row["SDB"] ?? null,
+    surface: row["Surface"] ?? null,
+
+    images: imagesArr.length ? imagesArr : [],
+
+    description: row["Description"] ?? "",
+
+    // ton code filtre par publie côté API RLS déjà,
+    // mais on conserve aussi côté JS
+    publie: row["Publié"] === true,
+
+    lat: row["lat"] ?? null,
+    lng: row["lng"] ?? null,
+    whatsapp: row["WhatsApp"] ?? "",
+
+    listeParNous: row["ListéParNous"] === true,
+    status: row["Status"] ?? "",
+    dateAjout: dateAjout,
+  };
+}
+
+async function fetchAnnonces() {
+  // 1) Cache
+  const cached = readCache();
+  if (cached) return cached;
+
+  // 2) Supabase REST
+  const url = `${SUPABASE_URL}/rest/v1/annonces?select=*`;
+
+  const res = await fetchWithTimeout(
+    url,
+    {
+      method: "GET",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    },
+    8000
+  );
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Supabase indisponible (${res.status}) ${txt}`);
+  }
+
+  const rows = await res.json();
+  if (!Array.isArray(rows)) throw new Error("Format Supabase invalide (attendu: tableau)");
+
+  const annonces = rows.map((r, i) => normalizeAnnonce(r, i));
+
+  // (Optionnel) filtre sécurité côté JS aussi
+  const publiees = annonces.filter((a) => a.publie === true);
+
+  writeCache(publiees);
+  return publiees;
+}
+
+/* =========================
+   TON CODE EXISTANT (inchangé)
+========================= */
 function formatPriceAr(prixAr) {
   if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
   const n = Number(prixAr);
@@ -134,13 +267,15 @@ function createRoaCard(a, mode) {
       ? (offre === "location" ? "À LOUER" : "EN VENTE")
       : (mode === "vente" ? "EN VENTE" : "À LOUER");
 
+  const showListeParNous = a.listeParNous === true;
+
   return `
     <article class="roa-rent-card">
       <a class="roa-rent-media" href="${link}" aria-label="Ouvrir l'annonce">
         <img src="${img}" alt="${a.titre || "Annonce"}">
 
         <div class="roa-rent-badges">
-          <span class="roa-pill dark">LISTÉ PAR NOUS</span>
+          ${showListeParNous ? `<span class="roa-pill dark">LISTÉ PAR NOUS</span>` : ``}
           <span class="roa-pill green">${badgeB}</span>
         </div>
 
@@ -199,6 +334,7 @@ async function initAnnonces() {
 
   let annonces = [];
   try {
+    container.innerHTML = `<p>Chargement des annonces…</p>`;
     annonces = await fetchAnnonces();
   } catch (e) {
     container.innerHTML = `<p style="color:#b00020;">Erreur : ${e.message}</p>`;
