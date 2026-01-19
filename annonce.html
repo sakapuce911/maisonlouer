@@ -63,7 +63,14 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 16px;
+
+      /* ✅ Fix fond bleu/noir derrière le bouton ghost */
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 0;
+      overflow: visible;
     }
+
     .cbtn {
       border:none;
       border-radius:14px;
@@ -76,10 +83,25 @@
       gap:10px;
       text-decoration:none;
       width:100%;
+      line-height: 1.2;
     }
+
     .cbtn.primary { background:#ff6b00; color:#fff; }
     .cbtn.dark { background:#111827; color:#fff; }
-    .cbtn.ghost { background:#fff; color:#111827; border:2px solid #e5e7eb; grid-column: 1 / -1; }
+
+    /* ✅ Bouton Retour : 100% blanc, pas de “bleed” */
+    .cbtn.ghost {
+      grid-column: 1 / -1;
+      background:#ffffff !important;
+      color:#111827 !important;
+      border:2px solid #e5e7eb !important;
+      box-shadow: none !important;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ✅ On s’assure que la carte latérale est bien blanche */
+    aside.card { background:#ffffff !important; }
 
     .content-pad { padding:16px; }
     .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
