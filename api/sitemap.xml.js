@@ -25,12 +25,15 @@ export default async function handler(req, res) {
     if (!SUPABASE_KEY) {
       res.statusCode = 500;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      return res.end("SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY manquant dans Vercel");
+      return res.end(
+        "SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY manquant dans Vercel"
+      );
     }
 
-    // On récupère uniquement ce qu'il faut pour le sitemap
+    // ✅ On récupère UNIQUEMENT les colonnes sûres
+    // (chez toi, updated_at n'existe pas -> on utilise created_at)
     const base = `${SUPABASE_URL}/rest/v1/annonces`;
-    const url = `${base}?select=id,created_at,updated_at,publie&publie=eq.true&order=created_at.desc.nullslast`;
+    const url = `${base}?select=id,created_at,publie&publie=eq.true&order=created_at.desc.nullslast`;
 
     const sbRes = await fetch(url, {
       headers: {
@@ -86,7 +89,9 @@ export default async function handler(req, res) {
         const id = r?.id ? String(r.id) : "";
         if (!id) return null;
 
-        const lastmod = toIsoDate(r.updated_at || r.created_at);
+        // lastmod = created_at (puisque updated_at n'existe pas)
+        const lastmod = toIsoDate(r.created_at);
+
         return {
           loc: `${SITE}/annonce.html?id=${encodeURIComponent(id)}`,
           lastmod,
@@ -115,7 +120,6 @@ ${all
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
-    // Cache léger (Google n'a pas besoin de refresh chaque seconde)
     res.setHeader("Cache-Control", "public, max-age=1800"); // 30 minutes
     return res.end(xml);
   } catch (e) {
