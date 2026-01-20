@@ -6,6 +6,8 @@
 // ENV requis dans Vercel :
 // - SUPABASE_URL
 // - SUPABASE_SERVICE_ROLE_KEY (recommandé) ou SUPABASE_ANON_KEY
+//
+// ✅ Ajout 2026-01 : renvoie aussi lat/lng (pour Home Nearby)
 // =========================
 
 export default async function handler(req, res) {
@@ -30,7 +32,8 @@ export default async function handler(req, res) {
 
     const base = `${SUPABASE_URL}/rest/v1/annonces`;
 
-    // On filtre sur publie=true (ta colonne Supabase est "publie")
+    // ✅ On filtre sur publie=true
+    // ✅ On SELECT tout (incluant lat/lng si les colonnes existent)
     const url = `${base}?select=*&publie=eq.true&order=created_at.desc.nullslast`;
 
     const sbRes = await fetch(url, {
@@ -90,7 +93,7 @@ export default async function handler(req, res) {
 
     const toNumberOrNull = (v) => {
       if (v === null || v === undefined || v === "") return null;
-      const n = Number(v);
+      const n = Number(String(v).replace(/\s+/g, ""));
       return Number.isFinite(n) ? n : null;
     };
 
@@ -109,22 +112,48 @@ export default async function handler(req, res) {
       return [];
     };
 
-    // ✅ IMPORTANT : on lit maintenant aussi les colonnes Supabase en minuscules :
-    // typeoffre / typebien / prixar
+    // ✅ NEW: lat/lng (compat: lat|latitude / lng|longitude)
+    const toLatLng = (row) => {
+      const lat = row.lat ?? row.latitude ?? row.Lat ?? row.Latitude ?? null;
+      const lng = row.lng ?? row.longitude ?? row.Lng ?? row.Longitude ?? row.lon ?? row.Lon ?? null;
+      const latN = toNumberOrNull(lat);
+      const lngN = toNumberOrNull(lng);
+      return { lat: latN, lng: lngN };
+    };
+
+    // Mapping + normalisation (garde ton format front)
     const annonces = data.map((row) => {
       const titre = row.titre ?? row.Titre ?? row.title ?? row.Title ?? "";
 
       const typeOffreRaw =
-        row.typeoffre ?? row.typeOffre ?? row.TypeOffre ?? row.type_offre ?? row["Type d’offre"] ?? row["Type offre"] ?? "";
+        row.typeoffre ??
+        row.typeOffre ??
+        row.TypeOffre ??
+        row.type_offre ??
+        row["Type d’offre"] ??
+        row["Type offre"] ??
+        "";
 
       const typeBienRaw =
-        row.typebien ?? row.typeBien ?? row.TypeBien ?? row.type_bien ?? row["Type de bien"] ?? row["Type bien"] ?? "";
+        row.typebien ??
+        row.typeBien ??
+        row.TypeBien ??
+        row.type_bien ??
+        row["Type de bien"] ??
+        row["Type bien"] ??
+        "";
 
       const ville = row.ville ?? row.Ville ?? "";
       const quartier = row.quartier ?? row.Quartier ?? "";
 
       const prixAr =
-        row.prixar ?? row.prixAr ?? row.PrixAr ?? row["Prix Ar"] ?? row.Prix ?? row.prix ?? null;
+        row.prixar ??
+        row.prixAr ??
+        row.PrixAr ??
+        row["Prix Ar"] ??
+        row.Prix ??
+        row.prix ??
+        null;
 
       const chambres = row.chambres ?? row.Chambres ?? null;
       const sdb = row.sdb ?? row.Sdb ?? row.SDB ?? row["Salle de bain"] ?? null;
@@ -136,6 +165,8 @@ export default async function handler(req, res) {
       const whatsapp = row.whatsapp ?? row.WhatsApp ?? row.telephone ?? row.Téléphone ?? "";
 
       const publie = row.publie ?? row.Publié ?? row.published ?? row.Published ?? true;
+
+      const { lat, lng } = toLatLng(row);
 
       return {
         id: row.id ?? row.ID ?? row.Id ?? row.uuid ?? row.UUID ?? "",
@@ -158,10 +189,14 @@ export default async function handler(req, res) {
         whatsapp: normalizeWhatsApp(whatsapp),
 
         publie: toBool(publie),
+
+        // ✅ NEW (pour nearby)
+        lat,
+        lng,
       };
     });
 
-    // sécurité : on garde uniquement publiées
+    // sécurité : uniquement publiées
     const publishedOnly = annonces.filter((a) => a.publie === true);
 
     return res.status(200).json(publishedOnly);
