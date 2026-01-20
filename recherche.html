@@ -5,13 +5,36 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recherche - MaisonLouer</title>
 
-  <!-- SEO MaisonLouer -->
+  <!-- ✅ SEO Title (intention recherche) -->
+  <title>Recherche immobilier Madagascar : louer ou acheter | MaisonLouer</title>
+
+  <!-- ✅ SEO Description (CTR + promesse claire) -->
   <meta name="description"
-    content="Recherche MaisonLouer : trouvez un bien à louer ou à acheter à Madagascar. Filtrez par ville, quartier, budget, type de bien et chambres." />
-  <meta name="keywords"
-    content="recherche immobilier madagascar, maisonlouer recherche, maison à louer, appartement à louer, maison à vendre, annonces immobilières" />
+    content="Recherche immobilier Madagascar : trouvez une maison ou un appartement à louer ou à vendre (Antananarivo, Ivandry, Andraharo…). Filtrez par zone, budget, type de bien et chambres. Contact WhatsApp." />
+
+  <!-- ✅ Canonical -->
+  <link rel="canonical" href="https://maisonlouer.vercel.app/recherche.html" />
+
+  <!-- ✅ Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MaisonLouer" />
+  <meta property="og:title" content="Recherche immobilier Madagascar : louer ou acheter | MaisonLouer" />
+  <meta property="og:description"
+    content="Filtrez par ville/quartier, budget, type de bien et chambres pour trouver une location ou un bien à vendre à Madagascar. Contact WhatsApp." />
+  <meta property="og:url" content="https://maisonlouer.vercel.app/recherche.html" />
+  <meta property="og:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+  <meta property="og:image:alt" content="Recherche immobilier Madagascar - MaisonLouer" />
+
+  <!-- ✅ Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Recherche immobilier Madagascar : louer ou acheter | MaisonLouer" />
+  <meta name="twitter:description"
+    content="Trouvez une maison ou un appartement à louer ou à vendre à Madagascar. Filtrez par zone, budget, type de bien et chambres." />
+  <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+
+  <meta name="robots" content="index, follow, max-image-preview:large" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
@@ -27,7 +50,7 @@
     .ml-steps {
       padding: 70px 0 80px;
       background: #fff;
-      border-top: 1px solid rgba(0,0,0,.06);
+      border-top: 1px solid rgba(0, 0, 0, .06);
     }
 
     .ml-steps-head {
@@ -59,17 +82,17 @@
 
     .ml-step-card {
       background: #fff;
-      border: 1px solid rgba(0,0,0,.12);
+      border: 1px solid rgba(0, 0, 0, .12);
       border-radius: 18px;
       padding: 22px 20px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
       transition: transform .15s ease, box-shadow .15s ease;
       min-height: 170px;
     }
 
     .ml-step-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 18px 34px rgba(0,0,0,0.08);
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.08);
     }
 
     .ml-step-badge {
@@ -95,9 +118,23 @@
 
     .ml-step-text {
       margin: 0;
-      color: rgba(17,24,39,.78);
+      color: rgba(17, 24, 39, .78);
       line-height: 1.55;
       font-size: 0.98rem;
+    }
+
+    /* ✅ SEO bloc texte discret (utile Google sans gêner UX) */
+    .ml-seo {
+      padding: 70px 0 80px;
+      background: #fff;
+      border-top: 1px solid rgba(0, 0, 0, .06);
+    }
+
+    .ml-seo p {
+      max-width: 980px;
+      color: #4b5563;
+      line-height: 1.85;
+      margin: 0;
     }
 
     @media (max-width: 1020px) {
@@ -168,9 +205,13 @@
         <div class="search-hero-overlay"></div>
         <div class="container search-hero-content">
           <p class="search-kicker">MaisonLouer</p>
-          <h1 class="search-title">Je cherche un bien</h1>
+
+          <!-- ✅ H1 SEO -->
+          <h1 class="search-title">Recherche immobilier Madagascar</h1>
+
           <p class="search-subtitle">
-            Trouvez rapidement un bien à louer ou à acheter selon votre zone et votre budget.
+            Trouvez une <strong>maison</strong>, un <strong>appartement</strong> ou un <strong>terrain</strong>
+            à <strong>louer</strong> ou <strong>acheter</strong> selon votre zone et votre budget.
           </p>
         </div>
       </section>
@@ -191,7 +232,7 @@
             <div class="pg-main">
               <div class="pg-input">
                 <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-                <input id="zone" type="text" placeholder="Ville ou quartier (ex : Ivandry, Analakely…)" />
+                <input id="zone" type="text" placeholder="Ville ou quartier (ex : Antananarivo, Ivandry, Andraharo…)" />
               </div>
 
               <button class="pg-btn-search" id="btn-rechercher" type="button">
@@ -251,7 +292,7 @@
             <div id="resultats-info" class="pg-results-info"></div>
           </div>
 
-          <!-- RÉSULTATS EN BLOCS -->
+          <!-- RÉSULTATS -->
           <div id="listings-container" style="margin-top:24px;">
             <p>Chargement des annonces...</p>
           </div>
@@ -259,7 +300,7 @@
         </div>
       </section>
 
-      <!-- ✅ NOUVELLE SECTION : COMMENT ÇA MARCHE (avant footer) -->
+      <!-- ✅ COMMENT ÇA MARCHE -->
       <section class="ml-steps" aria-label="comment ça marche">
         <div class="container">
           <div class="ml-steps-head">
@@ -273,7 +314,7 @@
               <div class="ml-step-badge">1</div>
               <h3 class="ml-step-name">Définissez</h3>
               <p class="ml-step-text">
-                Choisissez votre zone, votre budget et le type de bien recherché.
+                Choisissez votre ville/quartier, votre budget et le type de bien recherché.
               </p>
             </article>
 
@@ -281,7 +322,7 @@
               <div class="ml-step-badge">2</div>
               <h3 class="ml-step-name">Filtrez</h3>
               <p class="ml-step-text">
-                Affinez avec les filtres (offre, chambres, tri par prix) pour gagner du temps.
+                Affinez par offre (location/vente), chambres et tri par prix pour gagner du temps.
               </p>
             </article>
 
@@ -289,7 +330,7 @@
               <div class="ml-step-badge">3</div>
               <h3 class="ml-step-name">Comparez</h3>
               <p class="ml-step-text">
-                Comparez les annonces : prix, localisation et caractéristiques essentielles.
+                Comparez les annonces : prix, localisation, photos et caractéristiques essentielles.
               </p>
             </article>
 
@@ -297,7 +338,7 @@
               <div class="ml-step-badge">4</div>
               <h3 class="ml-step-name">Contactez</h3>
               <p class="ml-step-text">
-                Ouvrez l’annonce et contactez rapidement pour organiser une visite.
+                Ouvrez l’annonce et contactez rapidement via WhatsApp pour organiser une visite.
               </p>
             </article>
 
@@ -305,10 +346,30 @@
         </div>
       </section>
 
+      <!-- ✅ TEXTE SEO (local + keywords, discret) -->
+      <section class="ml-seo" aria-label="texte seo recherche">
+        <div class="container">
+          <div class="ml-steps-head">
+            <p class="ml-steps-kicker">Immobilier à Madagascar</p>
+            <h2 class="ml-steps-title">Trouver une location ou un bien à vendre par zone</h2>
+          </div>
+
+          <p>
+            MaisonLouer vous aide à faire une <strong>recherche immobilière à Madagascar</strong> pour trouver une
+            <strong>maison à louer</strong>, un <strong>appartement à louer</strong>, une <strong>maison à vendre</strong>
+            ou un <strong>terrain à vendre</strong>.
+            Les recherches les plus fréquentes concernent <strong>Antananarivo</strong> et des quartiers comme
+            <strong>Ivandry</strong>, <strong>Andraharo</strong>, <strong>Ambatobe</strong>, <strong>Ankorondrano</strong>,
+            <strong>Analamahitsy</strong> ou <strong>Analakely</strong>.
+            Utilisez les filtres (zone, budget, type de bien, chambres) pour repérer rapidement les annonces qui correspondent à votre besoin.
+          </p>
+        </div>
+      </section>
+
     </article>
   </main>
 
-  <!-- FOOTER (copie exacte accueil) -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-bottom">
       <div class="container">
@@ -342,4 +403,5 @@
   </script>
 
 </body>
+
 </html>
