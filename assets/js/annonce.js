@@ -1,13 +1,21 @@
 /* =========================
    File: assets/js/annonce.js
    Objectif:
-   - annonce.html => détails d’un bien via /api/annonces
+   - annonce.html => détails d’un bien via /api/annonces (Supabase)
    - URL attendue : annonce.html?id=<uuid>
+
+   ✅ SEO/Partage (2026-01):
+   - Dispatch event: ml:annonceLoaded (pour title/meta/OG/canonical/schema dans annonce.html)
+   - Canonical stable: https://maisonlouer.vercel.app/annonce.html?id=<uuid>
+   - Partage: Web Share API / copie lien / fallback WhatsApp
 ========================= */
 
 (function () {
   const container = document.getElementById("annonce-container");
   if (!container) return;
+
+  // ✅ Domaine officiel (Vercel)
+  const SITE_URL = "https://maisonlouer.vercel.app";
 
   // Email global MaisonLouer
   const CONTACT_EMAIL = "maisonlouer.mada@outlook.com";
@@ -61,13 +69,18 @@
     return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   }
 
+  function buildWhatsAppShareLink(titre, pageUrl) {
+    const text = `Annonce MaisonLouer : ${titre}\n${pageUrl}`;
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+  }
+
   function buildMailLink(titre, pageUrl) {
     const subject = `Demande d'information - ${titre}`;
     const body = `Bonjour,\n\nJe suis intéressé(e) par l'annonce : ${titre}\nLien : ${pageUrl}\n\nMerci.`;
     return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
-  function buildHtml(a) {
+  function buildHtml(a, canonicalUrl) {
     const titre = a.titre || "Annonce";
     const offre = norm(a.typeOffre);
     const bien = norm(a.typeBien);
@@ -99,7 +112,9 @@
     const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
     const mainImg = images.length ? images[0] : "./assets/images/property-1.jpg";
 
-    const pageUrl = window.location.href;
+    // ✅ URL stable (canonical) : évite les variations (utm, hash, etc.)
+    const pageUrl = canonicalUrl || window.location.href;
+
     const waLink = buildWhatsAppLink(a.whatsapp, titre, pageUrl);
     const mailLink = buildMailLink(titre, pageUrl);
 
@@ -252,29 +267,38 @@
     }
   }
 
-  function initShare(titre) {
+  function initShare(titre, canonicalUrl) {
     const btn = document.getElementById("btn-share");
     if (!btn) return;
 
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
-      const url = window.location.href;
+
+      const url = canonicalUrl || window.location.href;
+      const shareTitle = titre || "Annonce MaisonLouer";
+      const shareText = "Annonce immobilière sur MaisonLouer";
 
       try {
         if (navigator.share) {
           await navigator.share({
-            title: titre || "Annonce MaisonLouer",
-            text: "Annonce immobilière sur MaisonLouer",
+            title: shareTitle,
+            text: shareText,
             url
           });
-        } else if (navigator.clipboard) {
+          return;
+        }
+
+        // Fallback 1 : copie lien
+        if (navigator.clipboard) {
           await navigator.clipboard.writeText(url);
           alert("Lien copié dans le presse-papier ✅");
-        } else {
-          prompt("Copiez le lien :", url);
+          return;
         }
+
+        // Fallback 2 : WhatsApp share
+        window.open(buildWhatsAppShareLink(shareTitle, url), "_blank", "noopener");
       } catch (err) {
-        // si user annule, pas besoin d’erreur
+        // Si user annule, rien
       }
     });
   }
@@ -287,6 +311,8 @@
       container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : aucune annonce sélectionnée. (ID manquant)</p>`;
       return;
     }
+
+    const canonicalUrl = `${SITE_URL}/annonce.html?id=${encodeURIComponent(id)}`;
 
     let annonces = [];
     try {
@@ -307,7 +333,12 @@
       return;
     }
 
-    // SEO dynamique
+    // ✅ Rendu HTML
+    container.innerHTML = buildHtml(a, canonicalUrl);
+    initGallery(a.images);
+    initShare(a.titre || "Annonce MaisonLouer", canonicalUrl);
+
+    // ✅ SEO simple (fallback)
     document.title = `${a.titre || "Annonce"} - MaisonLouer`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
@@ -315,9 +346,12 @@
       metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
     }
 
-    container.innerHTML = buildHtml(a);
-    initGallery(a.images);
-    initShare(a.titre || "Annonce MaisonLouer");
+    // ✅ SEO avancé (annonce.html écoutera ça pour title/meta/OG/canonical/schema + og:image)
+    try {
+      window.dispatchEvent(new CustomEvent("ml:annonceLoaded", { detail: a }));
+    } catch (e) {
+      // Rien
+    }
   }
 
   init();
