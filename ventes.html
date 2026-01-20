@@ -5,18 +5,41 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maisons à vendre - MaisonLouer</title>
 
-  <!-- SEO MaisonLouer -->
-  <meta name="description" content="Maisons, appartements et terrains à vendre à Madagascar. Parcourez les annonces MaisonLouer et contactez-nous pour visiter." />
+  <!-- ✅ SEO Title (transactionnel) -->
+  <title>Maisons, appartements & terrains à vendre à Madagascar | MaisonLouer</title>
+
+  <!-- ✅ SEO Description (CTR + intention) -->
+  <meta name="description"
+    content="Trouvez une maison, un appartement ou un terrain à vendre à Madagascar (Antananarivo, Ivandry, Andraharo…). Comparez prix, photos et caractéristiques. Contact WhatsApp." />
+
+  <!-- ✅ Canonical -->
+  <link rel="canonical" href="https://maisonlouer.vercel.app/ventes.html" />
+
+  <!-- ✅ Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MaisonLouer" />
+  <meta property="og:title" content="Biens à vendre à Madagascar | MaisonLouer" />
+  <meta property="og:description"
+    content="Maisons, appartements et terrains à vendre à Madagascar. Comparez prix, photos et localisation, puis contactez sur WhatsApp." />
+  <meta property="og:url" content="https://maisonlouer.vercel.app/ventes.html" />
+  <meta property="og:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+  <meta property="og:image:alt" content="Biens à vendre à Madagascar - MaisonLouer" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Biens à vendre à Madagascar | MaisonLouer" />
+  <meta name="twitter:description"
+    content="Trouvez une maison, un appartement ou un terrain à vendre à Madagascar. Filtrez par zone, budget et chambres. Contact WhatsApp." />
+  <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+
+  <meta name="robots" content="index, follow, max-image-preview:large" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/custom.css">
-  <!-- ✅ IMPORTANT : applique le header MaisonLouer partout -->
   <link rel="stylesheet" href="./assets/css/fix-header.css">
-  <!-- ✅ On réutilise le même style ROA -->
   <link rel="stylesheet" href="./assets/css/locations-roa.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,12 +56,9 @@
 
     <div class="overlay" data-overlay></div>
 
-    <!-- ✅ header-top SUPPRIMÉ -->
-
     <div class="header-bottom">
       <div class="container">
 
-        <!-- Logo desktop -->
         <a href="index.html" class="logo" aria-label="Retour à l'accueil">
           <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
         </a>
@@ -46,8 +66,6 @@
         <nav class="navbar" data-navbar>
 
           <div class="navbar-top">
-
-            <!-- Logo mobile -->
             <a href="index.html" class="logo" aria-label="Retour à l'accueil">
               <img src="./assets/images/logo.webp" alt="Logo MaisonLouer">
             </a>
@@ -55,7 +73,6 @@
             <button class="nav-close-btn" data-nav-close-btn aria-label="Fermer le menu">
               <ion-icon name="close-outline"></ion-icon>
             </button>
-
           </div>
 
           <div class="navbar-bottom">
@@ -84,38 +101,43 @@
 
   <main>
 
-    <!-- HERO “ACHETER” -->
+    <!-- HERO “ACHETER” (copywriting + keywords) -->
     <section class="roa-hero" aria-label="hero vente">
       <div class="container">
         <div class="roa-hero-grid">
 
           <div class="roa-hero-left">
             <p class="roa-kicker">MaisonLouer</p>
-            <h1 class="roa-title">Achetez votre prochain bien, en toute sérénité</h1>
+
+            <!-- ✅ H1 SEO -->
+            <h1 class="roa-title">Maisons, appartements et terrains à vendre à Madagascar</h1>
+
             <p class="roa-subtitle">
-              Parcourez nos annonces de vente, comparez rapidement et contactez-nous pour organiser une visite.
+              Découvrez des annonces de <strong>biens à vendre</strong> à Madagascar : <strong>maisons</strong>, <strong>appartements</strong> et <strong>terrains</strong>.
+              Recherchez par <strong>ville</strong> ou <strong>quartier</strong> (ex : <strong>Antananarivo</strong>, <strong>Ivandry</strong>, <strong>Andraharo</strong>)
+              puis comparez les <strong>prix</strong>, la <strong>surface</strong> et les <strong>chambres</strong>.
             </p>
 
             <div class="roa-hero-actions">
-              <a class="roa-btn primary" href="#liste-ventes">
+              <a class="roa-btn primary" href="#liste-ventes" aria-label="Voir tous les biens à vendre">
                 <ion-icon name="search-outline"></ion-icon>
                 Voir les biens à vendre
               </a>
 
-              <a class="roa-btn secondary" href="recherche.html">
+              <a class="roa-btn secondary" href="recherche.html" aria-label="Filtrer les biens à vendre">
                 <ion-icon name="options-outline"></ion-icon>
                 Filtrer ma recherche
               </a>
             </div>
 
-            <div class="roa-badges">
+            <div class="roa-badges" aria-label="avantages vente">
               <div class="roa-badge">
                 <ion-icon name="shield-checkmark-outline"></ion-icon>
-                <span>Annonce vérifiée</span>
+                <span>Infos essentielles visibles</span>
               </div>
               <div class="roa-badge">
                 <ion-icon name="document-text-outline"></ion-icon>
-                <span>Infos claires</span>
+                <span>Comparaison facile</span>
               </div>
               <div class="roa-badge">
                 <ion-icon name="people-outline"></ion-icon>
@@ -126,16 +148,19 @@
 
           <div class="roa-hero-right">
             <div class="roa-hero-card">
-              <h3>Recherche express</h3>
-              <p>Tapez une ville/quartier puis lancez la recherche (filtrée sur la vente).</p>
+              <h3>Recherche express (vente)</h3>
+              <p>
+                Tapez une <strong>ville</strong> ou un <strong>quartier</strong> (ex : Ivandry, Analakely, Andraharo) puis lancez la recherche.
+                Les résultats seront filtrés sur <strong>À vendre</strong>.
+              </p>
 
               <div class="roa-quick-search">
                 <div class="roa-input">
                   <ion-icon name="location-outline"></ion-icon>
-                  <input id="roa-zone" type="text" placeholder="Ex : Ivandry, Analakely, Andraharo…" />
+                  <input id="roa-zone" type="text" placeholder="Ex : Antananarivo, Ivandry, Andraharo…" />
                 </div>
 
-                <a id="roa-go-search" class="roa-btn primary is-block" href="recherche.html">
+                <a id="roa-go-search" class="roa-btn primary is-block" href="recherche.html" aria-label="Rechercher un bien à vendre">
                   <ion-icon name="search-outline"></ion-icon>
                   Rechercher
                 </a>
@@ -147,7 +172,7 @@
             </div>
 
             <div class="roa-hero-image" aria-hidden="true">
-              <img src="./assets/images/hero-banner.png" alt="Bannière vente">
+              <img src="./assets/images/hero-banner.png" alt="Bannière vente MaisonLouer">
             </div>
           </div>
 
@@ -155,57 +180,60 @@
       </div>
     </section>
 
-    <!-- 1) 4 ÉTAPES POUR ACHETER -->
+    <!-- ✅ 1) 4 ÉTAPES POUR ACHETER (copywriting plus concret) -->
     <section class="roa-section roa-section-alt" aria-label="process vente">
       <div class="container">
         <div class="roa-section-head">
           <p class="roa-section-kicker">Comment ça marche</p>
-          <h2 class="roa-section-title">4 étapes pour acheter</h2>
+          <h2 class="roa-section-title">Acheter en 4 étapes</h2>
         </div>
 
         <div class="roa-steps">
           <div class="roa-step">
             <div class="roa-step-n">1</div>
-            <h3>Parcourez</h3>
-            <p>Découvrez les biens disponibles à la vente.</p>
+            <h3>Repérez</h3>
+            <p>Parcourez les annonces et notez la zone, le prix et les photos.</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">2</div>
             <h3>Comparez</h3>
-            <p>Comparez le prix, la zone et les caractéristiques.</p>
+            <p>Comparez budget, surface, chambres et caractéristiques du bien.</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">3</div>
             <h3>Visitez</h3>
-            <p>Nous organisons une visite et répondons à vos questions.</p>
+            <p>Contactez via WhatsApp et organisez une visite quand vous êtes prêt(e).</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">4</div>
             <h3>Finalisez</h3>
-            <p>Vous avancez sereinement jusqu’à la signature.</p>
+            <p>Avancez sereinement jusqu’à l’achat (accord, dossier, signature).</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2) BIENS À VENDRE -->
+    <!-- ✅ 2) BIENS À VENDRE -->
     <section class="section property" aria-label="biens à vendre" id="liste-ventes">
       <div class="container">
 
         <p class="section-subtitle">MaisonLouer</p>
-        <h2 class="h2 section-title">Biens à vendre</h2>
+
+        <!-- ✅ H2 SEO -->
+        <h2 class="h2 section-title">Annonces de biens à vendre</h2>
 
         <div class="roa-listings-toolbar">
           <p class="roa-muted">
-            Astuce : utilisez “Je cherche un bien” pour filtrer (zone, budget, chambres…).
+            Astuce : utilisez les filtres pour trouver une <strong>maison à vendre</strong>, un <strong>appartement à vendre</strong>
+            ou un <strong>terrain à vendre</strong> selon votre <strong>budget</strong> et votre <strong>quartier</strong>.
           </p>
-          <a class="roa-btn secondary" href="recherche.html">
+          <a class="roa-btn secondary" href="recherche.html" aria-label="Filtrer les biens à vendre">
             <ion-icon name="options-outline"></ion-icon>
             Filtrer
           </a>
         </div>
 
-        <!-- ✅ IMPORTANT : on garde ton container pour annonces.js -->
+        <!-- ✅ IMPORTANT : container pour annonces.js -->
         <div id="listings-container">
           <p>Chargement des annonces...</p>
         </div>
@@ -213,12 +241,12 @@
       </div>
     </section>
 
-    <!-- 3) UNE EXPÉRIENCE SIMPLE -->
+    <!-- ✅ 3) Avantages (keywords subtils) -->
     <section class="roa-section" aria-label="avantages vente">
       <div class="container">
         <div class="roa-section-head">
-          <p class="roa-section-kicker">Pourquoi acheter avec nous</p>
-          <h2 class="roa-section-title">Une expérience simple, claire et efficace</h2>
+          <p class="roa-section-kicker">Pourquoi MaisonLouer</p>
+          <h2 class="roa-section-title">Acheter plus simplement, sans perdre de temps</h2>
         </div>
 
         <div class="roa-cards">
@@ -226,16 +254,16 @@
             <div class="roa-card-ic">
               <ion-icon name="home-outline"></ion-icon>
             </div>
-            <h3>Choix de biens</h3>
-            <p>Maisons, appartements, terrains… selon les annonces disponibles.</p>
+            <h3>Biens variés</h3>
+            <p>Maisons, appartements et terrains : trouvez le type de bien qui correspond à votre projet.</p>
           </article>
 
           <article class="roa-card">
             <div class="roa-card-ic">
               <ion-icon name="cash-outline"></ion-icon>
             </div>
-            <h3>Prix transparents</h3>
-            <p>Affichage clair du prix, avec informations essentielles pour décider.</p>
+            <h3>Prix lisibles</h3>
+            <p>Comparez plus vite grâce au prix affiché et aux informations essentielles.</p>
           </article>
 
           <article class="roa-card">
@@ -243,7 +271,7 @@
               <ion-icon name="calendar-outline"></ion-icon>
             </div>
             <h3>Visite facilitée</h3>
-            <p>Vous repérez un bien, vous nous contactez, et on organise la visite rapidement.</p>
+            <p>Vous repérez un bien, vous contactez, et vous avancez vers une visite.</p>
           </article>
 
           <article class="roa-card">
@@ -251,7 +279,7 @@
               <ion-icon name="people-outline"></ion-icon>
             </div>
             <h3>Accompagnement</h3>
-            <p>Questions, démarches : on vous guide à chaque étape.</p>
+            <p>Questions, étapes, documents : vous êtes guidé(e) à chaque moment clé.</p>
           </article>
         </div>
       </div>
@@ -262,11 +290,11 @@
       <div class="container">
         <div class="roa-cta">
           <div class="roa-cta-left">
-            <h3>Besoin d’aide pour choisir ?</h3>
-            <p>Dites-nous votre budget, votre zone et votre besoin. On vous propose des options.</p>
+            <h3>Vous cherchez un bien à acheter ?</h3>
+            <p>Indiquez votre zone et votre budget, puis comparez les annonces avant de contacter.</p>
           </div>
           <div class="roa-cta-right">
-            <a class="roa-btn primary" href="contact.html">
+            <a class="roa-btn primary" href="contact.html" aria-label="Contacter MaisonLouer">
               <ion-icon name="mail-outline"></ion-icon>
               Nous contacter
             </a>
@@ -275,30 +303,48 @@
       </div>
     </section>
 
-    <!-- FAQ -->
+    <!-- FAQ (optimisée SEO) -->
     <section class="roa-section" aria-label="faq vente">
       <div class="container">
         <div class="roa-section-head">
           <p class="roa-section-kicker">FAQ</p>
-          <h2 class="roa-section-title">Questions fréquentes</h2>
+          <h2 class="roa-section-title">Questions fréquentes sur l’achat</h2>
         </div>
 
         <div class="roa-faq">
           <details class="roa-faq-item">
-            <summary>Comment demander une visite ?</summary>
-            <p>Ouvrez une annonce qui vous intéresse, puis contactez-nous. Nous vous proposons un créneau de visite.</p>
+            <summary>Comment acheter un bien via MaisonLouer ?</summary>
+            <p>Choisissez une annonce, vérifiez le prix et la zone, puis contactez via WhatsApp pour organiser une visite.</p>
           </details>
 
           <details class="roa-faq-item">
-            <summary>Est-ce que je peux filtrer par budget et zone ?</summary>
-            <p>Oui. Allez sur <strong>“Je cherche un bien”</strong> et utilisez les filtres (zone, budget, type d’offre, etc.).</p>
+            <summary>Puis-je filtrer par zone, budget et type de bien ?</summary>
+            <p>Oui. Allez sur <strong>“Je cherche un bien”</strong> et utilisez les filtres (zone, budget, type de bien, chambres…).</p>
           </details>
 
           <details class="roa-faq-item">
-            <summary>Les prix sont-ils en Ariary ?</summary>
-            <p>Oui, les prix affichés sur le site sont en Ariary (Ar).</p>
+            <summary>Les prix affichés sont-ils en Ariary (Ar) ?</summary>
+            <p>Oui, les prix affichés sur MaisonLouer sont en Ariary (Ar).</p>
           </details>
         </div>
+      </div>
+    </section>
+
+    <!-- ✅ TEXTE SEO LOCAL (boost énorme) -->
+    <section class="roa-section" aria-label="texte seo vente">
+      <div class="container">
+        <div class="roa-section-head">
+          <p class="roa-section-kicker">Achat à Madagascar</p>
+          <h2 class="roa-section-title">Trouver un bien à vendre par ville ou quartier</h2>
+        </div>
+
+        <p style="max-width: 980px; color:#4b5563; line-height:1.85; margin:0;">
+          MaisonLouer vous aide à trouver une <strong>maison à vendre</strong>, un <strong>appartement à vendre</strong> ou un <strong>terrain à vendre</strong> à Madagascar,
+          notamment à <strong>Antananarivo</strong> et dans les quartiers les plus recherchés comme
+          <strong>Ivandry</strong>, <strong>Andraharo</strong>, <strong>Ambatobe</strong>, <strong>Ankorondrano</strong>,
+          <strong>Analamahitsy</strong> ou <strong>Analakely</strong>.
+          Utilisez la <a href="recherche.html">recherche avancée</a> pour filtrer par <strong>budget</strong>, <strong>type de bien</strong> et <strong>chambres</strong>.
+        </p>
       </div>
     </section>
 
