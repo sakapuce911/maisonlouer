@@ -1,7 +1,8 @@
 // ===================================
 // HOME - NEARBY (Géolocalisation + slider)
 // Fichier: assets/js/home-nearby.js
-// ✅ Source UNIQUE: /api/annonces (Notion via Vercel)
+// ✅ Source UNIQUE: /api/annonces (Supabase via Vercel)
+// ✅ "Près de vous" fonctionne si lat/lng sont présents dans Supabase
 // ===================================
 
 (async function () {
@@ -35,9 +36,15 @@
     return (str || "").toString().trim().toLowerCase();
   }
 
+  // ✅ Compatible Supabase : publie / publié / Publié / true/"true"/1
   function isPublished(a) {
-    // Notion renvoie publie: true/false
-    return a && (a.publie === true || a.publie === "true");
+    if (!a) return false;
+    const v =
+      a.publie ?? a.publié ?? a["Publié"] ?? a["publie"] ?? a["publiee"] ?? a["published"];
+    if (v === true) return true;
+    if (v === 1) return true;
+    if (typeof v === "string" && v.toLowerCase() === "true") return true;
+    return false;
   }
 
   function formatPriceAr(prixAr) {
@@ -71,9 +78,9 @@
     }
   }
 
-  // ✅ NOTION ONLY
+  // ✅ SUPABASE ONLY (via /api/annonces)
   async function fetchAnnonces() {
-    const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 8000);
+    const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 12000);
 
     if (!resApi.ok) {
       let detail = "";
@@ -81,7 +88,7 @@
         const err = await resApi.json();
         detail = err?.detail ? ` (${err.detail})` : "";
       } catch (_) {}
-      throw new Error(`Impossible de charger les annonces depuis Notion (HTTP ${resApi.status})${detail}`);
+      throw new Error(`Impossible de charger les annonces depuis Supabase (HTTP ${resApi.status})${detail}`);
     }
 
     const data = await resApi.json();
@@ -101,59 +108,16 @@
     return parts.length ? parts.join(", ") : "Adresse non précisée";
   }
 
-  // =========================
-  // Optional geocoding (fallback)
-  // - Utilise Nominatim OpenStreetMap (public)
-  // - Cache localStorage pour éviter de refaire
-  // =========================
-  const GEO_CACHE_KEY = "maisonlouer_geo_cache_v1";
+  function getAnnonceCoords(a) {
+    // ✅ tes nouvelles colonnes Supabase : lat / lng
+    const lat = a.lat ?? a.latitude ?? a.Lat ?? a.Latitude;
+    const lng = a.lng ?? a.longitude ?? a.Lng ?? a.Longitude;
 
-  function loadGeoCache() {
-    try {
-      return JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  }
+    const latNum = parseFloat(lat);
+    const lngNum = parseFloat(lng);
 
-  function saveGeoCache(cache) {
-    try {
-      localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(cache));
-    } catch {}
-  }
-
-  async function sleep(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-  }
-
-  async function geocodeAnnonce(a, cache) {
-    const key = (a.id !== undefined && a.id !== null)
-      ? `id:${a.id}`
-      : `txt:${(a.quartier || "")}|${(a.ville || "")}`.toLowerCase();
-
-    if (cache[key] && cache[key].lat && cache[key].lng) {
-      return { lat: cache[key].lat, lng: cache[key].lng };
-    }
-
-    const q = [a.quartier, a.ville, "Madagascar"].filter(Boolean).join(", ");
-    if (!q.trim()) return null;
-
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
-    const res = await fetch(url, { headers: { "Accept": "application/json" } });
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    if (!data || !data.length) return null;
-
-    const lat = parseFloat(data[0].lat);
-    const lng = parseFloat(data[0].lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-    cache[key] = { lat, lng, q, t: Date.now() };
-    saveGeoCache(cache);
-
-    await sleep(1100);
-    return { lat, lng };
+    if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) return null;
+    return { lat: latNum, lng: lngNum };
   }
 
   // =========================
@@ -321,7 +285,7 @@
     userLng = pos.coords.longitude;
     setStatus("Localisation activée. Tri des annonces par proximité…", "ok");
   } catch (e) {
-    // ✅ Si refus : on montre simplement les 9 premières annonces Notion
+    // ✅ Si refus : on montre simplement les 9 premières annonces (recommandées)
     setStatus("Localisation refusée. Affichage des annonces recommandées.", "warn");
     cards = annonces.slice(0, 9);
     track.innerHTML = cards.map(renderCard).join("");
@@ -332,35 +296,18 @@
     return;
   }
 
-  // 2) Préparer coords annonces (lat/lng) + fallback geocode si absent
-  const cache = loadGeoCache();
-
-  // ✅ limite geocode pour rester safe
-  let geocodeBudget = 10;
-
+  // 2) Filtrer annonces ayant lat/lng
   const enriched = [];
   for (const a of annonces) {
-    let lat = a.lat ?? a.latitude;
-    let lng = a.lng ?? a.longitude;
-
-    if ((!lat || !lng) && geocodeBudget > 0) {
-      const got = await geocodeAnnonce(a, cache);
-      if (got) {
-        lat = got.lat;
-        lng = got.lng;
-      }
-      geocodeBudget--;
-    }
-
-    if (Number.isFinite(parseFloat(lat)) && Number.isFinite(parseFloat(lng))) {
-      const d = haversineKm(userLat, userLng, parseFloat(lat), parseFloat(lng));
-      enriched.push({ ...a, _distanceKm: d });
-    }
+    const c = getAnnonceCoords(a);
+    if (!c) continue;
+    const d = haversineKm(userLat, userLng, c.lat, c.lng);
+    enriched.push({ ...a, _distanceKm: d });
   }
 
-  // Si aucune annonce n'a de coords même après geocode => fallback simple
+  // 3) Si aucune annonce n'a de coords => fallback propre
   if (!enriched.length) {
-    setStatus("Proximité indisponible. Affichage des annonces recommandées.", "warn");
+    setStatus("Proximité indisponible (lat/lng manquants). Affichage des annonces recommandées.", "warn");
     cards = annonces.slice(0, 9);
     track.innerHTML = cards.map(renderCard).join("");
   } else {
@@ -370,7 +317,7 @@
     track.innerHTML = cards.map(renderCard).join("");
   }
 
-  // 3) Slider actions
+  // 4) Slider actions
   prevBtn.addEventListener("click", () => goTo(page - 1));
   nextBtn.addEventListener("click", () => goTo(page + 1));
 
