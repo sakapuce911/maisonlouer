@@ -6,187 +6,46 @@
    - recherche.html => filtres + ROA cards (mix louer/vendre)
    - autres pages   => rendu classique
 
-   ✅ Mise à jour (2026):
-   - Source unique : Supabase (REST API) -> table public.annonces
-   - Cache sessionStorage pour accélérer
-   - Identifiant URL = slug (ex: villa-t4-moderne-a-ivandry-1)
-   - UUID Supabase (colonne id) = stocké en interne (dbId), pas dans l’URL
+   ✅ Source unique : /api/annonces (Supabase via Vercel)
+   ✅ Plus de Notion
 ========================= */
 
-/* =========================
-   CONFIG SUPABASE
-   ⚠️ Ne recolle pas ta key ici publiquement.
-   (Elle est déjà dans ton projet, on ne la ré-affiche pas.)
-========================= */
-const SUPABASE_URL = "https://glysaizevxujkiuuwflv.supabase.co";
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || ""; // optionnel si tu la mets ailleurs
-
-/* =========================
-   CACHE
-========================= */
-const CACHE_KEY = "maisonlouer_supabase_annonces_v2";
-const CACHE_TTL_MS = 60 * 1000; // 60s
-
-/* =========================
-   FETCH HELPERS
-========================= */
 async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(url, { ...options, signal: controller.signal });
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
   } finally {
     clearTimeout(id);
   }
 }
 
-function readCache() {
-  try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw);
-    if (!obj || !obj.ts || !obj.data) return null;
-    if (Date.now() - obj.ts > CACHE_TTL_MS) return null;
-    return obj.data;
-  } catch {
-    return null;
-  }
-}
-
-function writeCache(data) {
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-  } catch {
-    // ignore
-  }
-}
-
-function norm(str) {
-  return (str || "").toString().trim().toLowerCase();
-}
-
-function slugify(str) {
-  return (str || "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-/* =========================
-   NORMALISATION (Supabase -> format site)
-========================= */
-function normalizeAnnonce(row, index) {
-  const titre = row["Titre"] ?? "";
-
-  // slug: on accepte plusieurs noms possibles (au cas où)
-  const rowSlug =
-    row["slug"] ??
-    row["Slug"] ??
-    row["SLUG"] ??
-    null;
-
-  // fallback (si jamais slug pas encore rempli)
-  const fallbackSlug = `${slugify(titre)}-${index + 1}`;
-
-  // images
-  let imagesArr = [];
-  const rawImages = row["Images"];
-  if (Array.isArray(rawImages)) {
-    imagesArr = rawImages.filter(Boolean);
-  } else if (typeof rawImages === "string" && rawImages.trim()) {
-    imagesArr = rawImages.split("|").map(s => s.trim()).filter(Boolean);
-  }
-
-  return {
-    // ✅ identifiant URL
-    id: rowSlug || fallbackSlug,
-
-    // ✅ UUID technique (ne pas utiliser dans l’URL)
-    dbId: row["slug"] ?? row["id"] ?? syntheticId,
-
-    titre: titre,
-    typeOffre: row["TypeOffre"] ?? "",
-    typeBien: row["TypeBien"] ?? "",
-    ville: row["Ville"] ?? "",
-    quartier: row["Quartier"] ?? "",
-
-    prixAr: row["Prix"] ?? null,
-    chambres: row["Chambres"] ?? null,
-    sdb: row["SDB"] ?? null,
-    surface: row["Surface"] ?? null,
-
-    images: imagesArr,
-
-    description: row["Description"] ?? "",
-
-    publie: row["Publié"] === true,
-
-    lat: row["lat"] ?? null,
-    lng: row["lng"] ?? null,
-    whatsapp: row["WhatsApp"] ?? "",
-
-    listeParNous: row["ListéParNous"] === true,
-    status: row["Status"] ?? "",
-    dateAjout: row["Date d'ajout"] ?? "",
-  };
-}
-
 async function fetchAnnonces() {
-  const cached = readCache();
-  if (cached) return cached;
-
-  if (!SUPABASE_ANON_KEY) {
-    throw new Error("Clé Supabase manquante (SUPABASE_ANON_KEY).");
+  const resApi = await fetchWithTimeout("/api/annonces", { method: "GET" }, 12000);
+  if (!resApi.ok) {
+    const txt = await resApi.text().catch(() => "");
+    throw new Error(`API indisponible (${resApi.status}) ${txt}`);
   }
-
-  // ✅ On ne récupère que les lignes publiées côté API (plus rapide)
-  // colonne "Publié" => il faut encoder l'accent dans l'URL
-  const publishedCol = encodeURIComponent("Publié"); // Publi%C3%A9
-  const url = `${SUPABASE_URL}/rest/v1/annonces?select=*&${publishedCol}=eq.true`;
-
-  const res = await fetchWithTimeout(
-    url,
-    {
-      method: "GET",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    },
-    8000
-  );
-
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`Supabase indisponible (${res.status}) ${txt}`);
-  }
-
-  const rows = await res.json();
-  if (!Array.isArray(rows)) throw new Error("Format Supabase invalide (attendu: tableau)");
-
-  const annonces = rows.map((r, i) => normalizeAnnonce(r, i));
-
-  writeCache(annonces);
-  return annonces;
+  const data = await resApi.json();
+  if (!Array.isArray(data)) throw new Error("Format API invalide (attendu: tableau)");
+  return data;
 }
 
-/* =========================
-   UI HELPERS
-========================= */
 function formatPriceAr(prixAr) {
   if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
   const n = Number(prixAr);
   if (Number.isNaN(n)) return "Prix sur demande";
-  return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
+  return `${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
 }
 
 function getPageName() {
   const path = window.location.pathname;
-  return path.substring(path.lastIndexOf("/") + 1) || "index.html";
+  return (path.substring(path.lastIndexOf("/") + 1) || "index.html").toLowerCase();
+}
+
+function norm(str) {
+  return (str || "").toString().trim().toLowerCase();
 }
 
 /* -------------------------
@@ -198,17 +57,18 @@ function createClassicCard(a) {
   const badgeText = isLocation ? "À louer" : "À vendre";
   const badgeClass = isLocation ? "badge-location" : "badge-vente";
 
-  const adresse = [a.quartier, a.ville].filter(Boolean).join(", ") || "Madagascar";
-  const prix = formatPriceAr(a.prixAr);
+  const ville = a.ville ? a.ville : "";
+  const quartier = a.quartier ? a.quartier : "";
+  const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
 
+  const prix = formatPriceAr(a.prixAr);
   const chambres = a.chambres ? `${a.chambres} ch.` : "";
   const sdb = a.sdb ? `${a.sdb} sdb` : "";
   const surface = a.surface ? `${a.surface} m²` : "";
   const details = [chambres, sdb, surface].filter(Boolean).join(" • ");
 
-  // ✅ URL = slug
-  const slug = a.id ? encodeURIComponent(a.id) : "";
-  const link = slug ? `annonce.html?id=${slug}` : "annonce.html";
+  const id = (a.id !== undefined && a.id !== null) ? encodeURIComponent(a.id) : "";
+  const link = id ? `annonce.html?id=${id}` : "annonce.html";
 
   return `
     <li>
@@ -241,19 +101,23 @@ function createClassicCard(a) {
 
 /* -------------------------
    CARTE ROA
+   - mode = "location" | "vente" | "mix"
 ------------------------- */
 function createRoaCard(a, mode) {
   const img = (a.images && a.images.length) ? a.images[0] : "./assets/images/property-1.jpg";
-  const adresse = [a.quartier, a.ville].filter(Boolean).join(", ") || "Madagascar";
+
+  const ville = a.ville ? a.ville : "";
+  const quartier = a.quartier ? a.quartier : "";
+  const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
+
   const prix = formatPriceAr(a.prixAr);
 
   const chambres = a.chambres ? `${a.chambres} ch.` : null;
   const sdb = a.sdb ? `${a.sdb} sdb` : null;
   const surface = a.surface ? `${a.surface} m²` : null;
 
-  // ✅ URL = slug
-  const slug = a.id ? encodeURIComponent(a.id) : "";
-  const link = slug ? `annonce.html?id=${slug}` : "annonce.html";
+  const id = (a.id !== undefined && a.id !== null) ? encodeURIComponent(a.id) : "";
+  const link = id ? `annonce.html?id=${id}` : "annonce.html";
 
   const offre = norm(a.typeOffre);
   const badgeB =
@@ -261,15 +125,13 @@ function createRoaCard(a, mode) {
       ? (offre === "location" ? "À LOUER" : "EN VENTE")
       : (mode === "vente" ? "EN VENTE" : "À LOUER");
 
-  const showListeParNous = a.listeParNous === true;
-
   return `
     <article class="roa-rent-card">
       <a class="roa-rent-media" href="${link}" aria-label="Ouvrir l'annonce">
         <img src="${img}" alt="${a.titre || "Annonce"}">
 
         <div class="roa-rent-badges">
-          ${showListeParNous ? `<span class="roa-pill dark">LISTÉ PAR NOUS</span>` : ``}
+          <span class="roa-pill dark">LISTÉ PAR NOUS</span>
           <span class="roa-pill green">${badgeB}</span>
         </div>
 
@@ -306,7 +168,7 @@ function createRoaCard(a, mode) {
 }
 
 /* -------------------------
-   RENDER
+   RENDER HELPERS
 ------------------------- */
 function renderClassicList(container, annonces) {
   const items = annonces.map(createClassicCard).join("");
@@ -319,6 +181,17 @@ function renderRoaGrid(container, annonces, mode) {
 }
 
 /* -------------------------
+   OUTILS UI
+------------------------- */
+function setLoading(container, msg = "Chargement des annonces...") {
+  container.innerHTML = `<p>${msg}</p>`;
+}
+
+function setError(container, msg) {
+  container.innerHTML = `<p style="color:#b00020;">Erreur : ${msg}</p>`;
+}
+
+/* -------------------------
    INIT
 ------------------------- */
 async function initAnnonces() {
@@ -326,15 +199,20 @@ async function initAnnonces() {
   const container = document.getElementById("listings-container");
   if (!container) return;
 
+  // Affiche un loading clair
+  setLoading(container);
+
   let annonces = [];
   try {
-    container.innerHTML = `<p>Chargement des annonces…</p>`;
     annonces = await fetchAnnonces();
+    console.log("[MaisonLouer] annonces chargées:", annonces.length);
   } catch (e) {
-    container.innerHTML = `<p style="color:#b00020;">Erreur : ${e.message}</p>`;
+    console.error("[MaisonLouer] erreur fetchAnnonces:", e);
+    setError(container, e.message || "Impossible de charger les annonces");
     return;
   }
 
+  // -------- locations.html
   if (page === "locations.html") {
     const locations = annonces.filter(a => norm(a.typeOffre) === "location");
     if (!locations.length) {
@@ -345,6 +223,7 @@ async function initAnnonces() {
     return;
   }
 
+  // -------- ventes.html
   if (page === "ventes.html") {
     const ventes = annonces.filter(a => norm(a.typeOffre) === "vente");
     if (!ventes.length) {
@@ -355,6 +234,7 @@ async function initAnnonces() {
     return;
   }
 
+  // -------- recherche.html
   if (page === "recherche.html") {
     const zoneEl = document.getElementById("zone");
     const budgetEl = document.getElementById("budget");
@@ -367,6 +247,7 @@ async function initAnnonces() {
     const btnReset = document.getElementById("btn-reset");
     const infoEl = document.getElementById("resultats-info");
 
+    // Pré-remplissage via querystring (?zone=...&offre=location|vente)
     const params = new URLSearchParams(window.location.search);
     const qpZone = params.get("zone");
     const qpOffre = params.get("offre");
@@ -389,13 +270,18 @@ async function initAnnonces() {
           norm(a.quartier).includes(zone);
 
         const matchBudget = (budget === null) ? true : (Number(a.prixAr || 0) <= budget);
+
         const matchTypeOffre = !typeOffre ? true : (norm(a.typeOffre) === typeOffre);
+
+        // typeBien peut ne pas exister => si absent, on ignore le filtre
         const matchTypeBien = !typeBien ? true : (!a.typeBien ? true : norm(a.typeBien) === typeBien);
+
         const matchChambres = (chambresMin === null) ? true : (Number(a.chambres || 0) >= chambresMin);
 
         return matchZone && matchBudget && matchTypeOffre && matchTypeBien && matchChambres;
       });
 
+      // Tri prix
       if (triPrix === "prix-asc") {
         filtered.sort((x, y) => Number(x.prixAr || 0) - Number(y.prixAr || 0));
       } else if (triPrix === "prix-desc") {
@@ -412,8 +298,10 @@ async function initAnnonces() {
       renderRoaGrid(container, filtered, "mix");
     }
 
+    // Bouton rechercher
     if (btnRechercher) btnRechercher.addEventListener("click", applyFilters);
 
+    // Reset
     if (btnReset) {
       btnReset.addEventListener("click", () => {
         if (zoneEl) zoneEl.value = "";
@@ -422,16 +310,41 @@ async function initAnnonces() {
         if (typeOffreEl) typeOffreEl.value = "";
         if (chambresMinEl) chambresMinEl.value = "";
         if (triPrixEl) triPrixEl.value = "";
-        if (infoEl)JS) infoEl.textContent = "";
+        if (infoEl) infoEl.textContent = "";
+
         renderRoaGrid(container, annonces, "mix");
       });
     }
 
+    // ✅ Filtrage automatique quand on change un champ (UX type PropertyGuru)
+    const autoEls = [zoneEl, budgetEl, typeBienEl, typeOffreEl, chambresMinEl, triPrixEl].filter(Boolean);
+    autoEls.forEach(el => {
+      el.addEventListener("change", applyFilters);
+      el.addEventListener("input", () => {
+        // Pour éviter de filtrer à chaque frappe sur mobile, tu peux commenter cette ligne si besoin
+      });
+    });
+
+    // ✅ IMPORTANT : quand les onglets Acheter/Louer mettent à jour #type-offre
+    // on écoute la mutation via l'event "change" déjà ajouté ci-dessus.
+    // MAIS pour être sûr, on ajoute aussi un observer sur clic onglets:
+    document.querySelectorAll(".pg-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        // petit délai pour laisser recherche.html mettre à jour le select
+        setTimeout(applyFilters, 0);
+      });
+    });
+
+    // rendu initial
     renderRoaGrid(container, annonces, "mix");
+
+    // si query params => applique directement
     if (qpZone || qpOffre) applyFilters();
+
     return;
   }
 
+  // autres pages => classique
   renderClassicList(container, annonces);
 }
 
