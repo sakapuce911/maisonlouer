@@ -8,6 +8,9 @@
    - Copywriting conversion WhatsApp
    - Bloc SEO longue traîne (typeBien + offre + quartier + ville)
    - Émet l’événement: ml:annonceLoaded (pour annonce.html: title/meta/OG/schema)
+
+   ✅ V3 (ajout):
+   - Bloc "Biens similaires" (maillage interne SEO)
 ========================= */
 
 (function () {
@@ -96,12 +99,9 @@
     const typeOffreTxt = offre === "location" ? "à louer" : (offre === "vente" ? "à vendre" : "");
     const typeBienTxt = bien ? capFirst(bien) : "Bien";
 
-    // Phrase principale longue traîne
-    // Exemple: "Appartement à louer à Ivandry, Antananarivo"
     const loc = [quartier, ville].filter(Boolean).join(", ");
     const longTail = `${typeBienTxt}${typeOffreTxt ? " " + typeOffreTxt : ""}${loc ? " à " + loc : " à Madagascar"}`.trim();
 
-    // Phrases secondaires (variantes)
     const alt1 = loc ? `Annonce immobilière ${typeOffreTxt || ""} à ${loc}`.replace(/\s+/g, " ").trim() : `Annonce immobilière à Madagascar`;
     const alt2 = ville ? `Immobilier ${ville} : ${typeBienTxt} ${typeOffreTxt || ""}`.replace(/\s+/g, " ").trim() : `Immobilier Madagascar : ${typeBienTxt}`;
 
@@ -143,7 +143,6 @@
     const waLink = buildWhatsAppLink(a.whatsapp, seo.titre, pageUrl);
     const mailLink = buildMailLink(seo.titre, pageUrl);
 
-    // ✅ Micro-copy conversion WhatsApp (immobilier)
     const urgencyLine = (offre === "location" || offre === "vente")
       ? "Ce bien peut partir vite : demandez la disponibilité et une visite sur WhatsApp."
       : "Demandez la disponibilité et une visite sur WhatsApp.";
@@ -227,7 +226,6 @@
               <div class="kpi"><strong>${surface !== null ? surface : "-"}</strong><span>m²</span></div>
             </div>
 
-            <!-- ✅ CTA + Partage -->
             <div class="cta">
               <a class="cbtn primary" href="${escapeHtml(waLink)}" target="_blank" rel="noopener" aria-label="Demander une visite sur WhatsApp">
                 <ion-icon name="logo-whatsapp"></ion-icon>
@@ -349,7 +347,6 @@
     if (surface) bullets.push(`Surface : <strong>${escapeHtml(surface)} m²</strong>`);
     if (sdb) bullets.push(`Salle(s) de bain : <strong>${escapeHtml(sdb)}</strong>`);
 
-    // ✅ Liens internes (SEO + maillage)
     const urlLoc = `recherche.html?offre=location${seo.loc ? `&zone=${encodeURIComponent(seo.loc)}` : ""}`;
     const urlVente = `recherche.html?offre=vente${seo.loc ? `&zone=${encodeURIComponent(seo.loc)}` : ""}`;
 
@@ -369,6 +366,107 @@
       <p style="margin-top:10px;">
         Mots-clés utiles : <em>${escapeHtml(seo.alt1)}</em> • <em>${escapeHtml(seo.alt2)}</em>
       </p>
+    `;
+  }
+
+  /* =========================
+     ✅ AJOUT V3: BIENS SIMILAIRES
+  ========================= */
+
+  function scoreSimilarity(a, base) {
+    // Plus le score est grand, plus c’est similaire
+    let score = 0;
+
+    const aOffre = norm(a.typeOffre);
+    const bOffre = norm(base.typeOffre);
+    const aBien = norm(a.typeBien);
+    const bBien = norm(base.typeBien);
+
+    const aVille = norm(a.ville);
+    const bVille = norm(base.ville);
+    const aQuartier = norm(a.quartier);
+    const bQuartier = norm(base.quartier);
+
+    if (aOffre && bOffre && aOffre === bOffre) score += 5;
+    if (aBien && bBien && aBien === bBien) score += 4;
+    if (aQuartier && bQuartier && aQuartier === bQuartier) score += 4;
+    if (aVille && bVille && aVille === bVille) score += 3;
+
+    // Prix proche (si dispo)
+    const pa = Number(a.prixAr);
+    const pb = Number(base.prixAr);
+    if (Number.isFinite(pa) && Number.isFinite(pb) && pb > 0) {
+      const diff = Math.abs(pa - pb) / pb; // 0.1 = 10%
+      if (diff <= 0.10) score += 2;
+      else if (diff <= 0.25) score += 1;
+    }
+
+    return score;
+  }
+
+  function createSimilarCard(a) {
+    const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
+    const img = images.length ? images[0] : "./assets/images/property-1.jpg";
+
+    const offre = norm(a.typeOffre);
+    const badgeText = offre === "location" ? "À louer" : (offre === "vente" ? "À vendre" : "Annonce");
+    const badgeClass = offre === "location" ? "badge-location" : "badge-vente";
+
+    const loc = [a.quartier, a.ville].filter(Boolean).join(", ");
+    const prix = formatPriceAr(a.prixAr);
+
+    return `
+      <div class="property-card">
+        <figure class="card-banner">
+          <a href="annonce.html?id=${encodeURIComponent(a.id)}">
+            <img src="${escapeHtml(img)}" alt="${escapeHtml(a.titre || "Annonce")}">
+          </a>
+          <div class="card-badge ${badgeClass}">${escapeHtml(badgeText)}</div>
+        </figure>
+
+        <div class="card-content">
+          <h3 class="h3 card-title">
+            <a href="annonce.html?id=${encodeURIComponent(a.id)}">${escapeHtml(a.titre || "Voir l’annonce")}</a>
+          </h3>
+
+          <div class="card-price">
+            <strong>${escapeHtml(prix)}</strong>
+          </div>
+
+          <p class="card-text">
+            <ion-icon name="location-outline"></ion-icon>
+            ${escapeHtml(loc || "Madagascar")}
+          </p>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSimilar(annonces, current) {
+    const wrap = document.getElementById("similar-listings-container");
+    if (!wrap) return;
+
+    const candidates = annonces
+      .filter(x => x && x.id && String(x.id) !== String(current.id))
+      .map(x => ({ x, s: scoreSimilarity(x, current) }))
+      .filter(o => o.s > 0)
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 6)
+      .map(o => o.x);
+
+    if (!candidates.length) {
+      wrap.innerHTML = `
+        <p style="color:#6b7280;">
+          Pas encore d’annonces similaires disponibles. Essayez la <a href="recherche.html">recherche avancée</a>.
+        </p>
+      `;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="property-list">
+        ${candidates.map(createSimilarCard).join("")}
+      </div>
     `;
   }
 
@@ -400,7 +498,6 @@
       return;
     }
 
-    // ✅ SEO minimal (fallback) - le SEO parfait est géré par annonce.html via ml:annonceLoaded
     const seo = computeSeoPhrases(a);
     document.title = `${seo.longTail} | MaisonLouer Madagascar`.replace(/\s+/g, " ").trim();
 
@@ -411,15 +508,14 @@
       metaDesc.setAttribute("content", `${base} Photos, prix et contact WhatsApp sur MaisonLouer.`.slice(0, 160));
     }
 
-    // Rendu HTML
     container.innerHTML = buildHtml(a);
 
-    // Init UI
     initGallery(a.images);
     initShare(a.titre || "Annonce MaisonLouer");
-
-    // Remplir le bloc SEO (dans annonce.html)
     updateSeoBox(a);
+
+    // ✅ BIENS SIMILAIRES
+    renderSimilar(annonces, a);
 
     // ✅ Événement SEO (annonce.html écoute ça pour OG/Twitter/canonical/schema)
     try {
