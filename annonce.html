@@ -5,9 +5,31 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Détails de l’annonce - MaisonLouer</title>
 
-  <meta name="description" content="Détails de l’annonce sur MaisonLouer : photos, prix, description et contact." />
+  <!-- ✅ SEO (sera remplacé dynamiquement via JS) -->
+  <title>Détails de l’annonce - MaisonLouer Madagascar</title>
+  <meta name="description" content="Découvrez les détails de cette annonce : photos, prix, localisation, description et contact WhatsApp." />
+
+  <!-- ✅ Domaine -->
+  <link rel="canonical" href="https://maisonlouer.vercel.app/annonce.html" />
+
+  <!-- ✅ Open Graph (valeurs par défaut, remplacées dynamiquement via JS) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MaisonLouer" />
+  <meta property="og:title" content="Annonce immobilière - MaisonLouer Madagascar" />
+  <meta property="og:description" content="Photos, prix, localisation et contact WhatsApp." />
+  <meta property="og:url" content="https://maisonlouer.vercel.app/annonce.html" />
+  <meta property="og:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+  <meta property="og:image:alt" content="MaisonLouer Madagascar - Annonce immobilière" />
+
+  <!-- ✅ Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Annonce immobilière - MaisonLouer Madagascar" />
+  <meta name="twitter:description" content="Photos, prix, localisation et contact WhatsApp." />
+  <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+
+  <meta name="robots" content="index, follow, max-image-preview:large" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./assets/css/style.css">
@@ -102,6 +124,14 @@
     .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
     .desc { margin:0; color:#374151; line-height:1.75; white-space:pre-line; }
 
+    /* ✅ Bloc SEO discret (texte utile pour Google, sans gêner l’utilisateur) */
+    .seo-box { margin-top: 18px; }
+    .seo-box .seo-pad { padding:16px; }
+    .seo-box h2 { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
+    .seo-box p { margin:0 0 10px; color:#4b5563; line-height:1.75; }
+    .seo-box ul { margin:0; padding-left:18px; color:#4b5563; line-height:1.75; }
+    .seo-box li { margin: 6px 0; }
+
     .backrow { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
     .backrow a { text-decoration:none; }
 
@@ -170,15 +200,27 @@
 
   <main class="annonce-wrap">
     <div class="container">
+
       <div id="annonce-container">
         <p>Annonce en cours de chargement...</p>
       </div>
+
+      <!-- ✅ SEO texte + rassurance (sera rempli dynamiquement pour coller à l’annonce) -->
+      <section class="card seo-box" aria-label="informations annonce">
+        <div class="seo-pad" id="seoAnnonceBox">
+          <h2>À propos de cette annonce</h2>
+          <p>
+            Cette annonce est en cours de chargement. Vous pourrez consulter les photos, le prix, la localisation et contacter facilement le propriétaire.
+          </p>
+        </div>
+      </section>
 
       <div class="backrow">
         <a href="recherche.html" class="btn">Retour à la recherche</a>
         <a href="locations.html" class="btn">Voir les locations</a>
         <a href="ventes.html" class="btn">Voir les ventes</a>
       </div>
+
     </div>
   </main>
 
@@ -196,9 +238,189 @@
   <script src="./assets/js/script.js"></script>
   <script src="./assets/js/annonce.js"></script>
 
+  <!-- ✅ SEO dynamique : title/meta/OG/canonical + Schema RealEstateListing -->
+  <script>
+    (function () {
+      const SITE = "https://maisonlouer.vercel.app";
+
+      function setOrCreateMeta(attrName, attrValue, content) {
+        let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+        if (!el) {
+          el = document.createElement("meta");
+          el.setAttribute(attrName, attrValue);
+          document.head.appendChild(el);
+        }
+        el.setAttribute("content", content);
+      }
+
+      function setCanonical(url) {
+        let link = document.querySelector('link[rel="canonical"]');
+        if (!link) {
+          link = document.createElement("link");
+          link.setAttribute("rel", "canonical");
+          document.head.appendChild(link);
+        }
+        link.setAttribute("href", url);
+      }
+
+      function setLdJson(obj) {
+        let script = document.getElementById("ldRealEstate");
+        if (!script) {
+          script = document.createElement("script");
+          script.type = "application/ld+json";
+          script.id = "ldRealEstate";
+          document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(obj);
+      }
+
+      function formatPriceAr(prixAr) {
+        if (prixAr === null || prixAr === undefined || prixAr === "") return "";
+        const n = Number(prixAr);
+        if (!Number.isFinite(n)) return "";
+        return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
+      }
+
+      function capFirst(s) {
+        if (!s) return "";
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+
+      // ⚙️ On écoute un événement custom envoyé par annonce.js
+      // 👉 Pour ne pas casser ton code, annonce.js n’est pas modifié ici.
+      // 👉 Si annonce.js envoie window.dispatchEvent(new CustomEvent('ml:annonceLoaded', { detail: annonce }))
+      // on fera un SEO parfait.
+      window.addEventListener("ml:annonceLoaded", (e) => {
+        const a = (e && e.detail) ? e.detail : null;
+        if (!a) return;
+
+        const titre = a.titre || a.Titre || "Annonce immobilière";
+        const ville = a.ville || a.Ville || "";
+        const quartier = a.quartier || a.Quartier || "";
+        const typeOffreRaw = (a.typeOffre || a.TypeOffre || "").toString().toLowerCase();
+        const typeOffre = typeOffreRaw === "location" ? "à louer" : (typeOffreRaw === "vente" ? "à vendre" : "");
+        const typeBien = a.typeBien || a.TypeBien || "";
+        const prixTxt = formatPriceAr(a.prixAr || a.Prix || a.prix || "");
+        const chambres = a.chambres || a.Chambres || "";
+        const surface = a.surface || a.Surface || "";
+        const sdb = a.sdb || a.Sdb || a.salleDeBain || "";
+        const images = a.images || a.Images || [];
+        const img0 = (Array.isArray(images) && images.length) ? images[0] : `${SITE}/assets/images/og/og-home.jpg`;
+
+        const loc = [quartier, ville].filter(Boolean).join(", ");
+        const where = loc ? ` – ${loc}` : "";
+        const offer = typeOffre ? ` ${typeOffre}` : "";
+        const bien = typeBien ? `${capFirst(typeBien)} ` : "";
+
+        // ✅ Title SEO
+        const title = `${bien}${titre}${offer}${where} | MaisonLouer Madagascar`.replace(/\s+/g, " ").trim();
+        document.title = title;
+
+        // ✅ Meta description SEO (155-165 chars approx)
+        const descParts = [];
+        descParts.push(`${titre}${offer}${where}.`);
+        if (prixTxt) descParts.push(`Prix : ${prixTxt}.`);
+        if (chambres) descParts.push(`${chambres} chambre(s).`);
+        descParts.push(`Photos, détails et contact WhatsApp sur MaisonLouer.`);
+        const metaDesc = descParts.join(" ").replace(/\s+/g, " ").trim();
+
+        setOrCreateMeta("name", "description", metaDesc);
+
+        // ✅ Canonical + og:url
+        const id = a.id || a.ID || "";
+        const url = id ? `${SITE}/annonce.html?id=${encodeURIComponent(id)}` : `${SITE}/annonce.html`;
+        setCanonical(url);
+        setOrCreateMeta("property", "og:url", url);
+
+        // ✅ OG / Twitter
+        setOrCreateMeta("property", "og:title", title);
+        setOrCreateMeta("property", "og:description", metaDesc);
+        setOrCreateMeta("property", "og:image", img0);
+        setOrCreateMeta("property", "og:image:alt", title);
+
+        setOrCreateMeta("name", "twitter:title", title);
+        setOrCreateMeta("name", "twitter:description", metaDesc);
+        setOrCreateMeta("name", "twitter:image", img0);
+
+        // ✅ Schema.org RealEstateListing (simple, robuste)
+        const schema = {
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          "name": title,
+          "url": url,
+          "inLanguage": "fr",
+          "image": Array.isArray(images) && images.length ? images : [img0],
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": ville || undefined,
+            "streetAddress": quartier || undefined,
+            "addressCountry": "MG"
+          },
+          "description": metaDesc,
+          "offers": prixTxt ? {
+            "@type": "Offer",
+            "priceCurrency": "MGA",
+            "price": String((a.prixAr || a.Prix || "").toString().replace(/\s/g, "")),
+            "availability": "https://schema.org/InStock",
+            "url": url
+          } : undefined
+        };
+
+        // Nettoyage undefined
+        function clean(o) {
+          if (!o || typeof o !== "object") return o;
+          Object.keys(o).forEach(k => {
+            if (o[k] === undefined || o[k] === null || o[k] === "") delete o[k];
+            else if (typeof o[k] === "object") clean(o[k]);
+          });
+          return o;
+        }
+
+        setLdJson(clean(schema));
+
+        // ✅ Copywriting SEO (bloc texte rassurant)
+        const seoBox = document.getElementById("seoAnnonceBox");
+        if (seoBox) {
+          const bullets = [];
+          if (loc) bullets.push(`Localisation : <strong>${loc}</strong>`);
+          if (typeBien) bullets.push(`Type de bien : <strong>${capFirst(typeBien)}</strong>`);
+          if (prixTxt) bullets.push(`Budget : <strong>${prixTxt}</strong>`);
+          if (chambres) bullets.push(`Chambres : <strong>${chambres}</strong>`);
+          if (surface) bullets.push(`Surface : <strong>${surface}</strong>`);
+          if (sdb) bullets.push(`Salle(s) de bain : <strong>${sdb}</strong>`);
+
+          seoBox.innerHTML = `
+            <h2>À propos de cette annonce</h2>
+            <p>
+              Consultez les détails complets de <strong>${titre}</strong>${offer}${where}. 
+              Parcourez les photos, vérifiez le prix et contactez rapidement via WhatsApp pour organiser une visite.
+            </p>
+            ${bullets.length ? `<ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul>` : ""}
+            <p style="margin-top:12px;">
+              Astuce : comparez avec d’autres biens similaires via la <a href="recherche.html">recherche avancée</a>.
+            </p>
+          `;
+        }
+      });
+
+      // ✅ Fallback : si annonce.js ne dispatch pas l’événement, on tente de détecter un rendu HTML
+      // (ça donne au moins un title propre, mais l’événement reste la meilleure option)
+      const observer = new MutationObserver(() => {
+        const h1 = document.querySelector(".annonce-title");
+        if (h1 && h1.textContent && !document.title.includes(h1.textContent.trim())) {
+          document.title = `${h1.textContent.trim()} | MaisonLouer Madagascar`;
+          setOrCreateMeta("property", "og:title", document.title);
+          setOrCreateMeta("name", "twitter:title", document.title);
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    })();
+  </script>
+
   <!-- ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 </body>
+
 </html>
