@@ -4,18 +4,15 @@
    - annonce.html => détails d’un bien via /api/annonces (Supabase)
    - URL attendue : annonce.html?id=<uuid>
 
-   ✅ SEO/Partage (2026-01):
-   - Dispatch event: ml:annonceLoaded (pour title/meta/OG/canonical/schema dans annonce.html)
-   - Canonical stable: https://maisonlouer.vercel.app/annonce.html?id=<uuid>
-   - Partage: Web Share API / copie lien / fallback WhatsApp
+   ✅ SEO/COPY V2 (2026-01):
+   - Copywriting conversion WhatsApp
+   - Bloc SEO longue traîne (typeBien + offre + quartier + ville)
+   - Émet l’événement: ml:annonceLoaded (pour annonce.html: title/meta/OG/schema)
 ========================= */
 
 (function () {
   const container = document.getElementById("annonce-container");
   if (!container) return;
-
-  // ✅ Domaine officiel (Vercel)
-  const SITE_URL = "https://maisonlouer.vercel.app";
 
   // Email global MaisonLouer
   const CONTACT_EMAIL = "maisonlouer.mada@outlook.com";
@@ -25,6 +22,12 @@
 
   function norm(str) {
     return (str || "").toString().trim().toLowerCase();
+  }
+
+  function capFirst(str) {
+    const s = (str || "").toString().trim();
+    if (!s) return "";
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   function escapeHtml(str) {
@@ -42,6 +45,13 @@
     const n = Number(prixAr);
     if (Number.isNaN(n)) return "Prix sur demande";
     return `${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
+  }
+
+  function formatNumber(n) {
+    if (n === null || n === undefined || n === "") return "";
+    const x = Number(n);
+    if (!Number.isFinite(x)) return "";
+    return String(x);
   }
 
   async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
@@ -65,23 +75,42 @@
 
   function buildWhatsAppLink(waDigits, titre, pageUrl) {
     const phone = (waDigits || "").toString().replace(/[^\d]/g, "") || DEFAULT_WA;
-    const msg = `Bonjour, je suis intéressé(e) par cette annonce : ${titre}\nLien : ${pageUrl}`;
+    const msg = `Bonjour, je suis intéressé(e) par cette annonce : ${titre}\nLien : ${pageUrl}\nPouvez-vous me confirmer la disponibilité et proposer une visite ?`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-  }
-
-  function buildWhatsAppShareLink(titre, pageUrl) {
-    const text = `Annonce MaisonLouer : ${titre}\n${pageUrl}`;
-    return `https://wa.me/?text=${encodeURIComponent(text)}`;
   }
 
   function buildMailLink(titre, pageUrl) {
     const subject = `Demande d'information - ${titre}`;
-    const body = `Bonjour,\n\nJe suis intéressé(e) par l'annonce : ${titre}\nLien : ${pageUrl}\n\nMerci.`;
+    const body = `Bonjour,\n\nJe suis intéressé(e) par l'annonce : ${titre}\nLien : ${pageUrl}\n\nPouvez-vous me confirmer la disponibilité et me proposer une visite ?\n\nMerci.`;
     return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
-  function buildHtml(a, canonicalUrl) {
-    const titre = a.titre || "Annonce";
+  function computeSeoPhrases(a) {
+    const titre = (a.titre || "Annonce").toString().trim();
+    const offre = norm(a.typeOffre);
+    const bien = norm(a.typeBien);
+
+    const ville = (a.ville || "").toString().trim();
+    const quartier = (a.quartier || "").toString().trim();
+
+    const typeOffreTxt = offre === "location" ? "à louer" : (offre === "vente" ? "à vendre" : "");
+    const typeBienTxt = bien ? capFirst(bien) : "Bien";
+
+    // Phrase principale longue traîne
+    // Exemple: "Appartement à louer à Ivandry, Antananarivo"
+    const loc = [quartier, ville].filter(Boolean).join(", ");
+    const longTail = `${typeBienTxt}${typeOffreTxt ? " " + typeOffreTxt : ""}${loc ? " à " + loc : " à Madagascar"}`.trim();
+
+    // Phrases secondaires (variantes)
+    const alt1 = loc ? `Annonce immobilière ${typeOffreTxt || ""} à ${loc}`.replace(/\s+/g, " ").trim() : `Annonce immobilière à Madagascar`;
+    const alt2 = ville ? `Immobilier ${ville} : ${typeBienTxt} ${typeOffreTxt || ""}`.replace(/\s+/g, " ").trim() : `Immobilier Madagascar : ${typeBienTxt}`;
+
+    return { titre, typeOffreTxt, typeBienTxt, loc, longTail, alt1, alt2 };
+  }
+
+  function buildHtml(a) {
+    const seo = computeSeoPhrases(a);
+
     const offre = norm(a.typeOffre);
     const bien = norm(a.typeBien);
 
@@ -99,9 +128,7 @@
 
     const prix = formatPriceAr(a.prixAr);
 
-    const ville = a.ville || "";
-    const quartier = a.quartier || "";
-    const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
+    const adresse = seo.loc || "Madagascar";
 
     const chambres = (a.chambres !== null && a.chambres !== undefined) ? Number(a.chambres) : null;
     const sdb = (a.sdb !== null && a.sdb !== undefined) ? Number(a.sdb) : null;
@@ -112,18 +139,25 @@
     const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
     const mainImg = images.length ? images[0] : "./assets/images/property-1.jpg";
 
-    // ✅ URL stable (canonical) : évite les variations (utm, hash, etc.)
-    const pageUrl = canonicalUrl || window.location.href;
+    const pageUrl = window.location.href;
+    const waLink = buildWhatsAppLink(a.whatsapp, seo.titre, pageUrl);
+    const mailLink = buildMailLink(seo.titre, pageUrl);
 
-    const waLink = buildWhatsAppLink(a.whatsapp, titre, pageUrl);
-    const mailLink = buildMailLink(titre, pageUrl);
+    // ✅ Micro-copy conversion WhatsApp (immobilier)
+    const urgencyLine = (offre === "location" || offre === "vente")
+      ? "Ce bien peut partir vite : demandez la disponibilité et une visite sur WhatsApp."
+      : "Demandez la disponibilité et une visite sur WhatsApp.";
+
+    const reassureLine = "Réponse rapide • Photos et informations essentielles • Visite sur demande";
 
     return `
       <div class="annonce-head">
         <div>
           <p class="annonce-kicker">MaisonLouer</p>
-          <h1 class="annonce-title">${escapeHtml(titre)}</h1>
-          <p class="annonce-sub"><span>${escapeHtml(adresse)}</span></p>
+          <h1 class="annonce-title">${escapeHtml(seo.titre)}</h1>
+          <p class="annonce-sub">
+            <span><strong>${escapeHtml(seo.longTail)}</strong></span>
+          </p>
         </div>
 
         <div class="annonce-badges">
@@ -142,7 +176,7 @@
         <div style="display:grid; gap:18px;">
           <div class="card">
             <div class="gallery-main">
-              <img id="galleryMainImg" src="${escapeHtml(mainImg)}" alt="${escapeHtml(titre)}">
+              <img id="galleryMainImg" src="${escapeHtml(mainImg)}" alt="${escapeHtml(seo.titre)}">
               <div class="gallery-nav" aria-hidden="false">
                 <button class="gbtn" id="gPrev" type="button" aria-label="Photo précédente">
                   <ion-icon name="chevron-back-outline"></ion-icon>
@@ -158,12 +192,12 @@
                 images.length
                   ? images.slice(0, 12).map((src, idx) => `
                       <div class="thumb ${idx === 0 ? "is-active" : ""}" data-idx="${idx}" role="button" tabindex="0" aria-label="Voir la photo ${idx + 1}">
-                        <img src="${escapeHtml(src)}" alt="${escapeHtml(titre)} - photo ${idx + 1}">
+                        <img src="${escapeHtml(src)}" alt="${escapeHtml(seo.titre)} - photo ${idx + 1}">
                       </div>
                     `).join("")
                   : `
                       <div class="thumb is-active" data-idx="0" role="button" tabindex="0" aria-label="Voir la photo 1">
-                        <img src="${escapeHtml(mainImg)}" alt="${escapeHtml(titre)} - photo 1">
+                        <img src="${escapeHtml(mainImg)}" alt="${escapeHtml(seo.titre)} - photo 1">
                       </div>
                     `
               }
@@ -172,7 +206,7 @@
 
           <div class="card">
             <div class="content-pad">
-              <h3 class="h3t">Description du bien</h3>
+              <h2 class="h3t">Description du bien</h2>
               <p class="desc">${escapeHtml(description)}</p>
             </div>
           </div>
@@ -195,12 +229,12 @@
 
             <!-- ✅ CTA + Partage -->
             <div class="cta">
-              <a class="cbtn primary" href="${escapeHtml(waLink)}" target="_blank" rel="noopener">
+              <a class="cbtn primary" href="${escapeHtml(waLink)}" target="_blank" rel="noopener" aria-label="Demander une visite sur WhatsApp">
                 <ion-icon name="logo-whatsapp"></ion-icon>
-                Contacter sur WhatsApp
+                Demander une visite (WhatsApp)
               </a>
 
-              <a class="cbtn dark" href="${escapeHtml(mailLink)}">
+              <a class="cbtn dark" href="${escapeHtml(mailLink)}" aria-label="Envoyer un email">
                 <ion-icon name="mail-outline"></ion-icon>
                 Envoyer un email
               </a>
@@ -212,7 +246,8 @@
             </div>
 
             <p style="margin:14px 0 0; color:#6b7280; font-size:13px; line-height:1.6;">
-              Astuce : indiquez votre budget, la zone et si vous cherchez plutôt à louer ou acheter.
+              <strong>${escapeHtml(urgencyLine)}</strong><br>
+              ${escapeHtml(reassureLine)}
             </p>
           </div>
         </aside>
@@ -267,40 +302,74 @@
     }
   }
 
-  function initShare(titre, canonicalUrl) {
+  function initShare(titre) {
     const btn = document.getElementById("btn-share");
     if (!btn) return;
 
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
-
-      const url = canonicalUrl || window.location.href;
-      const shareTitle = titre || "Annonce MaisonLouer";
-      const shareText = "Annonce immobilière sur MaisonLouer";
+      const url = window.location.href;
 
       try {
         if (navigator.share) {
           await navigator.share({
-            title: shareTitle,
-            text: shareText,
+            title: titre || "Annonce MaisonLouer",
+            text: "Annonce immobilière sur MaisonLouer",
             url
           });
-          return;
-        }
-
-        // Fallback 1 : copie lien
-        if (navigator.clipboard) {
+        } else if (navigator.clipboard) {
           await navigator.clipboard.writeText(url);
           alert("Lien copié dans le presse-papier ✅");
-          return;
+        } else {
+          prompt("Copiez le lien :", url);
         }
-
-        // Fallback 2 : WhatsApp share
-        window.open(buildWhatsAppShareLink(shareTitle, url), "_blank", "noopener");
       } catch (err) {
-        // Si user annule, rien
+        // si user annule, pas besoin d’erreur
       }
     });
+  }
+
+  function updateSeoBox(a) {
+    const seoBox = document.getElementById("seoAnnonceBox");
+    if (!seoBox) return;
+
+    const seo = computeSeoPhrases(a);
+
+    const prixTxt = formatPriceAr(a.prixAr);
+    const chambres = formatNumber(a.chambres);
+    const surface = formatNumber(a.surface);
+    const sdb = formatNumber(a.sdb);
+
+    const bullets = [];
+    if (seo.loc) bullets.push(`Localisation : <strong>${escapeHtml(seo.loc)}</strong>`);
+    bullets.push(`Type de bien : <strong>${escapeHtml(seo.typeBienTxt)}</strong>`);
+    if (seo.typeOffreTxt) bullets.push(`Offre : <strong>${escapeHtml(seo.typeOffreTxt)}</strong>`);
+    if (prixTxt && prixTxt !== "Prix sur demande") bullets.push(`Budget : <strong>${escapeHtml(prixTxt)}</strong>`);
+    if (chambres) bullets.push(`Chambres : <strong>${escapeHtml(chambres)}</strong>`);
+    if (surface) bullets.push(`Surface : <strong>${escapeHtml(surface)} m²</strong>`);
+    if (sdb) bullets.push(`Salle(s) de bain : <strong>${escapeHtml(sdb)}</strong>`);
+
+    // ✅ Liens internes (SEO + maillage)
+    const urlLoc = `recherche.html?offre=location${seo.loc ? `&zone=${encodeURIComponent(seo.loc)}` : ""}`;
+    const urlVente = `recherche.html?offre=vente${seo.loc ? `&zone=${encodeURIComponent(seo.loc)}` : ""}`;
+
+    seoBox.innerHTML = `
+      <h2>À propos de cette annonce</h2>
+      <p>
+        <strong>${escapeHtml(seo.longTail)}</strong> sur MaisonLouer.
+        Consultez les photos, vérifiez le prix et contactez rapidement via WhatsApp pour organiser une visite.
+      </p>
+      ${bullets.length ? `<ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul>` : ""}
+      <p style="margin-top:12px;">
+        Voir d’autres annonces immobilières ${seo.loc ? `à <strong>${escapeHtml(seo.loc)}</strong>` : "à Madagascar"} :
+        <a href="${escapeHtml(urlLoc)}">locations</a> •
+        <a href="${escapeHtml(urlVente)}">ventes</a> •
+        <a href="recherche.html">recherche avancée</a>.
+      </p>
+      <p style="margin-top:10px;">
+        Mots-clés utiles : <em>${escapeHtml(seo.alt1)}</em> • <em>${escapeHtml(seo.alt2)}</em>
+      </p>
+    `;
   }
 
   async function init() {
@@ -311,8 +380,6 @@
       container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : aucune annonce sélectionnée. (ID manquant)</p>`;
       return;
     }
-
-    const canonicalUrl = `${SITE_URL}/annonce.html?id=${encodeURIComponent(id)}`;
 
     let annonces = [];
     try {
@@ -333,24 +400,32 @@
       return;
     }
 
-    // ✅ Rendu HTML
-    container.innerHTML = buildHtml(a, canonicalUrl);
-    initGallery(a.images);
-    initShare(a.titre || "Annonce MaisonLouer", canonicalUrl);
+    // ✅ SEO minimal (fallback) - le SEO parfait est géré par annonce.html via ml:annonceLoaded
+    const seo = computeSeoPhrases(a);
+    document.title = `${seo.longTail} | MaisonLouer Madagascar`.replace(/\s+/g, " ").trim();
 
-    // ✅ SEO simple (fallback)
-    document.title = `${a.titre || "Annonce"} - MaisonLouer`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       const snippet = (a.description || "").replace(/\s+/g, " ").trim();
-      metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
+      const base = snippet ? snippet.slice(0, 140) : `${seo.longTail}.`;
+      metaDesc.setAttribute("content", `${base} Photos, prix et contact WhatsApp sur MaisonLouer.`.slice(0, 160));
     }
 
-    // ✅ SEO avancé (annonce.html écoutera ça pour title/meta/OG/canonical/schema + og:image)
+    // Rendu HTML
+    container.innerHTML = buildHtml(a);
+
+    // Init UI
+    initGallery(a.images);
+    initShare(a.titre || "Annonce MaisonLouer");
+
+    // Remplir le bloc SEO (dans annonce.html)
+    updateSeoBox(a);
+
+    // ✅ Événement SEO (annonce.html écoute ça pour OG/Twitter/canonical/schema)
     try {
       window.dispatchEvent(new CustomEvent("ml:annonceLoaded", { detail: a }));
     } catch (e) {
-      // Rien
+      // rien
     }
   }
 
