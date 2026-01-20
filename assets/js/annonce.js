@@ -1,237 +1,297 @@
 /* =========================
    File: assets/js/annonce.js
    Objectif:
-   - annonce.html => afficher UNE annonce via ?id=SLUG
-   - Source : Supabase REST (public.annonces)
-   - RLS : autoriser SELECT sur les lignes "Publié = true"
+   - annonce.html => détails d’un bien via /api/annonces (Supabase)
+   - URL attendue : annonce.html?id=<uuid>
 ========================= */
 
-/* =========================
-   CONFIG SUPABASE
-========================= */
-const SUPABASE_URL = "https://glysaizevxujkiuuwflv.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdseXNhaXpldnh1amtpdXV3Zmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MDYxOTksImV4cCI6MjA4NDM4MjE5OX0.K29buPf0NxCLw4JSdbxUshHRC9BUMikfakRUPCDVi0w";
+(function () {
+  const container = document.getElementById("annonce-container");
+  if (!container) return;
 
-/* =========================
-   HELPERS
-========================= */
-async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(id);
-  }
-}
+  // Email global MaisonLouer
+  const CONTACT_EMAIL = "maisonlouer.mada@outlook.com";
+  // WhatsApp par défaut si l'annonce n'en a pas
+  const DEFAULT_WA = "261385436196";
 
-function formatPriceAr(prixAr) {
-  if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
-  const n = Number(prixAr);
-  if (Number.isNaN(n)) return "Prix sur demande";
-  return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
-}
-
-function norm(str) {
-  return (str || "").toString().trim().toLowerCase();
-}
-
-function getQueryId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id"); // on garde "id" dans l'URL, mais c'est un SLUG
-}
-
-function pickContainer() {
-  return (
-    document.getElementById("annonce-container") ||
-    document.getElementById("annonce-detail") ||
-    document.getElementById("annonce") ||
-    document.getElementById("main-content") ||
-    document.querySelector("main") ||
-    document.body
-  );
-}
-
-/* =========================
-   NORMALISATION (comme ton code)
-========================= */
-function normalizeAnnonce(row) {
-  let imagesArr = [];
-  if (Array.isArray(row["Images"])) {
-    imagesArr = row["Images"].filter(Boolean);
-  } else if (typeof row["Images"] === "string" && row["Images"].trim()) {
-    imagesArr = row["Images"].split("|").map((s) => s.trim()).filter(Boolean);
+  function norm(str) {
+    return (str || "").toString().trim().toLowerCase();
   }
 
-  return {
-    id: row["id"] ?? null,
-    slug: row["slug"] ?? null,
-
-    titre: row["Titre"] ?? "",
-    typeOffre: row["TypeOffre"] ?? "",
-    typeBien: row["TypeBien"] ?? "",
-    ville: row["Ville"] ?? "",
-    quartier: row["Quartier"] ?? "",
-    prixAr: row["Prix"] ?? null,
-
-    chambres: row["Chambres"] ?? null,
-    sdb: row["SDB"] ?? null,
-    surface: row["Surface"] ?? null,
-
-    images: imagesArr,
-    description: row["Description"] ?? "",
-
-    publie: row["Publié"] === true,
-
-    lat: row["lat"] ?? null,
-    lng: row["lng"] ?? null,
-    whatsapp: row["WhatsApp"] ?? "",
-
-    listeParNous: row["ListéParNous"] === true,
-    status: row["Status"] ?? "",
-    dateAjout: row["Date d'ajout"] ?? "",
-  };
-}
-
-/* =========================
-   FETCH 1 annonce par SLUG
-========================= */
-async function fetchAnnonceBySlug(slug) {
-  const url =
-    `${SUPABASE_URL}/rest/v1/annonces` +
-    `?select=*` +
-    `&slug=eq.${encodeURIComponent(slug)}` +
-    `&Publié=eq.true` +
-    `&limit=1`;
-
-  const res = await fetchWithTimeout(
-    url,
-    {
-      method: "GET",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    },
-    8000
-  );
-
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`Supabase indisponible (${res.status}) ${txt}`);
+  function escapeHtml(str) {
+    return (str || "")
+      .toString()
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
-  const rows = await res.json();
-  if (!Array.isArray(rows) || rows.length === 0) return null;
+  function formatPriceAr(prixAr) {
+    if (prixAr === null || prixAr === undefined || prixAr === "") return "Prix sur demande";
+    const n = Number(prixAr);
+    if (Number.isNaN(n)) return "Prix sur demande";
+    return `${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} Ar`;
+  }
 
-  return normalizeAnnonce(rows[0]);
-}
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(id);
+    }
+  }
 
-/* =========================
-   RENDER
-========================= */
-function renderNotFound(container, slug) {
-  container.innerHTML = `
-    <div style="max-width:1100px;margin:40px auto;padding:0 16px;">
-      <h2 style="color:#b00020;">Annonce introuvable (ID : ${slug}).</h2>
+  // ✅ Source unique : /api/annonces (Supabase)
+  async function fetchAnnoncesFromApiOnly() {
+    const res = await fetchWithTimeout("/api/annonces", { method: "GET" }, 12000);
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`API indisponible (${res.status}) ${txt}`);
+    }
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Format API invalide (attendu: tableau)");
+    return data;
+  }
 
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;">
-        <a class="btn" href="recherche.html">Retour à la recherche</a>
-        <a class="btn" href="locations.html">Voir les locations</a>
-        <a class="btn" href="ventes.html">Voir les ventes</a>
-      </div>
-    </div>
-  `;
-}
+  function buildWhatsAppLink(waDigits, titre, pageUrl) {
+    const phone = (waDigits || "").toString().replace(/[^\d]/g, "") || DEFAULT_WA;
+    const msg = `Bonjour, je suis intéressé(e) par cette annonce : ${titre}\nLien : ${pageUrl}`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  }
 
-function renderAnnonce(container, a) {
-  const adresse = [a.quartier, a.ville].filter(Boolean).join(", ") || "Madagascar";
-  const prix = formatPriceAr(a.prixAr);
+  function buildMailLink(titre, pageUrl) {
+    const subject = `Demande d'information - ${titre}`;
+    const body = `Bonjour,\n\nJe suis intéressé(e) par l'annonce : ${titre}\nLien : ${pageUrl}\n\nMerci.`;
+    return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
 
-  const img = (a.images && a.images.length) ? a.images[0] : "./assets/images/property-1.jpg";
+  function buildHtml(a) {
+    const titre = a.titre || "Annonce";
+    const offre = norm(a.typeOffre);
+    const bien = norm(a.typeBien);
 
-  const meta = [
-    a.chambres ? `${a.chambres} ch.` : null,
-    a.sdb ? `${a.sdb} sdb` : null,
-    a.surface ? `${a.surface} m²` : null,
-  ].filter(Boolean).join(" • ");
+    const badgeOffre =
+      (offre === "location") ? "À LOUER" :
+      (offre === "vente") ? "EN VENTE" :
+      "ANNONCE";
 
-  const isLocation = norm(a.typeOffre) === "location";
-  const badge = isLocation ? "À louer" : "À vendre";
+    const pillOffreClass =
+      (offre === "location") ? "green" :
+      (offre === "vente") ? "blue" :
+      "gray";
 
-  // WhatsApp (format simple)
-  const wa = (a.whatsapp || "").toString().replace(/\s+/g, "");
-  const waLink = wa ? `https://wa.me/${wa}` : null;
+    const badgeBien = bien ? bien.toUpperCase() : "BIEN";
 
-  container.innerHTML = `
-    <div style="max-width:1100px;margin:30px auto;padding:0 16px;">
-      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:22px;align-items:start;">
+    const prix = formatPriceAr(a.prixAr);
+
+    const ville = a.ville || "";
+    const quartier = a.quartier || "";
+    const adresse = [quartier, ville].filter(Boolean).join(", ") || "Madagascar";
+
+    const chambres = (a.chambres !== null && a.chambres !== undefined) ? Number(a.chambres) : null;
+    const sdb = (a.sdb !== null && a.sdb !== undefined) ? Number(a.sdb) : null;
+    const surface = (a.surface !== null && a.surface !== undefined) ? Number(a.surface) : null;
+
+    const description = a.description ? a.description : "Aucune description pour le moment.";
+
+    const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
+    const mainImg = images.length ? images[0] : "./assets/images/property-1.jpg";
+
+    const pageUrl = window.location.href;
+    const waLink = buildWhatsAppLink(a.whatsapp, titre, pageUrl);
+    const mailLink = buildMailLink(titre, pageUrl);
+
+    return `
+      <div class="annonce-head">
         <div>
-          <img src="${img}" alt="${a.titre || "Annonce"}" style="width:100%;border-radius:12px;object-fit:cover;max-height:420px;">
+          <p class="annonce-kicker">MaisonLouer</p>
+          <h1 class="annonce-title">${escapeHtml(titre)}</h1>
+          <p class="annonce-sub"><span>${escapeHtml(adresse)}</span></p>
         </div>
 
-        <div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <span style="background:#0b1f3a;color:#fff;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;">
-              ${badge}
-            </span>
-            ${a.listeParNous ? `<span style="background:#111;color:#fff;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;">LISTÉ PAR NOUS</span>` : ``}
-          </div>
-
-          <h1 style="margin:12px 0 8px;">${a.titre || "Annonce"}</h1>
-
-          <div style="font-size:22px;font-weight:800;margin:10px 0;">${prix}</div>
-
-          <div style="display:flex;gap:10px;align-items:center;margin:10px 0;color:#333;">
-            <span>📍</span>
-            <span>${adresse}</span>
-          </div>
-
-          ${meta ? `<div style="margin:10px 0;color:#333;">${meta}</div>` : ``}
-
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
-            ${waLink ? `<a class="btn" href="${waLink}" target="_blank" rel="noopener">Contacter sur WhatsApp</a>` : ``}
-            <a class="btn" href="recherche.html">Retour à la recherche</a>
-          </div>
+        <div class="annonce-badges">
+          <span class="pill ${pillOffreClass}">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            ${escapeHtml(badgeOffre)}
+          </span>
+          <span class="pill gray">
+            <ion-icon name="home-outline"></ion-icon>
+            ${escapeHtml(badgeBien)}
+          </span>
         </div>
       </div>
 
-      <div style="margin-top:26px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 22px rgba(0,0,0,.06);">
-        <h3 style="margin:0 0 10px;">Description</h3>
-        <p style="margin:0;line-height:1.6;color:#333;">
-          ${a.description ? a.description : "Aucune description pour le moment."}
-        </p>
+      <div class="annonce-grid">
+        <div style="display:grid; gap:18px;">
+          <div class="card">
+            <div class="gallery-main">
+              <img id="galleryMainImg" src="${escapeHtml(mainImg)}" alt="${escapeHtml(titre)}">
+              <div class="gallery-nav" aria-hidden="false">
+                <button class="gbtn" id="gPrev" type="button" aria-label="Photo précédente">
+                  <ion-icon name="chevron-back-outline"></ion-icon>
+                </button>
+                <button class="gbtn" id="gNext" type="button" aria-label="Photo suivante">
+                  <ion-icon name="chevron-forward-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="gallery-thumbs" id="galleryThumbs">
+              ${
+                images.length
+                  ? images.slice(0, 12).map((src, idx) => `
+                      <div class="thumb ${idx === 0 ? "is-active" : ""}" data-idx="${idx}" role="button" tabindex="0" aria-label="Voir la photo ${idx + 1}">
+                        <img src="${escapeHtml(src)}" alt="${escapeHtml(titre)} - photo ${idx + 1}">
+                      </div>
+                    `).join("")
+                  : `
+                      <div class="thumb is-active" data-idx="0" role="button" tabindex="0" aria-label="Voir la photo 1">
+                        <img src="${escapeHtml(mainImg)}" alt="${escapeHtml(titre)} - photo 1">
+                      </div>
+                    `
+              }
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="content-pad">
+              <h3 class="h3t">Description du bien</h3>
+              <p class="desc">${escapeHtml(description)}</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card">
+          <div class="side-pad">
+            <p class="price">${escapeHtml(prix)}</p>
+
+            <div class="meta-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>${escapeHtml(adresse)}</span>
+            </div>
+
+            <div class="meta-grid">
+              <div class="kpi"><strong>${chambres !== null ? chambres : "-"}</strong><span>Chambres</span></div>
+              <div class="kpi"><strong>${sdb !== null ? sdb : "-"}</strong><span>SDB</span></div>
+              <div class="kpi"><strong>${surface !== null ? surface : "-"}</strong><span>m²</span></div>
+            </div>
+
+            <div class="cta">
+              <a class="cbtn primary" href="${escapeHtml(waLink)}" target="_blank" rel="noopener">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+                Contacter sur WhatsApp
+              </a>
+
+              <a class="cbtn dark" href="${escapeHtml(mailLink)}">
+                <ion-icon name="mail-outline"></ion-icon>
+                Envoyer un email
+              </a>
+
+              <a class="cbtn ghost" href="recherche.html">
+                <ion-icon name="search-outline"></ion-icon>
+                Retour recherche
+              </a>
+            </div>
+
+            <p style="margin:14px 0 0; color:#6b7280; font-size:13px; line-height:1.6;">
+              Astuce : indiquez votre budget, la zone et si vous cherchez plutôt à louer ou acheter.
+            </p>
+          </div>
+        </aside>
       </div>
-    </div>
-  `;
-}
-
-/* =========================
-   INIT
-========================= */
-async function initAnnonce() {
-  const container = pickContainer();
-  const slug = getQueryId();
-
-  if (!slug) {
-    renderNotFound(container, "aucun-id");
-    return;
+    `;
   }
 
-  try {
-    container.innerHTML = `<p style="max-width:1100px;margin:40px auto;padding:0 16px;">Chargement de l’annonce…</p>`;
-    const annonce = await fetchAnnonceBySlug(slug);
+  function initGallery(images) {
+    const imgEl = document.getElementById("galleryMainImg");
+    const thumbs = document.getElementById("galleryThumbs");
+    const prev = document.getElementById("gPrev");
+    const next = document.getElementById("gNext");
+    if (!imgEl || !prev || !next || !thumbs) return;
 
-    if (!annonce) {
-      renderNotFound(container, slug);
+    const list = (Array.isArray(images) && images.length) ? images.filter(Boolean) : [imgEl.src];
+    let idx = 0;
+
+    const setActive = (i) => {
+      idx = (i + list.length) % list.length;
+      imgEl.src = list[idx];
+
+      const all = thumbs.querySelectorAll(".thumb");
+      all.forEach(t => t.classList.remove("is-active"));
+
+      const current = thumbs.querySelector(`.thumb[data-idx="${idx}"]`);
+      if (current) current.classList.add("is-active");
+    };
+
+    prev.addEventListener("click", () => setActive(idx - 1));
+    next.addEventListener("click", () => setActive(idx + 1));
+
+    thumbs.addEventListener("click", (e) => {
+      const t = e.target.closest(".thumb");
+      if (!t) return;
+      const i = Number(t.getAttribute("data-idx"));
+      if (!Number.isNaN(i)) setActive(i);
+    });
+
+    thumbs.addEventListener("keydown", (e) => {
+      const t = e.target.closest(".thumb");
+      if (!t) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const i = Number(t.getAttribute("data-idx"));
+        if (!Number.isNaN(i)) setActive(i);
+      }
+    });
+
+    if (list.length <= 1) {
+      prev.style.display = "none";
+      next.style.display = "none";
+    }
+  }
+
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+      container.innerHTML = `<p style="color:#b00020; font-weight:800;">Erreur : aucune annonce sélectionnée. (ID manquant)</p>`;
       return;
     }
 
-    renderAnnonce(container, annonce);
-  } catch (e) {
-    container.innerHTML = `<p style="color:#b00020;max-width:1100px;margin:40px auto;padding:0 16px;">Erreur : ${e.message}</p>`;
-  }
-}
+    let annonces = [];
+    try {
+      annonces = await fetchAnnoncesFromApiOnly();
+    } catch (e) {
+      container.innerHTML = `
+        <p style="color:#b00020; font-weight:800;">
+          Impossible de charger l’annonce (API Supabase).<br>
+          Détail : ${escapeHtml(e.message)}
+        </p>
+      `;
+      return;
+    }
 
-document.addEventListener("DOMContentLoaded", initAnnonce);
+    const a = annonces.find(x => String(x.id) === String(id));
+    if (!a) {
+      container.innerHTML = `<p style="color:#b00020; font-weight:800;">Annonce introuvable (ID : ${escapeHtml(id)}).</p>`;
+      return;
+    }
+
+    // SEO dynamique
+    document.title = `${a.titre || "Annonce"} - MaisonLouer`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      const snippet = (a.description || "").replace(/\s+/g, " ").trim();
+      metaDesc.setAttribute("content", snippet ? snippet.slice(0, 160) : "Détails de l’annonce sur MaisonLouer.");
+    }
+
+    container.innerHTML = buildHtml(a);
+    initGallery(a.images);
+  }
+
+  init();
+})();
