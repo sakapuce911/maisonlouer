@@ -5,10 +5,35 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maisons à louer - MaisonLouer</title>
 
-  <!-- SEO MaisonLouer -->
-  <meta name="description" content="Maisons et appartements à louer à Madagascar. Parcourez les annonces MaisonLouer et contactez-nous pour visiter." />
+  <!-- ✅ SEO Title (transactionnel) -->
+  <title>Maisons & appartements à louer à Madagascar | MaisonLouer</title>
+
+  <!-- ✅ SEO Description (CTR + intention) -->
+  <meta name="description"
+    content="Trouvez une maison ou un appartement à louer à Madagascar (Antananarivo, Ivandry, Andraharo…). Filtrez par zone, budget et chambres. Photos, prix et contact WhatsApp." />
+
+  <!-- ✅ Canonical -->
+  <link rel="canonical" href="https://maisonlouer.vercel.app/locations.html" />
+
+  <!-- ✅ Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MaisonLouer" />
+  <meta property="og:title" content="Maisons & appartements à louer à Madagascar | MaisonLouer" />
+  <meta property="og:description"
+    content="Locations à Madagascar : maisons, appartements, prix et photos. Filtrez par zone et budget, puis contactez rapidement sur WhatsApp." />
+  <meta property="og:url" content="https://maisonlouer.vercel.app/locations.html" />
+  <meta property="og:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+  <meta property="og:image:alt" content="Maisons et appartements à louer à Madagascar - MaisonLouer" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Maisons & appartements à louer à Madagascar | MaisonLouer" />
+  <meta name="twitter:description"
+    content="Trouvez une maison ou un appartement à louer à Madagascar. Filtrez par zone, budget et chambres. Contact WhatsApp." />
+  <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+
+  <meta name="robots" content="index, follow, max-image-preview:large" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
@@ -31,8 +56,6 @@
   <header class="header" data-header>
 
     <div class="overlay" data-overlay></div>
-
-    <!-- ✅ header-top SUPPRIMÉ -->
 
     <div class="header-bottom">
       <div class="container">
@@ -69,7 +92,6 @@
 
         </nav>
 
-        <!-- ✅ Actions : on garde uniquement le menu -->
         <div class="header-bottom-actions">
           <button class="header-bottom-actions-btn" data-nav-open-btn aria-label="Ouvrir le menu">
             <ion-icon name="menu-outline"></ion-icon>
@@ -84,70 +106,79 @@
 
   <main>
 
-    <!-- HERO “LOUER” -->
+    <!-- HERO “LOUER” (copywriting + keywords) -->
     <section class="roa-hero" aria-label="hero location">
       <div class="container">
         <div class="roa-hero-grid">
 
           <div class="roa-hero-left">
             <p class="roa-kicker">MaisonLouer</p>
-            <h1 class="roa-title">Louez votre prochain bien, en toute confiance</h1>
+
+            <!-- ✅ H1 SEO -->
+            <h1 class="roa-title">Maisons et appartements à louer à Madagascar</h1>
+
+            <!-- ✅ Texte d’intention (conversion) -->
             <p class="roa-subtitle">
-              Parcourez nos annonces de location, comparez facilement et contactez-nous pour planifier une visite.
+              Trouvez rapidement une <strong>maison</strong> ou un <strong>appartement à louer</strong> à Madagascar.
+              Indiquez une zone (ex : <strong>Antananarivo</strong>, <strong>Ivandry</strong>, <strong>Andraharo</strong>)
+              puis comparez les annonces par <strong>budget</strong> et <strong>chambres</strong>.
             </p>
 
             <div class="roa-hero-actions">
-              <a class="roa-btn primary" href="#liste-locations">
+              <a class="roa-btn primary" href="#liste-locations" aria-label="Voir toutes les locations">
                 <ion-icon name="search-outline"></ion-icon>
                 Voir les locations
               </a>
 
-              <a class="roa-btn secondary" href="recherche.html">
+              <a class="roa-btn secondary" href="recherche.html" aria-label="Accéder aux filtres de recherche avancée">
                 <ion-icon name="options-outline"></ion-icon>
                 Filtrer ma recherche
               </a>
             </div>
 
-            <div class="roa-badges">
+            <div class="roa-badges" aria-label="avantages location">
               <div class="roa-badge">
                 <ion-icon name="shield-checkmark-outline"></ion-icon>
-                <span>Annonce vérifiée</span>
+                <span>Infos essentielles visibles</span>
               </div>
               <div class="roa-badge">
                 <ion-icon name="time-outline"></ion-icon>
-                <span>Réponse rapide</span>
+                <span>Recherche rapide</span>
               </div>
               <div class="roa-badge">
                 <ion-icon name="call-outline"></ion-icon>
-                <span>Accompagnement</span>
+                <span>Contact WhatsApp</span>
               </div>
             </div>
           </div>
 
           <div class="roa-hero-right">
             <div class="roa-hero-card">
-              <h3>Recherche express</h3>
-              <p>Tapez une ville/quartier puis lancez la recherche (filtrée sur la location).</p>
+              <h3>Recherche express (location)</h3>
+              <p>
+                Tapez une <strong>ville</strong> ou un <strong>quartier</strong> (ex : Ivandry, Analakely, Ambatobe) puis lancez la recherche.
+                Les résultats seront filtrés sur <strong>À louer</strong>.
+              </p>
 
               <div class="roa-quick-search">
                 <div class="roa-input">
                   <ion-icon name="location-outline"></ion-icon>
-                  <input id="roa-zone" type="text" placeholder="Ex : Ivandry, Analakely, Andraharo…" />
+                  <input id="roa-zone" type="text" placeholder="Ex : Antananarivo, Ivandry, Andraharo…" />
                 </div>
 
-                <a id="roa-go-search" class="roa-btn primary is-block" href="recherche.html">
+                <a id="roa-go-search" class="roa-btn primary is-block" href="recherche.html" aria-label="Rechercher une location">
                   <ion-icon name="search-outline"></ion-icon>
                   Rechercher
                 </a>
               </div>
 
               <div class="roa-hero-note">
-                Vous pourrez affiner (budget, chambres, etc.) sur “Je cherche un bien”.
+                Vous pourrez affiner (budget, chambres, type de bien) sur “Je cherche un bien”.
               </div>
             </div>
 
             <div class="roa-hero-image" aria-hidden="true">
-              <img src="./assets/images/hero-banner.png" alt="Bannière location">
+              <img src="./assets/images/hero-banner.png" alt="Bannière location MaisonLouer">
             </div>
           </div>
 
@@ -155,58 +186,61 @@
       </div>
     </section>
 
-    <!-- ✅ 1) 4 ÉTAPES POUR LOUER (AVANT) -->
+    <!-- ✅ 1) 4 ÉTAPES POUR LOUER (copywriting plus concret) -->
     <section class="roa-section roa-section-alt" aria-label="process location">
       <div class="container">
         <div class="roa-section-head">
           <p class="roa-section-kicker">Comment ça marche</p>
-          <h2 class="roa-section-title">4 étapes pour louer</h2>
+          <h2 class="roa-section-title">Louer en 4 étapes</h2>
         </div>
 
         <div class="roa-steps">
           <div class="roa-step">
             <div class="roa-step-n">1</div>
-            <h3>Parcourez</h3>
-            <p>Découvrez les biens disponibles en location.</p>
+            <h3>Repérez</h3>
+            <p>Parcourez les annonces et notez la zone, le prix et les photos.</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">2</div>
             <h3>Filtrez</h3>
-            <p>Affinez votre recherche dans “Je cherche un bien”.</p>
+            <p>Affinez par quartier, budget et chambres dans “Je cherche un bien”.</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">3</div>
             <h3>Contactez</h3>
-            <p>Nous vous aidons et organisons une visite rapidement.</p>
+            <p>Ouvrez l’annonce puis contactez via WhatsApp pour poser vos questions.</p>
           </div>
           <div class="roa-step">
             <div class="roa-step-n">4</div>
-            <h3>Emménagez</h3>
-            <p>Une fois validé, vous finalisez et emménagez sereinement.</p>
+            <h3>Visitez</h3>
+            <p>Organisez une visite et avancez sereinement vers votre location.</p>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- ✅ 2) LOCATIONS DISPONIBLES (AU MILIEU) -->
+    <!-- ✅ 2) LOCATIONS DISPONIBLES -->
     <section class="section property" aria-label="property" id="liste-locations">
       <div class="container">
 
         <p class="section-subtitle">MaisonLouer</p>
-        <h2 class="h2 section-title">Locations disponibles</h2>
+
+        <!-- ✅ H2 SEO -->
+        <h2 class="h2 section-title">Annonces de location disponibles</h2>
 
         <div class="roa-listings-toolbar">
           <p class="roa-muted">
-            Astuce : utilisez “Je cherche un bien” pour filtrer (zone, budget, chambres…).
+            Astuce : utilisez les filtres pour trouver une <strong>maison à louer</strong> ou un <strong>appartement à louer</strong>
+            selon votre <strong>budget</strong> et votre <strong>quartier</strong>.
           </p>
-          <a class="roa-btn secondary" href="recherche.html">
+          <a class="roa-btn secondary" href="recherche.html" aria-label="Filtrer les annonces de location">
             <ion-icon name="options-outline"></ion-icon>
             Filtrer
           </a>
         </div>
 
-        <!-- ✅ IMPORTANT : on garde ton container pour annonces.js -->
+        <!-- ✅ IMPORTANT : container pour annonces.js -->
         <div id="listings-container">
           <p>Chargement des annonces...</p>
         </div>
@@ -214,12 +248,12 @@
       </div>
     </section>
 
-    <!-- ✅ 3) UNE EXPÉRIENCE SIMPLE, CLAIRE ET EFFICACE (DERNIÈRE SECTION) -->
+    <!-- ✅ 3) Avantages (keywords subtils) -->
     <section class="roa-section" aria-label="avantages location">
       <div class="container">
         <div class="roa-section-head">
-          <p class="roa-section-kicker">Pourquoi louer avec nous</p>
-          <h2 class="roa-section-title">Une expérience simple, claire et efficace</h2>
+          <p class="roa-section-kicker">Pourquoi MaisonLouer</p>
+          <h2 class="roa-section-title">Une location plus simple et plus rapide</h2>
         </div>
 
         <div class="roa-cards">
@@ -227,16 +261,16 @@
             <div class="roa-card-ic">
               <ion-icon name="home-outline"></ion-icon>
             </div>
-            <h3>Choix de biens</h3>
-            <p>Maisons, appartements, terrains… selon les annonces disponibles dans notre catalogue.</p>
+            <h3>Maisons & appartements</h3>
+            <p>Accédez à des annonces de <strong>maisons</strong> et <strong>appartements à louer</strong> selon disponibilité.</p>
           </article>
 
           <article class="roa-card">
             <div class="roa-card-ic">
               <ion-icon name="cash-outline"></ion-icon>
             </div>
-            <h3>Prix transparents</h3>
-            <p>Affichage clair du prix, avec informations essentielles pour comparer rapidement.</p>
+            <h3>Prix lisibles</h3>
+            <p>Comparez rapidement grâce au prix affiché et aux informations essentielles.</p>
           </article>
 
           <article class="roa-card">
@@ -244,7 +278,7 @@
               <ion-icon name="calendar-outline"></ion-icon>
             </div>
             <h3>Visite facilitée</h3>
-            <p>Vous repérez un bien, vous nous contactez, et on organise la visite dès que possible.</p>
+            <p>Vous repérez un bien, vous contactez, et vous avancez plus vite vers une visite.</p>
           </article>
 
           <article class="roa-card">
@@ -252,7 +286,7 @@
               <ion-icon name="people-outline"></ion-icon>
             </div>
             <h3>Accompagnement</h3>
-            <p>Questions, démarches, négociation : on vous guide à chaque étape.</p>
+            <p>Questions et étapes clés : vous n’êtes pas seul(e) pendant votre recherche.</p>
           </article>
         </div>
       </div>
@@ -263,11 +297,11 @@
       <div class="container">
         <div class="roa-cta">
           <div class="roa-cta-left">
-            <h3>Besoin d’aide pour choisir ?</h3>
-            <p>Dites-nous votre budget, votre zone et votre besoin. On vous propose des options.</p>
+            <h3>Vous cherchez une location selon votre budget ?</h3>
+            <p>Indiquez votre zone (Antananarivo, Ivandry, etc.), votre budget et vos besoins. On vous oriente.</p>
           </div>
           <div class="roa-cta-right">
-            <a class="roa-btn primary" href="contact.html">
+            <a class="roa-btn primary" href="contact.html" aria-label="Contacter MaisonLouer">
               <ion-icon name="mail-outline"></ion-icon>
               Nous contacter
             </a>
@@ -276,30 +310,48 @@
       </div>
     </section>
 
-    <!-- FAQ -->
+    <!-- FAQ (optimisée SEO sans spam) -->
     <section class="roa-section" aria-label="faq location">
       <div class="container">
         <div class="roa-section-head">
           <p class="roa-section-kicker">FAQ</p>
-          <h2 class="roa-section-title">Questions fréquentes</h2>
+          <h2 class="roa-section-title">Questions fréquentes sur la location</h2>
         </div>
 
         <div class="roa-faq">
           <details class="roa-faq-item">
-            <summary>Comment demander une visite ?</summary>
-            <p>Ouvrez une annonce qui vous intéresse, puis contactez-nous. Nous vous proposons un créneau de visite.</p>
+            <summary>Comment louer une maison ou un appartement via MaisonLouer ?</summary>
+            <p>Choisissez une annonce, vérifiez le prix et la zone, puis contactez via WhatsApp pour organiser une visite.</p>
           </details>
 
           <details class="roa-faq-item">
-            <summary>Est-ce que je peux filtrer par budget et zone ?</summary>
-            <p>Oui. Allez sur <strong>“Je cherche un bien”</strong> et utilisez les filtres (zone, budget, type d’offre, etc.).</p>
+            <summary>Puis-je filtrer par zone, budget et nombre de chambres ?</summary>
+            <p>Oui. Allez sur <strong>“Je cherche un bien”</strong> et utilisez les filtres (zone, budget, type de bien, chambres…).</p>
           </details>
 
           <details class="roa-faq-item">
-            <summary>Les prix sont-ils en Ariary ?</summary>
-            <p>Oui, les prix affichés sur le site sont en Ariary (Ar).</p>
+            <summary>Les prix affichés sont-ils en Ariary (Ar) ?</summary>
+            <p>Oui, les prix affichés sur MaisonLouer sont en Ariary (Ar).</p>
           </details>
         </div>
+      </div>
+    </section>
+
+    <!-- ✅ TEXTE SEO LOCAL (très important pour Google) -->
+    <section class="roa-section" aria-label="texte seo location">
+      <div class="container">
+        <div class="roa-section-head">
+          <p class="roa-section-kicker">Location à Madagascar</p>
+          <h2 class="roa-section-title">Trouver une location par ville ou quartier</h2>
+        </div>
+
+        <p style="max-width: 980px; color:#4b5563; line-height:1.85; margin:0;">
+          MaisonLouer vous aide à trouver une <strong>maison à louer</strong> ou un <strong>appartement à louer</strong> à Madagascar,
+          en particulier à <strong>Antananarivo</strong> et dans les quartiers les plus recherchés comme
+          <strong>Ivandry</strong>, <strong>Andraharo</strong>, <strong>Ambatobe</strong>, <strong>Ankorondrano</strong>,
+          <strong>Analamahitsy</strong> ou <strong>Analakely</strong>.
+          Utilisez la <a href="recherche.html">recherche avancée</a> pour filtrer par <strong>budget</strong>, <strong>type de bien</strong> et <strong>chambres</strong>.
+        </p>
       </div>
     </section>
 
