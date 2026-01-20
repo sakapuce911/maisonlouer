@@ -8,7 +8,7 @@
 
   <!-- ✅ SEO (sera remplacé dynamiquement via JS) -->
   <title>Détails de l’annonce - MaisonLouer Madagascar</title>
-  <meta name="description" content="Découvrez les détails de cette annonce : photos, prix, localisation, description et contact WhatsApp." />
+  <meta name="description" content="Découvrez cette annonce immobilière à Madagascar : photos, prix, localisation, description et contact WhatsApp." />
 
   <!-- ✅ Domaine -->
   <link rel="canonical" href="https://maisonlouer.vercel.app/annonce.html" />
@@ -205,12 +205,12 @@
         <p>Annonce en cours de chargement...</p>
       </div>
 
-      <!-- ✅ SEO texte + rassurance (sera rempli dynamiquement pour coller à l’annonce) -->
+      <!-- ✅ SEO texte + rassurance -->
       <section class="card seo-box" aria-label="informations annonce">
         <div class="seo-pad" id="seoAnnonceBox">
-          <h2>À propos de cette annonce</h2>
+          <h2>À propos de ce bien</h2>
           <p>
-            Cette annonce est en cours de chargement. Vous pourrez consulter les photos, le prix, la localisation et contacter facilement le propriétaire.
+            Chargement de l’annonce… Vous pourrez consulter les photos, le prix, la localisation et contacter rapidement via WhatsApp.
           </p>
         </div>
       </section>
@@ -286,10 +286,30 @@
         return s.charAt(0).toUpperCase() + s.slice(1);
       }
 
-      // ⚙️ On écoute un événement custom envoyé par annonce.js
-      // 👉 Pour ne pas casser ton code, annonce.js n’est pas modifié ici.
-      // 👉 Si annonce.js envoie window.dispatchEvent(new CustomEvent('ml:annonceLoaded', { detail: annonce }))
-      // on fera un SEO parfait.
+      // ✅ Copywriting helpers (SEO + naturel)
+      function offerLabel(typeOffreRaw) {
+        const t = (typeOffreRaw || "").toString().toLowerCase();
+        if (t === "location") return "à louer";
+        if (t === "vente") return "à vendre";
+        return "";
+      }
+
+      function bienLabel(typeBienRaw) {
+        const b = (typeBienRaw || "").toString().toLowerCase();
+        if (!b) return "bien";
+        if (b === "maison") return "maison";
+        if (b === "appartement") return "appartement";
+        if (b === "terrain") return "terrain";
+        if (b === "bureau") return "bureau";
+        return b;
+      }
+
+      function cityAreaText(ville, quartier) {
+        const loc = [quartier, ville].filter(Boolean).join(", ");
+        return loc || "Madagascar";
+      }
+
+      // ⚙️ On écoute l'événement envoyé par assets/js/annonce.js
       window.addEventListener("ml:annonceLoaded", (e) => {
         const a = (e && e.detail) ? e.detail : null;
         if (!a) return;
@@ -297,9 +317,8 @@
         const titre = a.titre || a.Titre || "Annonce immobilière";
         const ville = a.ville || a.Ville || "";
         const quartier = a.quartier || a.Quartier || "";
-        const typeOffreRaw = (a.typeOffre || a.TypeOffre || "").toString().toLowerCase();
-        const typeOffre = typeOffreRaw === "location" ? "à louer" : (typeOffreRaw === "vente" ? "à vendre" : "");
-        const typeBien = a.typeBien || a.TypeBien || "";
+        const typeOffreRaw = a.typeOffre || a.TypeOffre || "";
+        const typeBienRaw = a.typeBien || a.TypeBien || "";
         const prixTxt = formatPriceAr(a.prixAr || a.Prix || a.prix || "");
         const chambres = a.chambres || a.Chambres || "";
         const surface = a.surface || a.Surface || "";
@@ -307,22 +326,30 @@
         const images = a.images || a.Images || [];
         const img0 = (Array.isArray(images) && images.length) ? images[0] : `${SITE}/assets/images/og/og-home.jpg`;
 
-        const loc = [quartier, ville].filter(Boolean).join(", ");
-        const where = loc ? ` – ${loc}` : "";
-        const offer = typeOffre ? ` ${typeOffre}` : "";
-        const bien = typeBien ? `${capFirst(typeBien)} ` : "";
+        const offer = offerLabel(typeOffreRaw);          // "à louer" / "à vendre"
+        const bien = bienLabel(typeBienRaw);             // maison / appartement / terrain / bureau
+        const locTxt = cityAreaText(ville, quartier);    // "Ivandry, Antananarivo"
 
-        // ✅ Title SEO
-        const title = `${bien}${titre}${offer}${where} | MaisonLouer Madagascar`.replace(/\s+/g, " ").trim();
+        // ✅ Title SEO (plus naturel + keywords)
+        // Exemple : "Appartement T3 à louer à Ivandry, Antananarivo | MaisonLouer"
+        const piecesTitle = [];
+        piecesTitle.push(capFirst(bien));
+        piecesTitle.push(titre);
+        if (offer) piecesTitle.push(offer);
+        if (locTxt) piecesTitle.push(`à ${locTxt}`);
+        const title = `${piecesTitle.join(" ").replace(/\s+/g, " ").trim()} | MaisonLouer Madagascar`;
+
         document.title = title;
 
-        // ✅ Meta description SEO (155-165 chars approx)
-        const descParts = [];
-        descParts.push(`${titre}${offer}${where}.`);
-        if (prixTxt) descParts.push(`Prix : ${prixTxt}.`);
-        if (chambres) descParts.push(`${chambres} chambre(s).`);
-        descParts.push(`Photos, détails et contact WhatsApp sur MaisonLouer.`);
-        const metaDesc = descParts.join(" ").replace(/\s+/g, " ").trim();
+        // ✅ Meta description SEO (CTR + conversion)
+        // Objectif: inclure bien + offre + localisation + prix + atout + CTA
+        const parts = [];
+        parts.push(`${capFirst(bien)} ${offer ? offer : ""} à ${locTxt}.`.replace(/\s+/g, " ").trim());
+        if (prixTxt) parts.push(`Prix : ${prixTxt}.`);
+        if (chambres) parts.push(`${chambres} chambre(s).`);
+        if (surface) parts.push(`${surface} m².`);
+        parts.push(`Photos, détails et contact WhatsApp pour organiser une visite.`);
+        const metaDesc = parts.join(" ").replace(/\s+/g, " ").trim().slice(0, 165);
 
         setOrCreateMeta("name", "description", metaDesc);
 
@@ -342,7 +369,7 @@
         setOrCreateMeta("name", "twitter:description", metaDesc);
         setOrCreateMeta("name", "twitter:image", img0);
 
-        // ✅ Schema.org RealEstateListing (simple, robuste)
+        // ✅ Schema.org RealEstateListing (robuste)
         const schema = {
           "@context": "https://schema.org",
           "@type": "RealEstateListing",
@@ -366,7 +393,6 @@
           } : undefined
         };
 
-        // Nettoyage undefined
         function clean(o) {
           if (!o || typeof o !== "object") return o;
           Object.keys(o).forEach(k => {
@@ -375,36 +401,33 @@
           });
           return o;
         }
-
         setLdJson(clean(schema));
 
-        // ✅ Copywriting SEO (bloc texte rassurant)
+        // ✅ Bloc copywriting SEO (ranking + conversion + rassurance)
         const seoBox = document.getElementById("seoAnnonceBox");
         if (seoBox) {
           const bullets = [];
-          if (loc) bullets.push(`Localisation : <strong>${loc}</strong>`);
-          if (typeBien) bullets.push(`Type de bien : <strong>${capFirst(typeBien)}</strong>`);
-          if (prixTxt) bullets.push(`Budget : <strong>${prixTxt}</strong>`);
+          bullets.push(`Type : <strong>${capFirst(bien)}</strong> ${offer ? `<strong>${offer}</strong>` : ""}`.trim());
+          bullets.push(`Zone : <strong>${locTxt}</strong>`);
+          if (prixTxt) bullets.push(`Prix : <strong>${prixTxt}</strong>`);
           if (chambres) bullets.push(`Chambres : <strong>${chambres}</strong>`);
-          if (surface) bullets.push(`Surface : <strong>${surface}</strong>`);
+          if (surface) bullets.push(`Surface : <strong>${surface} m²</strong>`);
           if (sdb) bullets.push(`Salle(s) de bain : <strong>${sdb}</strong>`);
 
           seoBox.innerHTML = `
-            <h2>À propos de cette annonce</h2>
+            <h2>${capFirst(bien)} ${offer ? offer : ""} à ${locTxt}</h2>
             <p>
-              Consultez les détails complets de <strong>${titre}</strong>${offer}${where}. 
-              Parcourez les photos, vérifiez le prix et contactez rapidement via WhatsApp pour organiser une visite.
+              Voici une annonce immobilière publiée sur MaisonLouer. Consultez les photos et les caractéristiques, puis contactez rapidement via WhatsApp pour obtenir plus d’informations ou planifier une visite.
             </p>
-            ${bullets.length ? `<ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul>` : ""}
+            <ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul>
             <p style="margin-top:12px;">
-              Astuce : comparez avec d’autres biens similaires via la <a href="recherche.html">recherche avancée</a>.
+              Vous cherchez un autre bien similaire (même quartier, même budget) ? Utilisez la <a href="recherche.html">recherche avancée</a> pour comparer.
             </p>
           `;
         }
       });
 
-      // ✅ Fallback : si annonce.js ne dispatch pas l’événement, on tente de détecter un rendu HTML
-      // (ça donne au moins un title propre, mais l’événement reste la meilleure option)
+      // ✅ Fallback si pas d'événement (title minimal)
       const observer = new MutationObserver(() => {
         const h1 = document.querySelector(".annonce-title");
         if (h1 && h1.textContent && !document.title.includes(h1.textContent.trim())) {
