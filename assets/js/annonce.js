@@ -9,8 +9,9 @@
    - Bloc SEO longue traîne (typeBien + offre + quartier + ville)
    - Émet l’événement: ml:annonceLoaded (pour annonce.html: title/meta/OG/schema)
 
-   ✅ V3 (ajout):
-   - Bloc "Biens similaires" (maillage interne SEO)
+   ✅ Ajout (2026-01-20):
+   - Section "Biens similaires" (maillage interne + SEO)
+   - Rendu dans #similar-listings-container
 ========================= */
 
 (function () {
@@ -22,6 +23,9 @@
 
   // WhatsApp par défaut si l’annonce n’en a pas
   const DEFAULT_WA = "261385436196";
+
+  // Container "biens similaires"
+  const SIMILAR_CONTAINER_ID = "similar-listings-container";
 
   function norm(str) {
     return (str || "").toString().trim().toLowerCase();
@@ -55,6 +59,20 @@
     const x = Number(n);
     if (!Number.isFinite(x)) return "";
     return String(x);
+  }
+
+  function badgeOffreLabel(typeOffre) {
+    const o = norm(typeOffre);
+    if (o === "location") return "À LOUER";
+    if (o === "vente") return "EN VENTE";
+    return "ANNONCE";
+  }
+
+  function badgeOffreClass(typeOffre) {
+    const o = norm(typeOffre);
+    if (o === "location") return "green";
+    if (o === "vente") return "blue";
+    return "gray";
   }
 
   async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
@@ -114,20 +132,11 @@
     const offre = norm(a.typeOffre);
     const bien = norm(a.typeBien);
 
-    const badgeOffre =
-      offre === "location" ? "À LOUER" :
-      offre === "vente" ? "EN VENTE" :
-      "ANNONCE";
-
-    const pillOffreClass =
-      offre === "location" ? "green" :
-      offre === "vente" ? "blue" :
-      "gray";
-
+    const badgeOffre = badgeOffreLabel(offre);
+    const pillOffreClass = badgeOffreClass(offre);
     const badgeBien = bien ? bien.toUpperCase() : "BIEN";
 
     const prix = formatPriceAr(a.prixAr);
-
     const adresse = seo.loc || "Madagascar";
 
     const chambres = (a.chambres !== null && a.chambres !== undefined) ? Number(a.chambres) : null;
@@ -322,7 +331,7 @@
           prompt("Copiez le lien :", url);
         }
       } catch (err) {
-        // si user annule, pas besoin d’erreur
+        // user annule => ok
       }
     });
   }
@@ -370,104 +379,108 @@
   }
 
   /* =========================
-     ✅ AJOUT V3: BIENS SIMILAIRES
+     ✅ BIENS SIMILAIRES
   ========================= */
 
-  function scoreSimilarity(a, base) {
-    // Plus le score est grand, plus c’est similaire
+  function getSearchableZone(a) {
+    const ville = (a.ville || "").toString().trim();
+    const quartier = (a.quartier || "").toString().trim();
+    return { ville: norm(ville), quartier: norm(quartier) };
+  }
+
+  function scoreSimilar(current, other) {
+    // Score simple & robuste (0..100)
+    // On favorise: même typeOffre, même ville/quartier, même typeBien
     let score = 0;
 
-    const aOffre = norm(a.typeOffre);
-    const bOffre = norm(base.typeOffre);
-    const aBien = norm(a.typeBien);
-    const bBien = norm(base.typeBien);
+    if (norm(current.typeOffre) && norm(current.typeOffre) === norm(other.typeOffre)) score += 45;
+    if (norm(current.typeBien) && norm(current.typeBien) === norm(other.typeBien)) score += 20;
 
-    const aVille = norm(a.ville);
-    const bVille = norm(base.ville);
-    const aQuartier = norm(a.quartier);
-    const bQuartier = norm(base.quartier);
+    const c = getSearchableZone(current);
+    const o = getSearchableZone(other);
 
-    if (aOffre && bOffre && aOffre === bOffre) score += 5;
-    if (aBien && bBien && aBien === bBien) score += 4;
-    if (aQuartier && bQuartier && aQuartier === bQuartier) score += 4;
-    if (aVille && bVille && aVille === bVille) score += 3;
+    if (c.ville && c.ville === o.ville) score += 25;
+    if (c.quartier && c.quartier === o.quartier) score += 20;
 
-    // Prix proche (si dispo)
-    const pa = Number(a.prixAr);
-    const pb = Number(base.prixAr);
-    if (Number.isFinite(pa) && Number.isFinite(pb) && pb > 0) {
-      const diff = Math.abs(pa - pb) / pb; // 0.1 = 10%
-      if (diff <= 0.10) score += 2;
-      else if (diff <= 0.25) score += 1;
+    // Bonus si prix dans une zone proche (+/- 25%)
+    const p1 = Number(current.prixAr);
+    const p2 = Number(other.prixAr);
+    if (Number.isFinite(p1) && Number.isFinite(p2) && p1 > 0) {
+      const diff = Math.abs(p1 - p2) / p1;
+      if (diff <= 0.25) score += 10;
+      else if (diff <= 0.5) score += 5;
     }
 
     return score;
   }
 
-  function createSimilarCard(a) {
-    const images = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
-    const img = images.length ? images[0] : "./assets/images/property-1.jpg";
-
-    const offre = norm(a.typeOffre);
-    const badgeText = offre === "location" ? "À louer" : (offre === "vente" ? "À vendre" : "Annonce");
-    const badgeClass = offre === "location" ? "badge-location" : "badge-vente";
-
-    const loc = [a.quartier, a.ville].filter(Boolean).join(", ");
-    const prix = formatPriceAr(a.prixAr);
-
-    return `
-      <div class="property-card">
-        <figure class="card-banner">
-          <a href="annonce.html?id=${encodeURIComponent(a.id)}">
-            <img src="${escapeHtml(img)}" alt="${escapeHtml(a.titre || "Annonce")}">
-          </a>
-          <div class="card-badge ${badgeClass}">${escapeHtml(badgeText)}</div>
-        </figure>
-
-        <div class="card-content">
-          <h3 class="h3 card-title">
-            <a href="annonce.html?id=${encodeURIComponent(a.id)}">${escapeHtml(a.titre || "Voir l’annonce")}</a>
-          </h3>
-
-          <div class="card-price">
-            <strong>${escapeHtml(prix)}</strong>
-          </div>
-
-          <p class="card-text">
-            <ion-icon name="location-outline"></ion-icon>
-            ${escapeHtml(loc || "Madagascar")}
-          </p>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderSimilar(annonces, current) {
-    const wrap = document.getElementById("similar-listings-container");
+  function renderSimilarCards(list) {
+    const wrap = document.getElementById(SIMILAR_CONTAINER_ID);
     if (!wrap) return;
 
-    const candidates = annonces
-      .filter(x => x && x.id && String(x.id) !== String(current.id))
-      .map(x => ({ x, s: scoreSimilarity(x, current) }))
-      .filter(o => o.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .slice(0, 6)
-      .map(o => o.x);
-
-    if (!candidates.length) {
-      wrap.innerHTML = `
-        <p style="color:#6b7280;">
-          Pas encore d’annonces similaires disponibles. Essayez la <a href="recherche.html">recherche avancée</a>.
-        </p>
-      `;
+    if (!list || !list.length) {
+      wrap.innerHTML = `<p>Aucun bien similaire pour le moment.</p>`;
       return;
     }
 
     wrap.innerHTML = `
       <div class="property-list">
-        ${candidates.map(createSimilarCard).join("")}
+        ${list.map(a => {
+          const img = (a.images && a.images.length) ? a.images[0] : "./assets/images/property-1.jpg";
+          const offre = norm(a.typeOffre);
+          const badge = badgeOffreLabel(offre);
+          const badgeClass = badgeOffreClass(offre);
+          const titre = (a.titre || "Annonce").toString().trim();
+          const loc = [a.quartier, a.ville].filter(Boolean).join(", ");
+          const prix = formatPriceAr(a.prixAr);
+
+          return `
+            <div class="property-card">
+              <a class="card-banner" href="annonce.html?id=${encodeURIComponent(a.id)}" aria-label="Voir l'annonce ${escapeHtml(titre)}">
+                <figure class="img-holder">
+                  <img src="${escapeHtml(img)}" alt="${escapeHtml(titre)}" class="img-cover" loading="lazy">
+                </figure>
+                <span class="badge ${badgeClass}">${escapeHtml(badge)}</span>
+              </a>
+
+              <div class="card-content">
+                <h3 class="card-title">
+                  <a href="annonce.html?id=${encodeURIComponent(a.id)}">${escapeHtml(titre)}</a>
+                </h3>
+
+                <p class="card-location">${escapeHtml(loc || "Madagascar")}</p>
+
+                <p class="card-price">${escapeHtml(prix)}</p>
+
+                <a class="card-btn" href="annonce.html?id=${encodeURIComponent(a.id)}">Voir le détail</a>
+              </div>
+            </div>
+          `;
+        }).join("")}
       </div>
     `;
+  }
+
+  async function loadSimilar(currentAnnonce) {
+    const wrap = document.getElementById(SIMILAR_CONTAINER_ID);
+    if (!wrap) return;
+
+    try {
+      const all = await fetchAnnoncesFromApiOnly();
+      const others = all.filter(x => String(x.id) !== String(currentAnnonce.id));
+
+      // Scoring
+      const ranked = others
+        .map(o => ({ o, s: scoreSimilar(currentAnnonce, o) }))
+        .sort((a, b) => b.s - a.s)
+        .filter(x => x.s >= 35) // seuil pour éviter hors-sujet
+        .slice(0, 6)
+        .map(x => x.o);
+
+      renderSimilarCards(ranked);
+    } catch (e) {
+      wrap.innerHTML = `<p style="color:#b00020; font-weight:800;">Impossible de charger les biens similaires.</p>`;
+    }
   }
 
   async function init() {
@@ -498,6 +511,7 @@
       return;
     }
 
+    // SEO minimal fallback (le SEO complet est géré dans annonce.html via ml:annonceLoaded)
     const seo = computeSeoPhrases(a);
     document.title = `${seo.longTail} | MaisonLouer Madagascar`.replace(/\s+/g, " ").trim();
 
@@ -508,21 +522,23 @@
       metaDesc.setAttribute("content", `${base} Photos, prix et contact WhatsApp sur MaisonLouer.`.slice(0, 160));
     }
 
+    // Rendu
     container.innerHTML = buildHtml(a);
 
+    // Init UI
     initGallery(a.images);
     initShare(a.titre || "Annonce MaisonLouer");
+
+    // SEO box (dans annonce.html)
     updateSeoBox(a);
 
-    // ✅ BIENS SIMILAIRES
-    renderSimilar(annonces, a);
+    // Biens similaires
+    loadSimilar(a);
 
-    // ✅ Événement SEO (annonce.html écoute ça pour OG/Twitter/canonical/schema)
+    // Event SEO (annonce.html écoute ça)
     try {
       window.dispatchEvent(new CustomEvent("ml:annonceLoaded", { detail: a }));
-    } catch (e) {
-      // rien
-    }
+    } catch (e) {}
   }
 
   init();
