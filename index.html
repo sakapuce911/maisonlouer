@@ -41,6 +41,16 @@
   <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+  <!-- ✅ PERF (LCP) : pré-connexion + preload image HERO -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- (optionnel mais utile) : si tes images viennent de Supabase Storage, préconnecte aussi -->
+<link rel="preconnect" href="https://glysaizevxujkiuuwflv.supabase.co" crossorigin>
+
+<!-- ✅ Précharge l'image de fond du HERO (celle utilisée dans home-hero.css) -->
+<link rel="preload" as="image" href="./assets/images/hero-home.webp" type="image/webp" fetchpriority="high">
+
 
   <!-- ✅ PWA -->
   <link rel="manifest" href="./manifest.json">
@@ -228,7 +238,16 @@
 
       <!-- HERO STYLE PROPERTYGURU -->
       <section class="hero-pg" aria-label="hero">
-        <div class="hero-pg-bg" role="img" aria-label="Résidences à Madagascar"></div>
+        <div class="hero-pg-bg" aria-hidden="true"></div>
+          <img
+            class="hero-pg-bg-img"
+            src="./assets/images/hero-home.webp"
+            alt=""
+            width="1920"
+            height="1080"
+            loading="eager"
+            fetchpriority="high"
+          />
 
         <div class="hero-pg-inner container">
 
