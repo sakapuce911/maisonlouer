@@ -1,7 +1,15 @@
 // =========================
 // File: /api/annonces.js
 // Vercel Serverless Function
-// Retourne un JSON d'annonces depuis Notion
+// Retourne un JSON d'annonces depuis Supabase
+//
+// ✅ Remplace Notion par Supabase
+// ✅ Garde le même format que ton front attend
+//
+// ENV requis dans Vercel (Project Settings > Environment Variables) :
+// - SUPABASE_URL
+// - SUPABASE_SERVICE_ROLE_KEY   (recommandé)
+//   (ou tu peux mettre SUPABASE_ANON_KEY si tu utilises RLS côté Supabase)
 // =========================
 
 export default async function handler(req, res) {
@@ -10,76 +18,68 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "GET") return res.status(405).json({ error: "Méthode non autorisée" });
 
   try {
-    const NOTION_TOKEN = process.env.NOTION_TOKEN;
-    const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY =
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-    if (!NOTION_TOKEN) return res.status(500).json({ error: "NOTION_TOKEN manquant dans Vercel" });
-    if (!NOTION_DATABASE_ID) return res.status(500).json({ error: "NOTION_DATABASE_ID manquant dans Vercel" });
+    if (!SUPABASE_URL) return res.status(500).json({ error: "SUPABASE_URL manquant dans Vercel" });
+    if (!SUPABASE_KEY) return res.status(500).json({ error: "SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY manquant" });
 
-    const url = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
+    // Table Supabase attendue : "annonces"
+    // On filtre pub/publie/publié = true (selon tes colonnes)
+    // 👉 Si tu utilises une seule colonne, garde uniquement celle-là côté DB
+    const base = `${SUPABASE_URL}/rest/v1/annonces`;
 
-    const buildBodyWithFilter = () =>
-      JSON.stringify({
-        filter: { property: "Publié", checkbox: { equals: true } },
-        sorts: [{ timestamp: "created_time", direction: "descending" }],
-      });
+    // On tente plusieurs schémas possibles, pour être robuste selon tes noms de colonnes
+    const tryUrls = [
+      `${base}?select=*&publie=eq.true&order=created_at.desc.nullslast`,
+      `${base}?select=*&Publié=eq.true&order=created_at.desc.nullslast`,
+      `${base}?select=*&publie=eq.true&order=id.desc`,
+      `${base}?select=*&Publié=eq.true&order=id.desc`,
+      `${base}?select=*&order=created_at.desc.nullslast`,
+      `${base}?select=*&order=id.desc`,
+    ];
 
-    const buildBodyNoFilter = () =>
-      JSON.stringify({
-        sorts: [{ timestamp: "created_time", direction: "descending" }],
-      });
-
-    const notionFetch = async (body) => {
-      const notionRes = await fetch(url, {
-        method: "POST",
+    const sbFetch = async (url) => {
+      const sbRes = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${NOTION_TOKEN}`,
-          "Notion-Version": "2022-06-28",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
           "Content-Type": "application/json",
         },
-        body,
       });
-      const data = await notionRes.json();
-      return { notionRes, data };
+      const text = await sbRes.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch { data = text; }
+      return { sbRes, data };
     };
 
-    let { notionRes, data } = await notionFetch(buildBodyWithFilter());
+    let sbRes, data;
+    for (const url of tryUrls) {
+      const r = await sbFetch(url);
+      sbRes = r.sbRes;
+      data = r.data;
 
-    if (!notionRes.ok) {
-      const msg = (data?.message || "").toLowerCase();
-      const isFilterIssue =
-        msg.includes("could not find property") ||
-        msg.includes("validation") ||
-        msg.includes("body failed validation");
-
-      if (isFilterIssue) ({ notionRes, data } = await notionFetch(buildBodyNoFilter()));
+      // On accepte seulement un tableau
+      if (sbRes.ok && Array.isArray(data)) break;
     }
 
-    if (!notionRes.ok) {
-      return res.status(notionRes.status).json({
-        error: "Erreur API Notion",
-        detail: data?.message || data,
+    if (!sbRes.ok || !Array.isArray(data)) {
+      return res.status(sbRes?.status || 500).json({
+        error: "Erreur API Supabase",
+        detail: data,
       });
     }
 
     // Helpers
-    const getTitle = (p) => (p?.title || []).map((t) => t.plain_text).join("").trim();
-    const getRichText = (p) => (p?.rich_text || []).map((t) => t.plain_text).join("").trim();
-    const getSelect = (p) => p?.select?.name || "";
-    const getNumber = (p) => (typeof p?.number === "number" ? p.number : null);
-    const getCheckbox = (p) => !!p?.checkbox;
-
-    const getFiles = (p) =>
-      (p?.files || [])
-        .map((f) => f?.external?.url || f?.file?.url)
-        .filter(Boolean);
-
-    const normalizeText = (val) => (val || "").toString().trim();
+    const norm = (v) => (v ?? "").toString().trim();
+    const normLower = (v) => norm(v).toLowerCase();
 
     const normalizeTypeOffre = (val) => {
-      const v = normalizeText(val).toLowerCase();
+      const v = normLower(val);
       if (!v) return "";
       if (v.includes("lou") || v.includes("loc")) return "location";
       if (v.includes("ven") || v.includes("ach")) return "vente";
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     };
 
     const normalizeTypeBien = (val) => {
-      const v = normalizeText(val).toLowerCase();
+      const v = normLower(val);
       if (!v) return "";
       if (v.includes("maison") || v.includes("villa")) return "maison";
       if (v.includes("appart")) return "appartement";
@@ -97,85 +97,87 @@ export default async function handler(req, res) {
     };
 
     const normalizeWhatsApp = (val) => {
-      const raw = normalizeText(val);
+      const raw = norm(val);
       if (!raw) return "";
-      // accepte +261..., 261..., 03..., 038...
       let digits = raw.replace(/[^\d]/g, "");
       if (!digits) return "";
-      // si commence par 0 (ex: 038...), on le transforme en 26138...
       if (digits.startsWith("0")) digits = "261" + digits.slice(1);
-      // si déjà 261..., ok
-      if (!digits.startsWith("261") && digits.length <= 10) {
-        // fallback minimal (si tu mets juste 38xxxxxxx)
-        digits = "261" + digits;
-      }
+      if (!digits.startsWith("261") && digits.length <= 10) digits = "261" + digits;
       return digits;
     };
 
-    const annonces = (data.results || []).map((page) => {
-      const props = page.properties || {};
+    const toNumberOrNull = (v) => {
+      if (v === null || v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
 
-      const rawTypeOffre =
-        getSelect(props["TypeOffre"]) || getRichText(props["TypeOffre"]) ||
-        getSelect(props["Type d’offre"]) || getSelect(props["Type offre"]) ||
-        getRichText(props["Type d’offre"]) || getRichText(props["Type offre"]);
+    const toBool = (v) => {
+      if (typeof v === "boolean") return v;
+      const s = normLower(v);
+      if (s === "true" || s === "1" || s === "oui") return true;
+      if (s === "false" || s === "0" || s === "non") return false;
+      return false;
+    };
 
-      const rawTypeBien =
-        getSelect(props["TypeBien"]) || getRichText(props["TypeBien"]) ||
-        getSelect(props["Type de bien"]) || getSelect(props["Type bien"]) ||
-        getRichText(props["Type de bien"]) || getRichText(props["Type bien"]);
+    const toImagesArray = (v) => {
+      if (!v) return [];
+      if (Array.isArray(v)) return v.filter(Boolean).map(String);
+      if (typeof v === "string") {
+        return v.split(",").map((s) => s.trim()).filter(Boolean);
+      }
+      return [];
+    };
 
-      const rawVille = getSelect(props["Ville"]) || getRichText(props["Ville"]);
-      const rawQuartier = getRichText(props["Quartier"]) || getSelect(props["Quartier"]);
+    // Normalisation : accepte plusieurs conventions de colonnes (FR/EN/snake_case)
+    const annonces = data.map((row) => {
+      const titre = row.titre ?? row.Titre ?? row.title ?? row.Title ?? "";
+      const typeOffreRaw = row.typeOffre ?? row.TypeOffre ?? row.type_offre ?? row["Type d’offre"] ?? row["Type offre"] ?? "";
+      const typeBienRaw = row.typeBien ?? row.TypeBien ?? row.type_bien ?? row["Type de bien"] ?? row["Type bien"] ?? "";
 
-      const prixAr = getNumber(props["Prix Ar"]) ?? getNumber(props["Prix"]) ?? null;
-      const chambres = getNumber(props["Chambres"]) ?? null;
-      const sdb = getNumber(props["SDB"]) ?? getNumber(props["Salle de bain"]) ?? null;
-      const surface = getNumber(props["Surface"]) ?? null;
+      const ville = row.ville ?? row.Ville ?? "";
+      const quartier = row.quartier ?? row.Quartier ?? "";
 
-      const publie = props["Publié"] ? getCheckbox(props["Publié"]) : true;
+      const prixAr = row.prixAr ?? row.PrixAr ?? row["Prix Ar"] ?? row.Prix ?? row.prix ?? null;
+      const chambres = row.chambres ?? row.Chambres ?? null;
+      const sdb = row.sdb ?? row.Sdb ?? row.SDB ?? row["Salle de bain"] ?? null;
+      const surface = row.surface ?? row.Surface ?? null;
 
-      const description =
-        getRichText(props["Description"]) ||
-        getRichText(props["Détails"]) ||
-        getRichText(props["Details"]) ||
-        getRichText(props["Infos"]) ||
-        "";
+      const images = row.images ?? row.Images ?? row.photos ?? row.Photos ?? null;
+      const description = row.description ?? row.Description ?? row.details ?? row.Détails ?? "";
 
-      // ✅ Nouveau champ WhatsApp (par annonce)
-      const whatsappRaw =
-        getRichText(props["WhatsApp"]) ||
-        getSelect(props["WhatsApp"]) ||
-        getRichText(props["Téléphone"]) ||
-        getRichText(props["Telephone"]) ||
-        "";
+      const whatsapp = row.whatsapp ?? row.WhatsApp ?? row.telephone ?? row.Téléphone ?? "";
+
+      const publie = row.publie ?? row.Publié ?? row.published ?? row.Published ?? true;
 
       return {
-        id: page.id,
-        titre: normalizeText(getTitle(props["Titre"])),
+        id: row.id ?? row.ID ?? row.Id ?? row.uuid ?? row.UUID ?? "",
+        titre: norm(titre),
 
-        typeOffre: normalizeTypeOffre(rawTypeOffre),
-        typeBien: normalizeTypeBien(rawTypeBien),
+        typeOffre: normalizeTypeOffre(typeOffreRaw),
+        typeBien: normalizeTypeBien(typeBienRaw),
 
-        ville: normalizeText(rawVille),
-        quartier: normalizeText(rawQuartier),
+        ville: norm(ville),
+        quartier: norm(quartier),
 
-        prixAr,
-        chambres,
-        sdb,
-        surface,
+        prixAr: toNumberOrNull(prixAr),
+        chambres: toNumberOrNull(chambres),
+        sdb: toNumberOrNull(sdb),
+        surface: toNumberOrNull(surface),
 
-        images: getFiles(props["Images"]),
-        description: normalizeText(description),
+        images: toImagesArray(images),
+        description: norm(description),
 
-        // ✅ Ici
-        whatsapp: normalizeWhatsApp(whatsappRaw),
+        whatsapp: normalizeWhatsApp(whatsapp),
 
-        publie,
+        publie: toBool(publie),
       };
     });
 
-    return res.status(200).json(annonces);
+    // On renvoie uniquement les publiées (sécurité supplémentaire)
+    const publishedOnly = annonces.filter((a) => a.publie === true);
+
+    return res.status(200).json(publishedOnly);
   } catch (e) {
     return res.status(500).json({
       error: "Erreur serveur",
