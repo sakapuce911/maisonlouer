@@ -3,13 +3,9 @@
 // Vercel Serverless Function
 // Retourne un JSON d'annonces depuis Supabase
 //
-// ✅ Remplace Notion par Supabase
-// ✅ Garde le même format que ton front attend
-//
-// ENV requis dans Vercel (Project Settings > Environment Variables) :
+// ENV requis dans Vercel :
 // - SUPABASE_URL
-// - SUPABASE_SERVICE_ROLE_KEY   (recommandé)
-//   (ou tu peux mettre SUPABASE_ANON_KEY si tu utilises RLS côté Supabase)
+// - SUPABASE_SERVICE_ROLE_KEY (recommandé) ou SUPABASE_ANON_KEY
 // =========================
 
 export default async function handler(req, res) {
@@ -26,49 +22,35 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
     if (!SUPABASE_URL) return res.status(500).json({ error: "SUPABASE_URL manquant dans Vercel" });
-    if (!SUPABASE_KEY) return res.status(500).json({ error: "SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY manquant" });
+    if (!SUPABASE_KEY) {
+      return res.status(500).json({
+        error: "SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_ANON_KEY manquant dans Vercel",
+      });
+    }
 
-    // Table Supabase attendue : "annonces"
-    // On filtre pub/publie/publié = true (selon tes colonnes)
-    // 👉 Si tu utilises une seule colonne, garde uniquement celle-là côté DB
     const base = `${SUPABASE_URL}/rest/v1/annonces`;
 
-    // On tente plusieurs schémas possibles, pour être robuste selon tes noms de colonnes
-    const tryUrls = [
-      `${base}?select=*&publie=eq.true&order=created_at.desc.nullslast`,
-      `${base}?select=*&Publié=eq.true&order=created_at.desc.nullslast`,
-      `${base}?select=*&publie=eq.true&order=id.desc`,
-      `${base}?select=*&Publié=eq.true&order=id.desc`,
-      `${base}?select=*&order=created_at.desc.nullslast`,
-      `${base}?select=*&order=id.desc`,
-    ];
+    // On filtre sur publie=true (ta colonne Supabase est "publie")
+    const url = `${base}?select=*&publie=eq.true&order=created_at.desc.nullslast`;
 
-    const sbFetch = async (url) => {
-      const sbRes = await fetch(url, {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const text = await sbRes.text();
-      let data = null;
-      try { data = JSON.parse(text); } catch { data = text; }
-      return { sbRes, data };
-    };
+    const sbRes = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-    let sbRes, data;
-    for (const url of tryUrls) {
-      const r = await sbFetch(url);
-      sbRes = r.sbRes;
-      data = r.data;
-
-      // On accepte seulement un tableau
-      if (sbRes.ok && Array.isArray(data)) break;
+    const text = await sbRes.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
     }
 
     if (!sbRes.ok || !Array.isArray(data)) {
-      return res.status(sbRes?.status || 500).json({
+      return res.status(sbRes.status || 500).json({
         error: "Erreur API Supabase",
         detail: data,
       });
@@ -123,22 +105,27 @@ export default async function handler(req, res) {
     const toImagesArray = (v) => {
       if (!v) return [];
       if (Array.isArray(v)) return v.filter(Boolean).map(String);
-      if (typeof v === "string") {
-        return v.split(",").map((s) => s.trim()).filter(Boolean);
-      }
+      if (typeof v === "string") return v.split(",").map((s) => s.trim()).filter(Boolean);
       return [];
     };
 
-    // Normalisation : accepte plusieurs conventions de colonnes (FR/EN/snake_case)
+    // ✅ IMPORTANT : on lit maintenant aussi les colonnes Supabase en minuscules :
+    // typeoffre / typebien / prixar
     const annonces = data.map((row) => {
       const titre = row.titre ?? row.Titre ?? row.title ?? row.Title ?? "";
-      const typeOffreRaw = row.typeOffre ?? row.TypeOffre ?? row.type_offre ?? row["Type d’offre"] ?? row["Type offre"] ?? "";
-      const typeBienRaw = row.typeBien ?? row.TypeBien ?? row.type_bien ?? row["Type de bien"] ?? row["Type bien"] ?? "";
+
+      const typeOffreRaw =
+        row.typeoffre ?? row.typeOffre ?? row.TypeOffre ?? row.type_offre ?? row["Type d’offre"] ?? row["Type offre"] ?? "";
+
+      const typeBienRaw =
+        row.typebien ?? row.typeBien ?? row.TypeBien ?? row.type_bien ?? row["Type de bien"] ?? row["Type bien"] ?? "";
 
       const ville = row.ville ?? row.Ville ?? "";
       const quartier = row.quartier ?? row.Quartier ?? "";
 
-      const prixAr = row.prixAr ?? row.PrixAr ?? row["Prix Ar"] ?? row.Prix ?? row.prix ?? null;
+      const prixAr =
+        row.prixar ?? row.prixAr ?? row.PrixAr ?? row["Prix Ar"] ?? row.Prix ?? row.prix ?? null;
+
       const chambres = row.chambres ?? row.Chambres ?? null;
       const sdb = row.sdb ?? row.Sdb ?? row.SDB ?? row["Salle de bain"] ?? null;
       const surface = row.surface ?? row.Surface ?? null;
@@ -174,7 +161,7 @@ export default async function handler(req, res) {
       };
     });
 
-    // On renvoie uniquement les publiées (sécurité supplémentaire)
+    // sécurité : on garde uniquement publiées
     const publishedOnly = annonces.filter((a) => a.publie === true);
 
     return res.status(200).json(publishedOnly);
