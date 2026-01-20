@@ -43,113 +43,159 @@
     rel="stylesheet">
 
   <style>
-    .annonce-wrap { padding: 120px 0 70px; }
-    .annonce-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
-    .annonce-kicker { margin: 0 0 6px; color: #6b7280; font-weight: 800; letter-spacing: .02em; }
-    .annonce-title { margin: 0; font-size: 34px; line-height: 1.15; font-weight: 900; color: #111827; }
-    .annonce-sub { margin: 10px 0 0; color: #6b7280; }
+  .annonce-wrap { padding: 120px 0 70px; }
+  .annonce-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+  .annonce-kicker { margin: 0 0 6px; color: #6b7280; font-weight: 800; letter-spacing: .02em; }
+  .annonce-title { margin: 0; font-size: 34px; line-height: 1.15; font-weight: 900; color: #111827; }
+  .annonce-sub { margin: 10px 0 0; color: #6b7280; }
 
-    .annonce-badges { display: flex; gap: 10px; flex-wrap: wrap; }
-    .pill { display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.02em;border:1px solid #e5e7eb;background:#fff;color:#111827;white-space:nowrap; }
-    .pill.green { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #065f46; }
-    .pill.blue { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
-    .pill.gray { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
+  .annonce-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pill { display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.02em;border:1px solid #e5e7eb;background:#fff;color:#111827;white-space:nowrap; }
+  .pill.green { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #065f46; }
+  .pill.blue { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.22); color: #1e40af; }
+  .pill.gray { background: rgba(17,24,39,.06); border-color: rgba(17,24,39,.12); color: #111827; }
 
-    .annonce-grid { display:grid; grid-template-columns: 1.35fr 0.9fr; gap:18px; align-items:start; margin-top:18px; }
+  .annonce-grid { display:grid; grid-template-columns: 1.35fr 0.9fr; gap:18px; align-items:start; margin-top:18px; }
 
-    .card { background:#fff; border:1px solid #e5e7eb; border-radius:18px; box-shadow:0 10px 22px rgba(0,0,0,.06); overflow:hidden; }
+  .card { background:#fff; border:1px solid #e5e7eb; border-radius:18px; box-shadow:0 10px 22px rgba(0,0,0,.06); overflow:hidden; }
 
-    .gallery-main { position:relative; background:#111827; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; }
-    .gallery-main img { width:100%; height:100%; object-fit:cover; display:block; }
-    .gallery-nav { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:space-between; padding:14px; }
-    .gbtn { pointer-events:all; width:44px; height:44px; border-radius:999px; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.30); color:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
-    .gbtn:active { transform: translateY(1px); }
+  /* =========================
+     ✅ FIX CLS (PageSpeed)
+     Objectif: réserver l'espace AVANT le chargement des images/JS
+  ========================= */
 
-    .gallery-thumbs { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:12px; background:#fff; border-top:1px solid #e5e7eb; }
-    .thumb { border:2px solid transparent; border-radius:12px; overflow:hidden; cursor:pointer; background:#f3f4f6; aspect-ratio:1/1; }
-    .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-    .thumb.is-active { border-color: rgba(255,107,0,.85); }
+  /* 1) On réserve le bloc de l'image principale (LCP) */
+  .gallery-main {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    min-height: 260px;                 /* réserve de hauteur -> évite le shift */
+    background: #e5e7eb;               /* gris clair pendant chargement */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .side-pad { padding:16px; }
-    .price { font-size:28px; font-weight:900; color:#111827; margin:0 0 8px; }
-    .meta-row { display:flex; align-items:center; gap:10px; color:#374151; margin-top:8px; }
-    .meta-row ion-icon { font-size:18px; }
-    .meta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
-    .kpi { border:1px solid #e5e7eb; border-radius:14px; padding:10px; background:#fff; text-align:center; }
-    .kpi strong { display:block; font-size:16px; color:#111827; }
-    .kpi span { display:block; font-size:12px; color:#6b7280; font-weight:800; margin-top:3px; }
+  /* 2) Toujours garder une image pleine taille sans bouger */
+  .gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
-    .cta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 16px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 0;
-      overflow: visible;
-    }
+  /* 3) On réserve le bloc des miniatures (sinon elles apparaissent et poussent le contenu) */
+  .gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 12px;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    min-height: 92px;                 /* réserve de hauteur -> évite CLS */
+  }
 
-    .cbtn {
-      border:none;
-      border-radius:14px;
-      padding: 12px 14px;
-      font-weight:900;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      text-decoration:none;
-      width:100%;
-      line-height: 1.2;
-    }
+  /* 4) Thumbs stables */
+  .thumb {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f3f4f6;
+    aspect-ratio: 1 / 1;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb.is-active { border-color: rgba(255,107,0,.85); }
 
-    .cbtn.primary { background:#ff6b00; color:#fff; }
-    .cbtn.dark { background:#111827; color:#fff; }
+  /* 5) Nav stable */
+  .gallery-nav { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:space-between; padding:14px; }
+  .gbtn { pointer-events:all; width:44px; height:44px; border-radius:999px; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.30); color:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .gbtn:active { transform: translateY(1px); }
 
-    .cbtn.ghost {
-      grid-column: 1 / -1;
-      background:#ffffff !important;
-      color:#111827 !important;
-      border:2px solid #e5e7eb !important;
-      box-shadow: none !important;
-      position: relative;
-      z-index: 1;
-    }
+  /* 6) Sidebar: éviter que ça bouge quand le prix/CTA s'affichent */
+  aside.card { background:#ffffff !important; min-height: 420px; }
 
-    aside.card { background:#ffffff !important; }
+  .side-pad { padding:16px; }
+  .price { font-size:28px; font-weight:900; color:#111827; margin:0 0 8px; }
+  .meta-row { display:flex; align-items:center; gap:10px; color:#374151; margin-top:8px; }
+  .meta-row ion-icon { font-size:18px; }
+  .meta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .kpi { border:1px solid #e5e7eb; border-radius:14px; padding:10px; background:#fff; text-align:center; }
+  .kpi strong { display:block; font-size:16px; color:#111827; }
+  .kpi span { display:block; font-size:12px; color:#6b7280; font-weight:800; margin-top:3px; }
 
-    .content-pad { padding:16px; }
-    .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
-    .desc { margin:0; color:#374151; line-height:1.75; white-space:pre-line; }
+  /* 7) CTA stable */
+  .cta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 0;
+    overflow: visible;
+  }
 
-    /* ✅ Bloc SEO discret (texte utile pour Google, sans gêner l’utilisateur) */
-    .seo-box { margin-top: 18px; }
-    .seo-box .seo-pad { padding:16px; }
-    .seo-box h2 { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
-    .seo-box p { margin:0 0 10px; color:#4b5563; line-height:1.75; }
-    .seo-box ul { margin:0; padding-left:18px; color:#4b5563; line-height:1.75; }
-    .seo-box li { margin: 6px 0; }
+  .cbtn {
+    border:none;
+    border-radius:14px;
+    padding: 12px 14px;
+    font-weight:900;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    width:100%;
+    line-height: 1.2;
+  }
 
-    .backrow { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
-    .backrow a { text-decoration:none; }
+  .cbtn.primary { background:#ff6b00; color:#fff; }
+  .cbtn.dark { background:#111827; color:#fff; }
 
-    @media (max-width:980px){
-      .annonce-grid{grid-template-columns:1fr;}
-      .gallery-thumbs{grid-template-columns:repeat(5,1fr);}
-      .annonce-title{font-size:30px;}
-    }
+  .cbtn.ghost {
+    grid-column: 1 / -1;
+    background:#ffffff !important;
+    color:#111827 !important;
+    border:2px solid #e5e7eb !important;
+    box-shadow: none !important;
+    position: relative;
+    z-index: 1;
+  }
 
-    @media (max-width:640px){
-      .annonce-wrap{padding:105px 0 60px;}
-      .annonce-title{font-size:26px;}
-      .gallery-thumbs{grid-template-columns:repeat(4,1fr);}
-      .price{font-size:24px;}
-      .cta { grid-template-columns: 1fr; }
-      .cbtn.ghost { grid-column: auto; }
-    }
-  </style>
+  .content-pad { padding:16px; }
+  .h3t { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
+  .desc { margin:0; color:#374151; line-height:1.75; white-space:pre-line; }
+
+  /* ✅ Bloc SEO: réserver un minimum sinon le JS remplace et pousse */
+  .seo-box { margin-top: 18px; min-height: 220px; }
+  .seo-box .seo-pad { padding:16px; }
+  .seo-box h2 { margin:0 0 10px; font-size:18px; font-weight:900; color:#111827; }
+  .seo-box p { margin:0 0 10px; color:#4b5563; line-height:1.75; }
+  .seo-box ul { margin:0; padding-left:18px; color:#4b5563; line-height:1.75; }
+  .seo-box li { margin: 6px 0; }
+
+  .backrow { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
+  .backrow a { text-decoration:none; }
+
+  @media (max-width:980px){
+    .annonce-grid{grid-template-columns:1fr;}
+    .gallery-thumbs{grid-template-columns:repeat(5,1fr);}
+    .annonce-title{font-size:30px;}
+  }
+
+  @media (max-width:640px){
+    .annonce-wrap{padding:105px 0 60px;}
+    .annonce-title{font-size:26px;}
+    .gallery-main{min-height:220px;}
+    .gallery-thumbs{grid-template-columns:repeat(4,1fr); min-height: 84px;}
+    .price{font-size:24px;}
+    .cta { grid-template-columns: 1fr; }
+    .cbtn.ghost { grid-column: auto; }
+    aside.card { min-height: 360px; }
+    .seo-box { min-height: 200px; }
+  }
+</style>
 </head>
 
 <body>
@@ -207,19 +253,33 @@
 
       <!-- ✅ SEO texte + rassurance -->
       <section class="card seo-box" aria-label="informations annonce">
-        <div class="seo-pad" id="seoAnnonceBox">
-          <h2>À propos de ce bien</h2>
-          <p>
-            Chargement de l’annonce… Vous pourrez consulter les photos, le prix, la localisation et contacter rapidement via WhatsApp.
-          </p>
-        </div>
-      </section>
+  <div class="seo-pad" id="seoAnnonceBox">
+    <h2>À propos de ce bien</h2>
+    <p>
+      Chargement de l’annonce… Vous pourrez consulter les photos, le prix, la localisation et contacter rapidement via WhatsApp.
+    </p>
+  </div>
+</section>
 
-      <div class="backrow">
-        <a href="recherche.html" class="btn">Retour à la recherche</a>
-        <a href="locations.html" class="btn">Voir les locations</a>
-        <a href="ventes.html" class="btn">Voir les ventes</a>
-      </div>
+<!-- ✅ BIENS SIMILAIRES (SEO + maillage interne) -->
+<section class="section property" aria-label="biens similaires" style="padding-top:30px;">
+  <div class="container">
+    <h2 class="h2 section-title">Biens similaires</h2>
+    <p class="section-subtitle" style="margin-top:-6px;">
+      D’autres annonces proches de votre recherche (même zone, même type d’offre…).
+    </p>
+
+    <div id="similar-listings-container">
+      <p>Chargement des biens similaires...</p>
+    </div>
+  </div>
+</section>
+
+<div class="backrow">
+  <a href="recherche.html" class="btn">Retour à la recherche</a>
+  <a href="locations.html" class="btn">Voir les locations</a>
+  <a href="ventes.html" class="btn">Voir les ventes</a>
+</div>
 
     </div>
   </main>
