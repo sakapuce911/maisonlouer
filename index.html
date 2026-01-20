@@ -5,7 +5,36 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaisonLouer Madagascar - Trouvez votre bien</title>
+
+  <!-- ✅ SEO TITLE (mots-clés + intention) -->
+  <title>MaisonLouer Madagascar | Maisons & Appartements à louer et à vendre</title>
+
+  <!-- ✅ SEO META DESCRIPTION (CTR + conversion) -->
+  <meta name="description"
+    content="MaisonLouer Madagascar : trouvez rapidement une maison ou un appartement à louer ou à vendre à Antananarivo et partout à Madagascar. Filtres par ville, quartier, budget et chambres. Contact WhatsApp facile." />
+
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+
+  <!-- ✅ Canonical (avec ton domaine Vercel) -->
+  <link rel="canonical" href="https://maisonlouer.vercel.app/" />
+
+  <!-- ✅ Open Graph (Facebook/LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="MaisonLouer" />
+  <meta property="og:title" content="MaisonLouer Madagascar | Maisons & Appartements à louer et à vendre" />
+  <meta property="og:description"
+    content="Trouvez rapidement un bien à louer ou à vendre à Madagascar : filtres par ville, quartier, budget, type et chambres. Annonces claires + contact WhatsApp." />
+  <meta property="og:url" content="https://maisonlouer.vercel.app/" />
+  <meta property="og:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
+  <meta property="og:image:alt" content="MaisonLouer Madagascar - Annonces immobilières" />
+
+  <!-- ✅ Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MaisonLouer Madagascar | Maisons & Appartements à louer et à vendre" />
+  <meta name="twitter:description"
+    content="Trouvez un bien à louer ou à vendre à Madagascar. Filtres par zone, budget, type de bien et chambres." />
+  <meta name="twitter:image" content="https://maisonlouer.vercel.app/assets/images/og/og-home.jpg" />
 
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
@@ -72,6 +101,19 @@
     .pg-value-title { margin: 0 0 10px; font-size: 1.15rem; font-weight: 900; color: #111827; }
     .pg-value-text { margin: 0; font-size: 0.98rem; color: #6b7280; line-height: 1.55; }
 
+    /* ✅ Bloc SEO texte (discret mais utile pour Google) */
+    .home-seo { padding: 40px 0 10px; background: #fff; }
+    .home-seo h2 { font-size: 1.6rem; margin: 0 0 10px; color: #111827; font-weight: 900; letter-spacing: -0.01em; }
+    .home-seo p { margin: 0 0 12px; color: #4b5563; line-height: 1.75; font-size: 1rem; }
+    .home-seo .seo-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .home-seo .seo-links a {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 14px; border-radius: 999px;
+      border: 1px solid #e5e7eb; background: #fff; color: #111827;
+      font-weight: 700; text-decoration: none;
+    }
+    .home-seo .seo-links a:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.06); transform: translateY(-1px); }
+
     @media (max-width: 1020px) {
       .pg-values-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
@@ -81,6 +123,22 @@
       .pg-values-title { font-size: 1.9rem; }
     }
   </style>
+
+  <!-- ✅ Données structurées (Schema.org) : WebSite + SearchAction -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "MaisonLouer",
+      "url": "https://maisonlouer.vercel.app/",
+      "inLanguage": "fr",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://maisonlouer.vercel.app/recherche.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,14 +198,16 @@
 
       <!-- HERO STYLE PROPERTYGURU -->
       <section class="hero-pg" aria-label="hero">
-        <div class="hero-pg-bg" role="img" aria-label="Résidences"></div>
+        <div class="hero-pg-bg" role="img" aria-label="Résidences à Madagascar"></div>
 
         <div class="hero-pg-inner container">
 
           <div class="hero-pg-title">
-            <p class="hero-pg-kicker">MaisonLouer</p>
-            <h1 class="hero-pg-h1">Trouvez le bien idéal en quelques secondes</h1>
-            <p class="hero-pg-sub">Acheter ou louer : filtrez par zone, type et budget.</p>
+            <p class="hero-pg-kicker">MaisonLouer Madagascar</p>
+            <h1 class="hero-pg-h1">Maisons &amp; appartements à louer et à vendre à Madagascar</h1>
+            <p class="hero-pg-sub">
+              Recherchez par ville ou quartier (Antananarivo, Ivandry, Analakely…), filtrez par budget et contactez facilement.
+            </p>
           </div>
 
           <div class="hero-pg-box" id="home-search-box">
@@ -170,7 +230,7 @@
 
             <div class="hero-pg-filters">
               <div class="hero-chip">
-                <label>Type de bien</label>
+                <label for="home-type-bien">Type de bien</label>
                 <select id="home-type-bien">
                   <option value="">Tous</option>
                   <option value="maison">Maison</option>
@@ -181,12 +241,12 @@
               </div>
 
               <div class="hero-chip">
-                <label>Budget max (Ar)</label>
+                <label for="home-budget">Budget max (Ar)</label>
                 <input id="home-budget" type="number" placeholder="Ex : 1 500 000" />
               </div>
 
               <div class="hero-chip">
-                <label>Chambres</label>
+                <label for="home-chambres">Chambres</label>
                 <select id="home-chambres">
                   <option value="">Toutes</option>
                   <option value="1">1+</option>
@@ -210,42 +270,42 @@
         <div class="container">
           <div class="services-sim-head">
             <h2 class="services-sim-title">Une façon plus simple d’acheter, vendre et louer</h2>
-            <p class="services-sim-subtitle">Des annonces claires + des filtres efficaces = une meilleure expérience immobilière.</p>
+            <p class="services-sim-subtitle">Des annonces claires, des photos, et des filtres efficaces pour décider plus vite.</p>
           </div>
 
           <div class="services-sim-grid">
 
             <article class="services-sim-card">
               <div class="services-sim-illus">
-                <img src="./assets/images/service-rent.webp" alt="Louer un bien" width="600" height="400" loading="lazy">
+                <img src="./assets/images/service-rent.webp" alt="Louer une maison ou un appartement à Madagascar" width="600" height="400" loading="lazy">
               </div>
               <h3 class="services-sim-card-title">Louer</h3>
               <p class="services-sim-card-text">
-                Découvrez des locations selon votre budget : maison, appartement, et zones prioritaires.
+                Découvrez des locations selon votre budget : maison, appartement, et zones prioritaires à Antananarivo et ailleurs.
               </p>
-              <a class="services-sim-btn" href="locations.html" aria-label="Trouver des locations">Trouver des locations</a>
+              <a class="services-sim-btn" href="locations.html" aria-label="Trouver des maisons à louer">Trouver des locations</a>
             </article>
 
             <article class="services-sim-card">
               <div class="services-sim-illus">
-                <img src="./assets/images/service-buy.webp" alt="Acheter un bien" width="600" height="400" loading="lazy">
+                <img src="./assets/images/service-buy.webp" alt="Acheter un bien immobilier à Madagascar" width="600" height="400" loading="lazy">
               </div>
               <h3 class="services-sim-card-title">Acheter</h3>
               <p class="services-sim-card-text">
-                Trouvez un bien qui vous correspond : comparez les prix, la zone, et contactez facilement.
+                Comparez les prix, la zone et les caractéristiques, puis contactez facilement pour visiter.
               </p>
-              <a class="services-sim-btn" href="ventes.html" aria-label="Explorer les biens à vendre">Explorer les ventes</a>
+              <a class="services-sim-btn" href="ventes.html" aria-label="Voir les biens à vendre à Madagascar">Explorer les ventes</a>
             </article>
 
             <article class="services-sim-card">
               <div class="services-sim-illus">
-                <img src="./assets/images/service-contact.webp" alt="Nous contacter pour vendre" width="600" height="400" loading="lazy">
+                <img src="./assets/images/service-contact.webp" alt="Vendre un bien immobilier à Madagascar" width="600" height="400" loading="lazy">
               </div>
               <h3 class="services-sim-card-title">Estimer &amp; vendre</h3>
               <p class="services-sim-card-text">
-                Vous souhaitez vendre ? Contactez-nous pour vous accompagner (prix, diffusion, mise en avant).
+                Vous souhaitez vendre ? Nous vous accompagnons : estimation, mise en avant, diffusion et visibilité.
               </p>
-              <a class="services-sim-btn" href="contact.html" aria-label="Nous contacter pour vendre">Nous contacter</a>
+              <a class="services-sim-btn" href="contact.html" aria-label="Contacter MaisonLouer pour vendre un bien">Nous contacter</a>
             </article>
 
           </div>
@@ -286,7 +346,7 @@
         </div>
       </section>
 
-      <!-- ✅ NOS VALEURS (4 blocs alignés) -->
+      <!-- ✅ NOS VALEURS -->
       <section class="pg-values" aria-label="nos valeurs">
         <div class="container">
 
@@ -341,6 +401,28 @@
 
           </div>
 
+        </div>
+      </section>
+
+      <!-- ✅ TEXTE SEO -->
+      <section class="home-seo" aria-label="immobilier madagascar">
+        <div class="container">
+          <h2>Immobilier à Madagascar : louez ou achetez en toute simplicité</h2>
+          <p>
+            MaisonLouer vous aide à trouver rapidement une <strong>maison à louer</strong>, un <strong>appartement</strong> ou un <strong>terrain</strong>
+            à Madagascar. Notre objectif : des annonces claires, des photos, et des filtres utiles pour comparer facilement.
+          </p>
+          <p>
+            Vous cherchez à <strong>Antananarivo</strong> (Ivandry, Andraharo, Analakely, Ambatobe…) ou dans d’autres villes ?
+            Utilisez la recherche avancée pour filtrer par <strong>ville</strong>, <strong>quartier</strong>, <strong>budget</strong>, <strong>type de bien</strong> et <strong>chambres</strong>.
+          </p>
+
+          <div class="seo-links" aria-label="Liens rapides">
+            <a href="locations.html" aria-label="Voir toutes les locations"><ion-icon name="key-outline"></ion-icon> Locations</a>
+            <a href="ventes.html" aria-label="Voir toutes les ventes"><ion-icon name="pricetag-outline"></ion-icon> Ventes</a>
+            <a href="recherche.html" aria-label="Recherche avancée"><ion-icon name="search-outline"></ion-icon> Recherche avancée</a>
+            <a href="contact.html" aria-label="Contact MaisonLouer"><ion-icon name="chatbubble-ellipses-outline"></ion-icon> Contact</a>
+          </div>
         </div>
       </section>
 
