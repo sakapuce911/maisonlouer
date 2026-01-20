@@ -427,3 +427,297 @@
   .hero-pg-tabs { width: 100%; justify-content: center; }
   .hero-tab { padding: 10px 12px; font-size: 12.5px; }
 }
+/* =========================
+   File: assets/css/home-hero.css
+   Objectif:
+   - HERO style PropertyGuru sur index.html
+   - Optimisé LCP/CLS:
+     ✅ Image HERO en <img> (hero-pg-bg-img) positionnée comme un background cover
+     ✅ Hauteur réservée (min-height) pour limiter le CLS
+     ✅ Overlay lisible
+========================= */
+
+/* Conteneur principal du hero */
+.hero-pg {
+  position: relative;
+  overflow: hidden;
+  padding: 140px 0 80px; /* espace pour le header */
+  background: #0c1a2c;   /* fallback si image lente */
+}
+
+/* La div background (on la garde, mais elle est décorative) */
+.hero-pg-bg {
+  position: absolute;
+  inset: 0;
+  background: #0c1a2c;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ✅ NOUVEAU : image HERO (remplace le background en mode cover) */
+.hero-pg-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ✅ Overlay pour lisibilité (titre + box) */
+.hero-pg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(12, 26, 44, 0.82) 0%, rgba(12, 26, 44, 0.55) 55%, rgba(12, 26, 44, 0.82) 100%);
+}
+
+/* Contenu au-dessus de l'image */
+.hero-pg-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* Grille: titre à gauche + box à droite */
+.hero-pg-inner.container {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Bloc titres */
+.hero-pg-title {
+  max-width: 720px;
+}
+
+.hero-pg-kicker {
+  margin: 0 0 10px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-pg-h1 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.hero-pg-sub {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 16px;
+  line-height: 1.75;
+  max-width: 680px;
+}
+
+/* Box de recherche */
+.hero-pg-box {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+/* Tabs Acheter/Louer */
+.hero-pg-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.hero-tab {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 900;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.hero-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.hero-tab.is-active {
+  background: rgba(255, 107, 0, 0.10);
+  border-color: rgba(255, 107, 0, 0.35);
+  color: #111827;
+}
+
+/* Recherche principale */
+.hero-pg-main {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 12px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.hero-pg-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px 12px;
+  background: #ffffff;
+}
+
+.hero-pg-input ion-icon {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.hero-pg-input input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #111827;
+  background: transparent;
+}
+
+.hero-pg-btn {
+  border: none;
+  border-radius: 14px;
+  background: #ff6b00;
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.hero-pg-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
+}
+
+.hero-pg-btn:active {
+  transform: translateY(0px);
+}
+
+/* Filtres (3 blocs) */
+.hero-pg-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 14px;
+  padding-top: 0;
+  background: #ffffff;
+}
+
+.hero-chip {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+
+.hero-chip label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.hero-chip select,
+.hero-chip input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #111827;
+}
+
+/* Hint */
+.hero-pg-hint {
+  padding: 0 14px 16px;
+  background: #ffffff;
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.hero-pg-hint a {
+  color: #ff6b00;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.hero-pg-hint a:hover {
+  text-decoration: underline;
+}
+
+/* ✅ Réservation d'espace (anti-CLS) */
+@media (min-width: 981px) {
+  .hero-pg {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 980px) {
+  .hero-pg {
+    padding: 120px 0 70px;
+    min-height: 620px; /* un peu plus haut car tout passe en colonne */
+  }
+
+  .hero-pg-inner.container {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-pg-h1 {
+    font-size: 36px;
+  }
+
+  .hero-pg-sub {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-pg {
+    padding: 105px 0 60px;
+    min-height: 660px;
+  }
+
+  .hero-pg-h1 {
+    font-size: 30px;
+  }
+
+  .hero-pg-main {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-pg-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-pg-btn {
+    width: 100%;
+  }
+}
